@@ -52,4 +52,14 @@ public:
     void reveal() {
         isHiden = false;
     }
+    void drawBoundingBox(sf::RenderWindow& window) {
+        sf::RectangleShape boundingBoxShape;
+        boundingBoxShape.setSize(sf::Vector2f(boundingBox.width, boundingBox.height));
+        boundingBoxShape.setPosition(boundingBox.left, boundingBox.top);
+        boundingBoxShape.setFillColor(sf::Color::Transparent);  // Transparent fill
+        boundingBoxShape.setOutlineColor(sf::Color::Red);  // Red outline for visibility
+        boundingBoxShape.setOutlineThickness(2);  // Thickness of the outline
+
+        window.draw(boundingBoxShape);  // Draw the bounding box on the window
+    }
 };

@@ -85,10 +85,11 @@ void Character::drawTo(sf::RenderWindow& window) const {
         window.draw(sprite);
 }
 void Character::handleMovement(Map& gameMap, Enemy& enemy, int& num, bool& isMoving) {
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
         sf::Vector2f position = sprite.getPosition();
         sf::Vector2f newPosition = position + sf::Vector2f(0.03f, 0);
-        sf::FloatRect newBoundingBox(newPosition.x, newPosition.y, boundingBox.width, boundingBox.height);
+        sf::FloatRect newBoundingBox(newPosition.x + offsetX, newPosition.y + offsetY, boundingBox.width, boundingBox.height);
 
         if (!gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height) &&
             !enemy.checkCollision(newBoundingBox)) {
@@ -102,7 +103,7 @@ void Character::handleMovement(Map& gameMap, Enemy& enemy, int& num, bool& isMov
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
         sf::Vector2f position = sprite.getPosition();
         sf::Vector2f newPosition = position + sf::Vector2f(-0.03f, 0);
-        sf::FloatRect newBoundingBox(newPosition.x, newPosition.y, boundingBox.width, boundingBox.height);
+        sf::FloatRect newBoundingBox(newPosition.x + offsetX, newPosition.y + offsetY, boundingBox.width, boundingBox.height);
 
         if (!gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height) &&
             !enemy.checkCollision(newBoundingBox)) {
@@ -116,7 +117,7 @@ void Character::handleMovement(Map& gameMap, Enemy& enemy, int& num, bool& isMov
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
         sf::Vector2f position = sprite.getPosition();
         sf::Vector2f newPosition = position + sf::Vector2f(0, -0.03f);
-        sf::FloatRect newBoundingBox(newPosition.x, newPosition.y, boundingBox.width, boundingBox.height);
+        sf::FloatRect newBoundingBox(newPosition.x + offsetX, newPosition.y + offsetY, boundingBox.width, boundingBox.height);
 
         if (!gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height) &&
             !enemy.checkCollision(newBoundingBox)) {
@@ -130,7 +131,7 @@ void Character::handleMovement(Map& gameMap, Enemy& enemy, int& num, bool& isMov
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
         sf::Vector2f position = sprite.getPosition();
         sf::Vector2f newPosition = position + sf::Vector2f(0, 0.03f);
-        sf::FloatRect newBoundingBox(newPosition.x, newPosition.y, boundingBox.width, boundingBox.height);
+        sf::FloatRect newBoundingBox(newPosition.x + offsetX, newPosition.y + offsetY, boundingBox.width, boundingBox.height);
 
         if (!gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height) &&
             !enemy.checkCollision(newBoundingBox)) {

@@ -31,8 +31,8 @@ int main()
     //Enemy enemy2(240, 760, 100.0f, 0.1f, "../Assets/Character/mon1.png");
     // Optionally set a zoom level (1.5 zooms out slightly, showing more of the world)
     camera.setZoom(1.5f);
-    Enemy enemy;
-    enemy.loadTexture("../Assets/Character/Textures/demon1.png", 240, 960);
+    //Enemy goblin(EnemyType::Goblin);
+    Enemy golem(EnemyType::Golem);
     // Set up the game world size, e.g., 2000x2000 pixels
     sf::FloatRect worldBounds(0, 0, 2000, 2000);
     int num2 = 1;
@@ -58,8 +58,9 @@ int main()
         
         bool isMoving = false;
         bool isMoving1 = false;
-        enemy.handleMovement(gameMap, num2, isMoving1);
-        player.handleMovement(gameMap, enemy, num, isMoving);
+        golem.handleMovement(gameMap, num2, isMoving1);
+
+        player.handleMovement(gameMap, golem, num, isMoving);
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
             player.fightBow(num);
             isMoving = true;
@@ -71,14 +72,16 @@ int main()
         window.clear();
         gameMap.drawTo(window);
         //gameMap.drawWalls(window);
+
+        golem.drawTo(window);
         player.drawTo(window);
-        enemy.drawTo(window);
         /*window.draw(wall);
         window.draw(wall1);
         window.draw(wall2);
         window.draw(block);*/
         //window.draw(enemy.getSprite()); // Draw the enemy
         //window.draw(enemy2.getSprite());
+
         window.display();
     }
 
