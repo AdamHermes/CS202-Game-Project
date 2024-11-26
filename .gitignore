@@ -1,0 +1,55 @@
+# Build artifacts
+bin/
+obj/
+
+# Visual Studio workspace files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+.vs/
+
+# Compiler-generated files
+*.exe
+*.dll
+*.lib
+*.ilk
+*.pdb
+*.exp
+*.idb
+*.ipdb
+*.iobj
+*.log
+*.obj
+*.pch
+*.map
+
+# Temporary and backup files
+*.tmp
+*.temp
+*.log
+*.bak
+*.ncb
+*.opendb
+*.tlog
+
+# Debug and release folders
+Debug/
+Release/
+x64/
+x86/
+
+# Other IDE-specific files
+*.sln.ide
+*.vcxproj.user
+*.VC.opendb
+*.VC.db
+
+# Tiled map editor files (if applicable)
+*.tmx.cache
+
+# General temporary/system files
+*.swp
+*.DS_Store
+*.Thumbs.db
