@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "Character.h"
 #include <iostream>
 
 void Enemy::changePos(int direction) {
@@ -41,57 +42,52 @@ void Enemy::drawTo(sf::RenderWindow& window) const {
         window.draw(sprite);
 }
 
-void Enemy::handleMovement(Map& gameMap, int& num, bool& isMoving) {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-        sf::Vector2f position = sprite.getPosition();
-        sf::Vector2f newPosition = position + sf::Vector2f(0.03f, 0);
-        sf::FloatRect newBoundingBox(newPosition.x + offsetX, newPosition.y + offsetY, boundingBox.width, boundingBox.height);
+void Enemy::handleMovement(Map& gameMap, Character& player) {
+    sf::Vector2f enemyPosition = sprite.getPosition();
+    sf::Vector2f playerPosition = player.getSprite().getPosition(); 
+    sf::Vector2f direction = playerPosition - enemyPosition;
 
-        if (!gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height)) {
-            sprite.setPosition(newPosition);
-            updateBoundingBox();
-        }
-        num = 3;
-        changePos(num); // Face right
-        isMoving = true;
+    // Calculate the normalized direction vector
+    
+    float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (magnitude > 200) return;
+    if (magnitude == 0) return; // Prevent division by zero
+
+    direction /= magnitude; // Normalize the direction vector
+
+    // Move the enemy incrementally
+    sf::Vector2f newPosition = enemyPosition + direction * 0.01f;
+    sf::FloatRect newBoundingBox(newPosition.x + offsetX, newPosition.y + offsetY, boundingBox.width, boundingBox.height);
+
+    bool collidesWithMap = gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
+    bool collidesWithPlayer = player.checkCollision(newBoundingBox);
+
+    if (!collidesWithMap && !collidesWithPlayer) {
+        sprite.setPosition(newPosition);
+        updateBoundingBox();
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-        sf::Vector2f position = sprite.getPosition();
-        sf::Vector2f newPosition = position + sf::Vector2f(-0.03f, 0);
-        sf::FloatRect newBoundingBox(newPosition.x + offsetX, newPosition.y + offsetY, boundingBox.width, boundingBox.height);
-
-        if (!gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height)) {
-            sprite.setPosition(newPosition);
-            updateBoundingBox();
-        }
-        num = 4;
-        changePos(num); // Face left
-        isMoving = true;
+    else if (collidesWithPlayer) {
+        sf::Vector2f pushback = -direction * 0.02f;
+        sprite.setPosition(enemyPosition + pushback);
+        updateBoundingBox();
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-        sf::Vector2f position = sprite.getPosition();
-        sf::Vector2f newPosition = position + sf::Vector2f(0, -0.03f);
-        sf::FloatRect newBoundingBox(newPosition.x + offsetX, newPosition.y + offsetY, boundingBox.width, boundingBox.height);
 
-        if (!gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height)) {
-            sprite.setPosition(newPosition);
-            updateBoundingBox();
+    // Change the monster's facing direction based on movement
+    if (std::abs(direction.x) > std::abs(direction.y)) {
+        if (direction.x > 0) {
+            changePos(3); // Face right
         }
-        num = 2;
-        changePos(num); // Face up
-        isMoving = true;
+        else {
+            changePos(4); // Face left
+        }
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-        sf::Vector2f position = sprite.getPosition();
-        sf::Vector2f newPosition = position + sf::Vector2f(0, 0.03f);
-        sf::FloatRect newBoundingBox(newPosition.x + offsetX, newPosition.y + offsetY, boundingBox.width, boundingBox.height);
-
-        if (!gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height)) {
-            sprite.setPosition(newPosition);
-            updateBoundingBox();
+    else {
+        if (direction.y > 0) {
+            changePos(1); // Face down
         }
-        num = 1;
-        changePos(num); // Face down
-        isMoving = true;
+        else {
+            changePos(2); // Face up
+        }
     }
 }
+

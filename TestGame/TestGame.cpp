@@ -23,9 +23,10 @@ int main()
     /*if (!gameMap.loadTileAndObjectLayers("../Assets/Character/TMX MAP/draft.tmx")) {
         return -1;
     }*/
-    player.loadTexture("../Assets/Character/Textures/characters.png", 340, 960 );
-    player.updateBoundingBox();
     int num = 2;
+    player.loadTexture("../Assets/Character/Textures/characters.png",false, num,740, 1000 );
+    player.updateBoundingBox();
+    player.equipWeapon(WeaponType::Sword);
     Camera camera(720, 480);
     //Enemy enemy(340, 760, 100.0f, 0.1f, "../Assets/Character/Test/warrior1.png");
     //Enemy enemy2(240, 760, 100.0f, 0.1f, "../Assets/Character/mon1.png");
@@ -37,6 +38,7 @@ int main()
     sf::FloatRect worldBounds(0, 0, 2000, 2000);
     int num2 = 1;
     camera.setWorldBounds(worldBounds);
+    bool isFighting = false;
     while (window.isOpen())
     {
         sf::Event event;
@@ -50,7 +52,10 @@ int main()
         sf::Vector2f playerPosition = player.getSprite().getPosition();
         //enemy.update(deltaTime);
         // Update camera based on player position
-        camera.update(playerPosition);
+        if (!isFighting) {
+            camera.update(playerPosition);
+        }
+
         
         // Clear, apply camera view, draw everything, display
         window.clear();
@@ -58,15 +63,26 @@ int main()
         
         bool isMoving = false;
         bool isMoving1 = false;
-        golem.handleMovement(gameMap, num2, isMoving1);
+        golem.handleMovement(gameMap, player);
 
-        player.handleMovement(gameMap, golem, num, isMoving);
+ 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-            player.fightBow(num);
-            isMoving = true;
+            isFighting = true;
+            isMoving = false;
+        }
+        else {
+            isFighting = false;
+        }
+        player.updateState(isFighting,num);
+
+        if (isFighting) {
+            player.fightSword(num, golem);
+        }
+        else {
+            player.handleMovement(gameMap, golem, num, isMoving);
         }
         //if (!isMoving) {
-        //    // Reset animation if no key is pressed
+        //    // Reset animation if no key is pressed   
         //    player.resetAnimation();
         //}
         window.clear();
@@ -75,6 +91,8 @@ int main()
 
         golem.drawTo(window);
         player.drawTo(window);
+        golem.drawBoundingBox(window);
+        player.drawBoundingBox(window);
         /*window.draw(wall);
         window.draw(wall1);
         window.draw(wall2);

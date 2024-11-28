@@ -4,26 +4,29 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "Map.h"
-#include "Enemy.h"
+#include "Weapon.h"
 using namespace std;
+class Enemy;
 class Character {
 private:
     double health, mana;
-
+    Weapon* equippedWeapon;
     bool isMoving = false;
     sf::Sprite sprite;
+    bool isFighting;
     sf::Texture texture;
     bool isHiden = false;
     int currentFrame = 0;
     float frameDuration = 0.1f;
     sf::Clock animationClock;
     enum Direction {
-        Up = 2,
-        Down = 1,
-        Left = 4,
+        Up = 0,
+        Down = 2,
+        Left = 1,
         Right = 3
     };
-
+    sf::Clock attackCooldownClock;  
+    float attackCooldown = 0.5f;
 public:
     sf::FloatRect boundingBox;
     float offsetX = (64 - 33) / 2;
@@ -35,8 +38,8 @@ public:
         sf::Vector2f position = sprite.getPosition();
         boundingBox = sf::FloatRect(position.x + offsetX, position.y + offsetY, 33, 52);
     }
-    
-
+    bool checkCollision(const sf::FloatRect& otherBox) const;
+    void equipWeapon(WeaponType type);
     void changePos(int direction);
     void resetAnimation() {
         currentFrame = 0;
@@ -44,7 +47,8 @@ public:
     void handleMovement(Map& gameMap, Enemy& enemy, int& num, bool& isMoving);
     void fight(int direction);
     void fightBow(int direction);
-    void loadTexture(std::string filename, float x, float y);
+    void fightSword(int direction, Enemy& enemy);
+    void loadTexture(const std::string& path, bool isBig, int num, float x, float y);
     void drawTo(sf::RenderWindow& window) const;
     void hide() {
         isHiden = true;
@@ -62,4 +66,6 @@ public:
 
         window.draw(boundingBoxShape);  // Draw the bounding box on the window
     }
+    void updateState(bool fighting,int num);
+    void adjustPositionForNewSize(int oldWidth, int oldHeight, int newWidth, int newHeight);
 };

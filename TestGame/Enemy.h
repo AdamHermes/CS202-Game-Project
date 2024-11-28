@@ -4,6 +4,8 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "Map.h"
+
+class Character;
 enum class EnemyType {
     Goblin,
     Demon,
@@ -11,6 +13,8 @@ enum class EnemyType {
 };
 class Enemy {
 private:
+    float health = 100;
+    bool alive;
     sf::Sprite sprite;
     sf::Texture texture;
     bool isHiden = false;
@@ -27,10 +31,22 @@ private:
     };
 
 public:
+    int getHealth() {
+        return health;
+    }
     sf::FloatRect boundingBox;
     float offsetX = (64 - 32) / 2;
     float offsetY = 0;
+    void takeDamage(float damage) {
+        health -= damage;
+        cout << health;
+        if (health <= 0) {
+            cout << "Golem Death." << endl;
+        }
+        alive = false;
+    }
     Enemy(EnemyType type) {
+        alive = true;
         enemyType = type;
         switch (type) {
         case EnemyType::Goblin:
@@ -41,7 +57,7 @@ public:
             loadTexture("../Assets/Character/Enemies/demon1.png", 440, 960);
         case EnemyType::Golem:
             totalFrames = 7;
-            loadTexture("../Assets/Character/Enemies/golem.png", 440, 960);
+            loadTexture("../Assets/Character/Enemies/golem.png", 240, 960);
         }
     }
     void updateBoundingBox() {
@@ -54,7 +70,7 @@ public:
     void changePos(int direction);
     void loadTexture(std::string filename, float x, float y);
     void drawTo(sf::RenderWindow& window) const;
-    void handleMovement(Map& gameMap,int& direction, bool& isMoving);
+    void handleMovement(Map& gameMap, Character& player);
     void drawBoundingBox(sf::RenderWindow& window) {
         sf::RectangleShape boundingBoxShape;
         boundingBoxShape.setSize(sf::Vector2f(boundingBox.width, boundingBox.height));
