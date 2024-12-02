@@ -137,6 +137,7 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Golem.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="TestGame.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
@@ -145,8 +146,12 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="Demon.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyFactory.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Goblin.h" />
+    <ClInclude Include="Golem.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="Weapon.h" />

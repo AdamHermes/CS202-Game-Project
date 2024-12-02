@@ -11,26 +11,36 @@ enum class EnemyType {
     Demon,
     Golem
 };
+enum class EnemyState {
+    Moving,
+    Fighting
+};
 class Enemy {
-private:
-    float health = 100;
+protected:
+    EnemyState state = EnemyState::Moving;
+    float health;
     bool alive;
     sf::Sprite sprite;
     sf::Texture texture;
     bool isHiden = false;
     int totalFrames = 0;
     int currentFrame = 0;
-    float frameDuration = 0.1f;
+    float frameDuration = 0.0f;
     sf::Clock animationClock;
-    EnemyType enemyType;
-    enum Direction {
-        Up = 2,
-        Down = 1,
-        Left = 4,
-        Right = 3
-    };
 
+    enum Direction {
+        Up = 1,
+        Down = 0,
+        Left = 3,
+        Right = 2
+    };
+    sf::Clock attackCooldownClock;
+    float attackCooldown = 0.0f;
+    float patrolAngle = 0.0f;
 public:
+    EnemyType enemyType;
+    void setState(EnemyState newState) { state = newState; }
+    EnemyState getState() const { return state; }
     int getHealth() {
         return health;
     }
@@ -39,30 +49,21 @@ public:
     float offsetY = 0;
     void takeDamage(float damage) {
         health -= damage;
-        cout << health;
+        cout << "Dam" << health;
         if (health <= 0) {
-            cout << "Golem Death." << endl;
-        }
-        alive = false;
-    }
-    Enemy(EnemyType type) {
-        alive = true;
-        enemyType = type;
-        switch (type) {
-        case EnemyType::Goblin:
-            totalFrames = 11;
-            loadTexture("../Assets/Character/Enemies/goblin.png", 240, 960);
-        case EnemyType::Demon:
-            totalFrames = 4;
-            loadTexture("../Assets/Character/Enemies/demon1.png", 440, 960);
-        case EnemyType::Golem:
-            totalFrames = 7;
-            loadTexture("../Assets/Character/Enemies/golem.png", 240, 960);
+            alive = false;
         }
     }
+    Enemy(EnemyType type) : alive(true), enemyType(type) {}
     void updateBoundingBox() {
         sf::Vector2f position = sprite.getPosition();
-        boundingBox = sf::FloatRect(position.x + offsetX, position.y + offsetY, 32, 64);
+        if (enemyType == EnemyType::Demon) {
+            boundingBox = sf::FloatRect(position.x - 32.0f + offsetX + 12.0f, position.y - 32.0f + offsetY + 24.0f, 8, 16);
+        }
+        else {
+            boundingBox = sf::FloatRect(position.x - 32.0f + offsetX, position.y - 32.0f + offsetY, 32, 64);
+
+        }
     }
     bool checkCollision(const sf::FloatRect& otherBox) const {
         return boundingBox.intersects(otherBox);
@@ -81,4 +82,8 @@ public:
 
         window.draw(boundingBoxShape);  // Draw the bounding box on the window
     }
+    void randomPatrol(Map& gameMap);
+    virtual ~Enemy() = default;
+    virtual void fighting(int direction, Character& player) = 0;
+
 };

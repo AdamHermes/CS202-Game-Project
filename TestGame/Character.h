@@ -9,7 +9,8 @@ using namespace std;
 class Enemy;
 class Character {
 private:
-    double health, mana;
+    float health = 100;
+    bool alive;
     Weapon* equippedWeapon;
     bool isMoving = false;
     sf::Sprite sprite;
@@ -28,6 +29,17 @@ private:
     sf::Clock attackCooldownClock;  
     float attackCooldown = 0.5f;
 public:
+    void takeDamage(float damage) {
+        health -= damage;
+        cout << health;
+        if (health <= 0) {
+            cout << "Player dead" << endl;
+        }
+        alive = false;
+    }
+    bool getisFighting() {
+        return isFighting;
+    }
     sf::FloatRect boundingBox;
     float offsetX = (64 - 33) / 2;
     float offsetY = (64 - 52);
@@ -36,18 +48,28 @@ public:
     }
     void updateBoundingBox() {
         sf::Vector2f position = sprite.getPosition();
-        boundingBox = sf::FloatRect(position.x + offsetX, position.y + offsetY, 33, 52);
+
+        // Adjust offsets based on texture size
+        if (sprite.getTextureRect().width == 192) {
+            // Fighting sprite
+            boundingBox = sf::FloatRect(position.x - 32.0f + offsetX, position.y - 32.0f + offsetY,33, 52);
+        }
+        else if (sprite.getTextureRect().width == 64) {
+            // Walking sprite
+            boundingBox = sf::FloatRect(position.x - 32.0f + offsetX,position.y - 32.0f + offsetY, 33, 52);
+        }
     }
+
     bool checkCollision(const sf::FloatRect& otherBox) const;
     void equipWeapon(WeaponType type);
     void changePos(int direction);
     void resetAnimation() {
         currentFrame = 0;
     }
-    void handleMovement(Map& gameMap, Enemy& enemy, int& num, bool& isMoving);
+    void handleMovement(Map& gameMap, Enemy*& enemy, int& num, bool& isMoving);
     void fight(int direction);
     void fightBow(int direction);
-    void fightSword(int direction, Enemy& enemy);
+    void fightSword(int direction, Enemy*& enemy);
     void loadTexture(const std::string& path, bool isBig, int num, float x, float y);
     void drawTo(sf::RenderWindow& window) const;
     void hide() {
