@@ -28,7 +28,7 @@ void Golem::fighting(int direction, Character& player) {
     
     if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
 
-        player.takeDamage(5);
+        manager->notify("EnemyAttack", 5);
 
         attackCooldownClock.restart(); 
     }

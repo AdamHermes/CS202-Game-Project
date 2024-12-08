@@ -4,18 +4,20 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "Map.h"
-
+#include "GameEntity.h"
 class Character;
 enum class EnemyType {
+    Frogman,
     Goblin,
     Demon,
-    Golem
+    Golem,
+    Sunflower
 };
 enum class EnemyState {
     Moving,
     Fighting
 };
-class Enemy {
+class Enemy : public GameEntity {
 protected:
     EnemyState state = EnemyState::Moving;
     float health;
@@ -27,7 +29,7 @@ protected:
     int currentFrame = 0;
     float frameDuration = 0.0f;
     sf::Clock animationClock;
-
+    float opacity = 255.0f;
     enum Direction {
         Up = 1,
         Down = 0,
@@ -37,7 +39,14 @@ protected:
     sf::Clock attackCooldownClock;
     float attackCooldown = 0.0f;
     float patrolAngle = 0.0f;
+    float directionCooldown = 0.0f;
+    bool removed = false;
+    float speed = 0.01f;
 public:
+    
+    bool isRemoved() const {
+        return removed;
+    }
     EnemyType enemyType;
     void setState(EnemyState newState) { state = newState; }
     EnemyState getState() const { return state; }
@@ -54,20 +63,34 @@ public:
             alive = false;
         }
     }
-    Enemy(EnemyType type) : alive(true), enemyType(type) {}
+    Enemy(EnemyType type) : alive(true), enemyType(type), health(0) {}
     void updateBoundingBox() {
+        if (!alive) {
+            // Set bounding box to an invalid area when enemy is dead
+            boundingBox = sf::FloatRect(0, 0, 0, 0);
+            return;
+        }
         sf::Vector2f position = sprite.getPosition();
         if (enemyType == EnemyType::Demon) {
             boundingBox = sf::FloatRect(position.x - 32.0f + offsetX + 12.0f, position.y - 32.0f + offsetY + 24.0f, 8, 16);
+        }
+        else if (enemyType == EnemyType::Frogman) {
+            boundingBox = sf::FloatRect(position.x - 24.0f + offsetX, position.y  + offsetY, 32, 12);
+        }
+        else if (enemyType == EnemyType::Sunflower) {
+            boundingBox = sf::FloatRect(position.x - 32.0f, position.y -32.0f+ offsetY, 32, 64);
+
         }
         else {
             boundingBox = sf::FloatRect(position.x - 32.0f + offsetX, position.y - 32.0f + offsetY, 32, 64);
 
         }
+
     }
     bool checkCollision(const sf::FloatRect& otherBox) const {
         return boundingBox.intersects(otherBox);
     }
+    void updateDead();
     void changePos(int direction);
     void loadTexture(std::string filename, float x, float y);
     void drawTo(sf::RenderWindow& window) const;

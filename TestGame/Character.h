@@ -5,9 +5,10 @@
 #include <vector>
 #include "Map.h"
 #include "Weapon.h"
+#include "GameEntity.h"
 using namespace std;
 class Enemy;
-class Character {
+class Character : public GameEntity {
 private:
     float health = 100;
     bool alive;
@@ -26,6 +27,8 @@ private:
         Left = 1,
         Right = 3
     };
+    sf::Sprite healthsprite;
+    sf::Texture healthtexture;
     sf::Clock attackCooldownClock;  
     float attackCooldown = 0.5f;
 public:
@@ -41,6 +44,7 @@ public:
         return isFighting;
     }
     sf::FloatRect boundingBox;
+    sf::FloatRect attackRangeBox;
     float offsetX = (64 - 33) / 2;
     float offsetY = (64 - 52);
     sf::Sprite getSprite() {
@@ -58,18 +62,28 @@ public:
             // Walking sprite
             boundingBox = sf::FloatRect(position.x - 32.0f + offsetX,position.y - 32.0f + offsetY, 33, 52);
         }
+        
     }
-
+    /*void showHealthBar() {
+        string path = "../Assets/Character/Textures/health_bar.png";
+        if (healthtexture.loadFromFile(path)) {
+            healthsprite.setTexture(healthtexture);
+            healthsprite.setTextureRect(sf::IntRect(0, 847, 468, ));
+        }
+        else {
+            std::cerr << "Failed to load texture: " << path << std::endl;
+        }
+    }*/
     bool checkCollision(const sf::FloatRect& otherBox) const;
     void equipWeapon(WeaponType type);
     void changePos(int direction);
     void resetAnimation() {
         currentFrame = 0;
     }
-    void handleMovement(Map& gameMap, Enemy*& enemy, int& num, bool& isMoving);
+    void handleMovement(Map& gameMap, const std::vector<std::shared_ptr<Enemy>>& enemies, int& num, bool& isMoving);
     void fight(int direction);
     void fightBow(int direction);
-    void fightSword(int direction, Enemy*& enemy);
+    void fightSword(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies);
     void loadTexture(const std::string& path, bool isBig, int num, float x, float y);
     void drawTo(sf::RenderWindow& window) const;
     void hide() {

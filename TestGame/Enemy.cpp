@@ -3,18 +3,22 @@
 #include <iostream>
 
 void Enemy::changePos(int direction) {
-    const int frameWidth = 64;   // Width of a single frame
-    const int frameHeight = 64; // Height of a single frame  
-
+    int frameWidth = 64;   // Width of a single frame
+    int frameHeight = 64; // Height of a single frame  
+    if (enemyType == EnemyType::Frogman) {
+        frameWidth = 80;
+        frameHeight = 96;
+    }
+    else if (enemyType == EnemyType::Sunflower) {
+        frameWidth = 128;
+        frameHeight = 128;
+    }
     // Update the current frame based on elapsed time
     if (animationClock.getElapsedTime().asSeconds() > frameDuration) {
         currentFrame = (currentFrame + 1) % totalFrames; // Loop through frames
         animationClock.restart();  // Restart clock for the next frame
     }
     int var = 0;
-    if (enemyType == EnemyType::Demon) {
-        var = 256;
-    }
     if (direction == Right) {
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, var + direction * frameHeight, frameWidth, frameHeight));
     }
@@ -37,15 +41,29 @@ void Enemy::loadTexture(std::string filename, float x, float y) {
         std::cout << "Load Failed\n";
     }
     sprite.setTexture(texture);
-    sprite.setTextureRect(sf::IntRect(0, 0, 64, 64)); // Default frame
+    if (enemyType == EnemyType::Frogman) {
+        sprite.setTextureRect(sf::IntRect(0, 0, 80, 96)); 
+    }
+    else if (enemyType == EnemyType::Sunflower) {
+        sprite.setTextureRect(sf::IntRect(0, 0, 128, 128));
+    }
+    else sprite.setTextureRect(sf::IntRect(0, 0, 64, 64)); // Default frame
     sprite.setOrigin(32.0f, 32.0f); // Set origin to the center (192/2)
+    if (enemyType == EnemyType::Frogman) {
+        sprite.setOrigin(40, 48); // Set origin to the center (192/2)
+
+    }
+    else if (enemyType == EnemyType::Sunflower) {
+        sprite.setOrigin(64, 64);
+    }
     sprite.setPosition(x, y);
 }
 
 void Enemy::drawTo(sf::RenderWindow& window) const {
-    if (!isHiden)
+    if (opacity > 0)
         window.draw(sprite);
 }
+
 int getFighitngDirection(sf::Vector2f direction) {
     if (std::abs(direction.x) > std::abs(direction.y)) {
         if (direction.x > 0) {
@@ -74,7 +92,7 @@ void Enemy::handleMovement(Map& gameMap, Character& player) {
 
     float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     if (magnitude > 200) {
-        randomPatrol(gameMap);
+        //randomPatrol(gameMap);
         return;
     }
     if (magnitude == 0) return; // Prevent division by zero
@@ -82,12 +100,20 @@ void Enemy::handleMovement(Map& gameMap, Character& player) {
     direction /= magnitude; // Normalize the direction vector
 
     // Move the enemy incrementally
-    sf::Vector2f newPosition = enemyPosition + direction * 0.01f;
-
+    
+    sf::Vector2f newPosition = enemyPosition + direction * speed;
+    
     sf::FloatRect newBoundingBox(newPosition.x - 32.0f + offsetX, newPosition.y - 32.0f + offsetY, boundingBox.width, boundingBox.height);
     if (enemyType == EnemyType::Demon) {
         newBoundingBox.left += 12.0f;
         newBoundingBox.top += 24.0f;
+    }
+    else if (enemyType == EnemyType::Frogman) {
+        newBoundingBox.left += 8.0f;
+        newBoundingBox.top += 32.0f;
+    }
+    else if (enemyType == EnemyType::Sunflower) {
+        newBoundingBox.left -= 16.0f;
     }
     bool collidesWithMap = gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
     bool collidesWithPlayer = player.checkCollision(newBoundingBox);
@@ -102,7 +128,7 @@ void Enemy::handleMovement(Map& gameMap, Character& player) {
         else if (collidesWithPlayer) {
 
             if (gameMap.checkCollision(player.boundingBox.left, player.boundingBox.top, player.boundingBox.width, player.boundingBox.height)) {
-                sf::Vector2f overlap = enemyPosition - player.getSprite().getPosition();
+                sf::Vector2f overlap = enemyPosition - player.getSprite().getPosition();    
                 float overlapMagnitude = std::sqrt(overlap.x * overlap.x + overlap.y * overlap.y);
 
                 if (overlapMagnitude != 0) {
@@ -111,7 +137,7 @@ void Enemy::handleMovement(Map& gameMap, Character& player) {
                     updateBoundingBox();
                 }
             }
-            if (enemyType == EnemyType::Golem) {
+            if (enemyType == EnemyType::Golem || enemyType == EnemyType::Frogman || enemyType == EnemyType::Demon) {
                 setState(EnemyState::Fighting);
 
             }
@@ -120,7 +146,14 @@ void Enemy::handleMovement(Map& gameMap, Character& player) {
 
         }
         if (getState() == EnemyState::Moving) {
-            sprite.setOrigin(32.0f, 32.0f);
+            sprite.setOrigin(32.0f, 32.0f); // Set origin to the center (192/2)
+            if (enemyType == EnemyType::Frogman) {
+                sprite.setOrigin(40, 48); // Set origin to the center (192/2)
+
+            }
+            else if (enemyType == EnemyType::Sunflower) {
+                sprite.setOrigin(64, 64);
+            }
 
             if (std::abs(direction.x) > std::abs(direction.y)) {
                 if (direction.x > 0) {
@@ -140,60 +173,34 @@ void Enemy::handleMovement(Map& gameMap, Character& player) {
             }
         }
     }
-    else {
-        // Collision with map: Reverse the direction of movement
-        direction = -direction;  // Reverse the direction
-
-        // Move in the opposite direction
-        sf::Vector2f oppositePosition = enemyPosition + direction * 0.01f;
-
-        // Update bounding box and check for collisions again
-        sf::FloatRect oppositeBoundingBox(oppositePosition.x - 32.0f + offsetX, oppositePosition.y - 32.0f + offsetY, boundingBox.width, boundingBox.height);
-        if (enemyType == EnemyType::Demon) {
-            oppositeBoundingBox.left += 12.0f;
-            oppositeBoundingBox.top += 24.0f;
+}
+void Enemy::updateDead() {
+    if (!alive && opacity > 0) {
+        // Gradually decrease opacity
+        opacity -= 100.0f * 0.01f;// Adjust fading speed
+        if (opacity < 0) {
+            opacity = 0; // Clamp to 0
         }
 
-        // Check for collisions with map again after reversing direction
-        bool collidesWithOppositeMap = gameMap.checkCollision(oppositeBoundingBox.left, oppositeBoundingBox.top, oppositeBoundingBox.width, oppositeBoundingBox.height);
-
-        if (!collidesWithOppositeMap) {
-            // Move to the new position in the opposite direction
-            sprite.setPosition(oppositePosition);
-            updateBoundingBox();
-            setState(EnemyState::Moving);
-        }
-        else {
-            // If still colliding with the map after reversal, do nothing or handle as necessary
-        }
-
-        // Update the sprite's facing direction based on the new movement direction (optional)
-        sprite.setOrigin(32.0f, 32.0f);
-
-        if (std::abs(direction.x) > std::abs(direction.y)) {
-            if (direction.x > 0) {
-                changePos(2); // Face right
-            }
-            else {
-                changePos(3); // Face left
-            }
-        }
-        else {
-            if (direction.y > 0) {
-                changePos(0); // Face down
-            }
-            else {
-                changePos(1); // Face up
-            }
-        }
+        // Apply new opacity to the sprite
+        sf::Color color = sprite.getColor();
+        color.a = static_cast<sf::Uint8>(opacity); // Cast to Uint8 for SFML
+        sprite.setColor(color);
+    }
+    else if (!alive && opacity <= 0){
+        removed = true;
     }
 }
 void Enemy::randomPatrol(Map& gameMap) {
-    static bool justReversed = false;
+    // Decrease the cooldown time each frame
+    if (directionCooldown > 0.0f) {
+        directionCooldown -= 0.05f;  // Adjust this value for the desired cooldown duration
+    }
+
     sf::Vector2f enemyPosition = sprite.getPosition();
     // Patrol parameters
-    float patrolRadius = 10000.0f;  // Radius of the patrol circle
-    float patrolSpeed = 0.0002f;    // Speed at which the enemy moves along the circle
+    float patrolRadius = 100.0f;  // Radius of the patrol circle
+    float patrolSpeed = 0.0001f;    // Speed at which the enemy moves along the circle  
 
     // Update the patrol angle over time for continuous circular motion
     patrolAngle += patrolSpeed;  // Increase the angle
@@ -218,10 +225,10 @@ void Enemy::randomPatrol(Map& gameMap) {
     // Normalize the direction
     direction /= magnitude;
 
-    // Move towards the patrol target
+    // Calculate the next position based on the direction
     sf::Vector2f newPosition = enemyPosition + direction * 0.01f;
 
-    // Check for collisions with the map while patrolling
+    // Check for collisions with the map at the new position
     sf::FloatRect newBoundingBox(newPosition.x - 32.0f + offsetX, newPosition.y - 32.0f + offsetY, boundingBox.width, boundingBox.height);
     bool collidesWithMap = gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
 
@@ -229,6 +236,7 @@ void Enemy::randomPatrol(Map& gameMap) {
         sprite.setPosition(newPosition);
         updateBoundingBox();
         setState(EnemyState::Moving);
+
         // Patrol logic (face direction)
         if (getState() == EnemyState::Moving) {
             sprite.setOrigin(32.0f, 32.0f);
@@ -252,10 +260,10 @@ void Enemy::randomPatrol(Map& gameMap) {
         }
     }
     else {
-        if (justReversed) {
-            return;
-        }
+        // If the cooldown is active, don't attempt to change direction
+        if (directionCooldown > 0.0f) return;
 
+        // Handle collision by trying to adjust movement direction
         int currentDirection = getFighitngDirection(direction);
         switch (currentDirection) {
         case Up:
@@ -272,6 +280,7 @@ void Enemy::randomPatrol(Map& gameMap) {
             break;
         }
 
+        // New direction after adjustment
         sf::Vector2f newDirection;
         switch (currentDirection) {
         case Up:
@@ -288,6 +297,7 @@ void Enemy::randomPatrol(Map& gameMap) {
             break;
         }
 
+        // Move in the adjusted direction
         sf::Vector2f oppositePosition = enemyPosition + newDirection * 0.01f;
 
         sf::FloatRect oppositeBoundingBox(oppositePosition.x - 32.0f + offsetX, oppositePosition.y - 32.0f + offsetY, boundingBox.width, boundingBox.height);
@@ -302,10 +312,6 @@ void Enemy::randomPatrol(Map& gameMap) {
             sprite.setPosition(oppositePosition);
             updateBoundingBox();
             setState(EnemyState::Moving);
-            justReversed = true;  // Mark as just reversed
-        }
-        else {
-            justReversed = false;  
         }
 
         sprite.setOrigin(32.0f, 32.0f);
@@ -327,10 +333,11 @@ void Enemy::randomPatrol(Map& gameMap) {
             }
         }
 
-        // Reset the flag after a short delay (optional)
-        justReversed = false; // For now, we reset immediately
+        // Set the cooldown after a direction change
+        directionCooldown = 0.2f;  // Adjust the cooldown time as needed
     }
 }
+
 
 
 

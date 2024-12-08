@@ -7,13 +7,19 @@
 #include "Camera.h"
 #include "Enemy.h"
 #include "EnemyFactory.h"
+#include "Game.h"
+#include "GameEntity.h"
+#include "DamageManager.h"
 using namespace std;
 
 
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(1500, 1000), "RPG GAME");
-    Character player;    
+
+
+    // Create the player character
+    Character player;
     Map gameMap;
     if (!gameMap.loadTexture("../Assets/Character/Textures/map0.png")) {
         return -1; // Exit if texture fails to load
@@ -25,7 +31,7 @@ int main()
         return -1;
     }*/
     int num = 2;
-    player.loadTexture("../Assets/Character/Textures/characters.png",false, num,800, 1040 );
+    player.loadTexture("../Assets/Character/Textures/characters.png",false, num,260, 380 );
     player.updateBoundingBox();
     player.equipWeapon(WeaponType::Sword);
     Camera camera(720, 480);
@@ -34,13 +40,20 @@ int main()
     // Optionally set a zoom level (1.5 zooms out slightly, showing more of the world)
     camera.setZoom(1.5f);
     //Enemy goblin(EnemyType::Goblin);
-    Enemy* enemy = EnemyFactory::createEnemy(EnemyType::Golem);
-    Enemy* enemy2 = EnemyFactory::createEnemy(EnemyType::Goblin);
+
     // Set up the game world size, e.g., 2000x2000 pixels
     sf::FloatRect worldBounds(0, 0, 2000, 2000);
     int num2 = 1;
     camera.setWorldBounds(worldBounds);
     bool isFighting = false;
+    Game game(player,gameMap);
+    
+    game.addLevels();
+    game.loadEnemiesForRooms(0);
+    game.updateDamageManager();
+    auto level = game.getLevel(0);
+    auto room = level->getRoom(0);
+    sf::FloatRect gatePositionLevel1(200.0f, 300.0f, 100.0f, 50.0f);
     while (window.isOpen())
     {
         sf::Event event;
@@ -66,9 +79,7 @@ int main()
         bool isMoving = false;
         bool isMoving1 = false;
         
-
-        enemy->handleMovement(gameMap, player);
-        enemy2->handleMovement(gameMap, player);
+        
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
             isFighting = true;
             isMoving = false;
@@ -79,11 +90,11 @@ int main()
         player.updateState(isFighting,num);
 
         if (isFighting) {
-            player.fightSword(num, enemy);
+            player.fightSword(num, room->getEnemies());
 
         }
         else {
-            player.handleMovement(gameMap, enemy, num, isMoving);
+            player.handleMovement(gameMap, room->getEnemies(), num, isMoving);
         }
 
         //if (!isMoving) {
@@ -95,13 +106,15 @@ int main()
         //enemy->fighting(1, player);
         window.clear();
         gameMap.drawTo(window);
-        //gameMap.drawWalls(window);
-
-        enemy->drawTo(window);
-        enemy2->drawTo(window);
+        gameMap.drawWalls(window);
+        if (game.update()) {
+            room = game.getCurLevel()->getRoom(0);
+        }
+        game.render(window);
         player.drawTo(window);
-        /*player.drawBoundingBox(window);
-        enemy->drawBoundingBox(window);*/
+        player.drawBoundingBox(window);
+          // Draw the bounding box on the window
+        //enemy->drawBoundingBox(window);
         /*window.draw(wall);
         window.draw(wall1);
         window.draw(wall2);
@@ -111,7 +124,6 @@ int main()
 
         window.display();
     }
-    delete enemy;
-    delete enemy2;
+
     return 0;
 }

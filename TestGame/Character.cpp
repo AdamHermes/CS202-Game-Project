@@ -73,11 +73,11 @@ void Character::fightBow(int direction) {
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 10 * frameHeight, frameWidth, frameHeight));
     }
 }
-void Character::fightSword(int direction, Enemy*& enemy) {
+void Character::fightSword(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies) {
     const int frameWidth = 192;   // Width of a single frame
     const int frameHeight = 192;  // Height of a single frame
     const int totalFrames = 6;   // Number of frames per direction
-    sf::FloatRect attackRangeBox = boundingBox;
+    attackRangeBox = boundingBox;
     // Update the frame based on the time elapsed
     if (animationClock.getElapsedTime().asSeconds() > frameDuration) {
         currentFrame = (currentFrame + 1) % totalFrames;  
@@ -86,35 +86,40 @@ void Character::fightSword(int direction, Enemy*& enemy) {
 
     if (direction == Right) {
         attackRangeBox.left += boundingBox.width; 
-        attackRangeBox.width += 20.0f;
+        attackRangeBox.width += 30.0f;
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 3 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Left) {
-        attackRangeBox.left -= 20.0f;
-        attackRangeBox.width += 20.0f;
+        attackRangeBox.left -= 30.0f;
+        attackRangeBox.width += 30.0f;
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 1 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Up) {
-        attackRangeBox.top -= 20.0f; 
-        attackRangeBox.height += 20.0f;
+        attackRangeBox.top -= 30.0f; 
+        attackRangeBox.height += 30.0f;
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 0 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Down) {
         attackRangeBox.top += boundingBox.height; 
-        attackRangeBox.height += 20.0f;
+        attackRangeBox.height += 30.0f;
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 2 * frameHeight, frameWidth, frameHeight));
     }
     if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
+        // Loop through all enemies and check if the attack intersects with any of them
+        //for (const auto& enemy : enemies) {
+        //    if (enemy && attackRangeBox.intersects(enemy->boundingBox)) {
+        //        // If the attack intersects, the enemy takes damage
+        //        enemy->takeDamage(equippedWeapon->getDamage());
+        //        std::cout << "Attack hit the enemy!" << std::endl;
+        //    }
 
-        if (attackRangeBox.intersects(enemy->boundingBox)) {
-            enemy->takeDamage(equippedWeapon->getDamage());
-            std::cout << "Attack hit the enemy!" << std::endl;
-        }
-        else {
-            std::cout << "Attack missed!" << std::endl;
-        }
+        if (manager) {
+            manager->notify("PlayerAttack", equippedWeapon->getDamage());
+            std::cout << "Attack launched" << std::endl;
 
-        attackCooldownClock.restart(); // Restart cooldown timer
+        }
+        // Restart the cooldown timer after the attack
+        attackCooldownClock.restart();
     }
     
 }
@@ -160,7 +165,7 @@ void Character::drawTo(sf::RenderWindow& window) const {
 bool Character::checkCollision(const sf::FloatRect& otherBox) const {
     return boundingBox.intersects(otherBox);
 }
-void Character::handleMovement(Map& gameMap, Enemy*& enemy, int& num, bool& isMoving) {
+void Character::handleMovement(Map& gameMap, const std::vector<std::shared_ptr<Enemy>>& enemies, int& num, bool& isMoving) {
     sf::Vector2f movement(0.f, 0.f);
     bool isDiagonal = false;
 
@@ -213,10 +218,15 @@ void Character::handleMovement(Map& gameMap, Enemy*& enemy, int& num, bool& isMo
         sf::Vector2f position = sprite.getPosition();
         sf::Vector2f newPosition = position + movement;
         sf::FloatRect newBoundingBox(newPosition.x - 32.0f + offsetX, newPosition.y -32.0f + offsetY, boundingBox.width, boundingBox.height);
-
+        bool collideEnemy = false;
         // Check collisions
+        for (const auto& enemy : enemies) {
+            if (enemy && enemy->checkCollision(newBoundingBox)) {
+                collideEnemy = true; // Early exit if a collision with an enemy is detected
+            }
+        }
         if (!gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height) &&
-            !enemy->checkCollision(newBoundingBox)) {
+            (!collideEnemy)) {
             sprite.setPosition(newPosition);
             updateBoundingBox();
             isMoving = true;
