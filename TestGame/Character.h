@@ -6,12 +6,15 @@
 #include "Map.h"
 #include "Weapon.h"
 #include "GameEntity.h"
+#include <tuple>
 using namespace std;
 class Enemy;
 class Character : public GameEntity {
 private:
     float health = 100;
     bool alive;
+    bool isShooting = false; 
+
     Weapon* equippedWeapon;
     bool isMoving = false;
     sf::Sprite sprite;
@@ -29,9 +32,14 @@ private:
     };
     sf::Sprite healthsprite;
     sf::Texture healthtexture;
+    sf::Sprite arrowSprite;
+    sf::Texture arrowTexture;
     sf::Clock attackCooldownClock;  
+    std::vector<std::tuple<sf::Sprite, sf::Vector2f, float>> vectorArrow;
     float attackCooldown = 0.5f;
 public:
+    bool hit = false;
+    void setShooting(bool shooting);
     void takeDamage(float damage) {
         health -= damage;
         cout << health;
@@ -50,6 +58,7 @@ public:
     sf::Sprite getSprite() {
         return sprite;
     }
+
     void updateBoundingBox() {
         sf::Vector2f position = sprite.getPosition();
 
@@ -82,7 +91,7 @@ public:
     }
     void handleMovement(Map& gameMap, const std::vector<std::shared_ptr<Enemy>>& enemies, int& num, bool& isMoving);
     void fight(int direction);
-    void fightBow(int direction);
+    void fightBow(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies);
     void fightSword(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies);
     void loadTexture(const std::string& path, bool isBig, int num, float x, float y);
     void drawTo(sf::RenderWindow& window) const;
@@ -105,3 +114,5 @@ public:
     void updateState(bool fighting,int num);
     void adjustPositionForNewSize(int oldWidth, int oldHeight, int newWidth, int newHeight);
 };
+
+

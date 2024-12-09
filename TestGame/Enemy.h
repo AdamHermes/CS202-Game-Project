@@ -11,7 +11,10 @@ enum class EnemyType {
     Goblin,
     Demon,
     Golem,
-    Sunflower
+    Sunflower,
+    Spider,
+    Dragon,
+    Skeleton
 };
 enum class EnemyState {
     Moving,
@@ -55,7 +58,7 @@ public:
     }
     sf::FloatRect boundingBox;
     float offsetX = (64 - 32) / 2;
-    float offsetY = 0;
+    float offsetY = 4;
     void takeDamage(float damage) {
         health -= damage;
         cout << "Dam" << health;
@@ -72,17 +75,20 @@ public:
         }
         sf::Vector2f position = sprite.getPosition();
         if (enemyType == EnemyType::Demon) {
-            boundingBox = sf::FloatRect(position.x - 32.0f + offsetX + 12.0f, position.y - 32.0f + offsetY + 24.0f, 8, 16);
+            boundingBox = sf::FloatRect(position.x - 32.0f + offsetX + 12.0f, position.y - 32.0f + offsetY + 20.0f, 8, 16);
         }
         else if (enemyType == EnemyType::Frogman) {
-            boundingBox = sf::FloatRect(position.x - 24.0f + offsetX, position.y  + offsetY, 32, 12);
+            boundingBox = sf::FloatRect(position.x - 24.0f + offsetX, position.y  -4.0f + offsetY, 32, 12);
         }
         else if (enemyType == EnemyType::Sunflower) {
-            boundingBox = sf::FloatRect(position.x - 32.0f, position.y -32.0f+ offsetY, 32, 64);
+            boundingBox = sf::FloatRect(position.x - 32.0f, position.y -36.0f+ offsetY, 32, 64);
 
         }
+        else if (enemyType == EnemyType::Dragon) {
+            boundingBox = sf::FloatRect(position.x - 52.0f, position.y - 32.0f, 104, 64);
+        }
         else {
-            boundingBox = sf::FloatRect(position.x - 32.0f + offsetX, position.y - 32.0f + offsetY, 32, 64);
+            boundingBox = sf::FloatRect(position.x - 32.0f + offsetX, position.y - 32.0f + offsetY, 32, 56);
 
         }
 

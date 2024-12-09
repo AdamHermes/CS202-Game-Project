@@ -31,13 +31,17 @@ public:
     }
     void loadEnemiesForRooms(int currentLevelIndex) {
         curLevel = levels[currentLevelIndex];
+        if (currentLevelIndex >= 1) {
+            std::shared_ptr<Level> prevLevel = levels[currentLevelIndex - 1];
+            prevLevel->getRoom(0)->clearEnemies();
+        }
+        
         curLevel->populateEnemies(currentLevelIndex);
     }
     void loadNextLevel() {
         if (currentLevelIndex + 1 < levels.size()) {
             cleanupLevel();
             currentLevelIndex++;
-            curLevel = levels[currentLevelIndex];
             gameMap.obstacles.clear();
             if (damageManager) {
                 delete damageManager;
@@ -51,7 +55,7 @@ public:
                 std::cerr << "Failed to load map for level " << currentLevelIndex + 1 << std::endl;
                 return;
             }
-            player.loadTexture("../Assets/Character/Textures/characters.png", false, 2, 760, 450);
+            player.loadTexture("../Assets/Character/Textures/characters.png", false, 2, 1360, 260);
             //player.updateBoundingBox();
             //player.equipWeapon(WeaponType::Sword);
             std::cout << "Loaded map for level " << currentLevelIndex + 1 << std::endl;
@@ -64,14 +68,33 @@ public:
         }
     }
     bool update() {
-        if(!curLevel) return false;
-        curLevel->moveEnemies(gameMap, player);
-        if (curLevel->checkGateEntry(player)) {
-            loadNextLevel();
-            return true;
+        static bool transitioning = false;     // Flag to check if transition is in progress
+        static sf::Clock transitionClock;     // Clock to measure delay duration
+
+        if (!curLevel) return false;
+
+        if (!transitioning) {
+            curLevel->moveEnemies(gameMap, player);
+
+            // Check if player is entering the gate
+            if (curLevel->checkGateEntry(player)) {
+                transitioning = true;         // Start transition
+                transitionClock.restart();    // Reset the clock for delay
+                             // Signal transition has started
+            }
         }
+        else {
+            // Wait for a short delay before loading the next level
+            if (transitionClock.getElapsedTime().asSeconds() >= 0.5f) { // 1-second delay
+                loadNextLevel();             // Load the next level
+                transitioning = false;  
+                return true;     // Reset the transition flag
+            }
+        }
+
         return false;
     }
+
     std::shared_ptr<Level> getCurLevel() {
         return curLevel;
     }

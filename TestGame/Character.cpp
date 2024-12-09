@@ -50,16 +50,20 @@ void Character::fight(int direction) {
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 6 * frameHeight, frameWidth, frameHeight));
     }
 }
-void Character::fightBow(int direction) {
+void Character::fightBow(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies) {
     const int frameWidth = 64;   // Width of a single frame
-    const int frameHeight = 64;  // Height of a single frame
-    const int totalFrames = 12;   // Number of frames per direction
+    const int frameHeight = 64; // Height of a single frame
+    const int totalFrames = 12; // Total frames for bow animation
+    const float arrowSpeed = 300.0f; // Arrow speed
+    const float maxArrowDistance = 384.0f; // Maximum arrow travel distance
 
-    // Update the frame based on the time elapsed
+    // Update animation frame
     if (animationClock.getElapsedTime().asSeconds() > frameDuration) {
-        currentFrame = (currentFrame + 1) % totalFrames;  // Loop the frames
-        animationClock.restart();  // Reset the clock for the next frame
+        currentFrame = (currentFrame + 1) % totalFrames;
+        animationClock.restart();
     }
+
+    // Set sprite texture based on direction and animation frame
     if (direction == Right) {
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 11 * frameHeight, frameWidth, frameHeight));
     }
@@ -72,7 +76,72 @@ void Character::fightBow(int direction) {
     else if (direction == Down) {
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 10 * frameHeight, frameWidth, frameHeight));
     }
+
+    // Launch arrow when frame is 10
+    if (isFighting && currentFrame == 10 && attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
+        sf::Sprite newArrow = arrowSprite; // Create a new arrow sprite
+        newArrow.setPosition(sprite.getPosition()); // Set initial position of arrow
+
+        // Determine arrow texture rect and velocity based on direction
+        sf::Vector2f velocity;
+        if (direction == Right) {
+            velocity = { arrowSpeed, 0 };
+            newArrow.setTextureRect(sf::IntRect(0, frameHeight * 2, frameWidth, frameHeight)); // Right-facing arrow
+        }
+        else if (direction == Left) {
+            velocity = { -arrowSpeed, 0 };
+            newArrow.setTextureRect(sf::IntRect(0, frameHeight * 3, frameWidth, frameHeight)); // Left-facing arrow
+        }
+        else if (direction == Up) {
+            velocity = { 0, -arrowSpeed };
+            newArrow.setTextureRect(sf::IntRect(0, frameHeight * 1, frameWidth, frameHeight)); // Up-facing arrow
+        }
+        else if (direction == Down) {
+            velocity = { 0, arrowSpeed };
+            newArrow.setTextureRect(sf::IntRect(0, frameHeight * 0, frameWidth, frameHeight)); // Down-facing arrow
+        }
+
+        // Add arrow to vectorArrow
+        vectorArrow.push_back({ newArrow, velocity, 0.0f }); // Distance starts at 0
+        attackCooldownClock.restart(); // Reset attack cooldown
+    }
+
+    // Update all arrows in flight
+    for (auto it = vectorArrow.begin(); it != vectorArrow.end();) {
+        sf::Sprite& arrow = std::get<0>(*it);       // Arrow sprite
+        sf::Vector2f& velocity = std::get<1>(*it); // Arrow velocity
+        float& distanceTraveled = std::get<2>(*it); // Distance traveled
+
+        // Move arrow and update distance
+        arrow.move(velocity * 0.0006f);
+        distanceTraveled += std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y) * 0.0006f;
+
+        // Check for collisions with enemies
+        hit = false;
+        attackRangeBox = arrow.getGlobalBounds();
+
+        if (manager) {
+            manager->notify("PlayerAttack", equippedWeapon->getDamage());
+        }
+
+        // Remove arrow if it hits an enemy or exceeds range
+        if (hit || distanceTraveled >= maxArrowDistance) {
+            it = vectorArrow.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
 }
+void Character::setShooting(bool shooting) {
+    isShooting = shooting;
+    if (!isShooting) {
+        vectorArrow.clear(); // Clear all arrows when spacebar is released
+    }
+}
+
+
+
 void Character::fightSword(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies) {
     const int frameWidth = 192;   // Width of a single frame
     const int frameHeight = 192;  // Height of a single frame
@@ -124,6 +193,7 @@ void Character::fightSword(int direction, const std::vector<std::shared_ptr<Enem
     
 }
 void Character::loadTexture(const std::string& path, bool isBig, int num, float x, float y) {
+
     if (texture.loadFromFile(path)) {
         std::cout << "Load Success: " << path << std::endl;
         sprite.setTexture(texture);
@@ -144,13 +214,19 @@ void Character::loadTexture(const std::string& path, bool isBig, int num, float 
     else {
         std::cerr << "Failed to load texture: " << path << std::endl;
     }
+    if (!arrowTexture.loadFromFile("../Assets/Character/Textures/arrow.png")) {
+        throw std::runtime_error("Failed to load arrow texture from assets/arrow.png");
+    }
+    arrowSprite.setTexture(arrowTexture); // Assign the texture to the sprite
 }
 
 void Character::updateState(bool fighting, int num) {
     if (fighting != isFighting) {
         isFighting = fighting;
         if (isFighting) {
-            loadTexture("../Assets/Character/Textures/slash.png", true, num, sprite.getPosition().x, sprite.getPosition().y);
+            if (equippedWeapon->getType() == WeaponType::Sword) {
+                loadTexture("../Assets/Character/Textures/slash.png", true, num, sprite.getPosition().x, sprite.getPosition().y);
+            }
         }
         else {
             loadTexture("../Assets/Character/Textures/characters.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
@@ -161,6 +237,12 @@ void Character::updateState(bool fighting, int num) {
 void Character::drawTo(sf::RenderWindow& window) const {
     if (!isHiden)
         window.draw(sprite);
+    for (const auto& arrow : vectorArrow) {
+        if (isFighting) {
+            window.draw(std::get<0>(arrow));
+        }
+    }
+
 }
 bool Character::checkCollision(const sf::FloatRect& otherBox) const {
     return boundingBox.intersects(otherBox);
@@ -181,7 +263,7 @@ void Character::handleMovement(Map& gameMap, const std::vector<std::shared_ptr<E
         isDiagonal = true;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-        movement = sf::Vector2f(0.05f, 0.05f);
+        movement = sf::Vector2f(0.05f, 0.05f); 
         num = 3; // Face right
         isDiagonal = true;
     }
@@ -249,3 +331,5 @@ void Character::equipWeapon(WeaponType type){
     equippedWeapon = new Weapon(type);
     
 }
+
+

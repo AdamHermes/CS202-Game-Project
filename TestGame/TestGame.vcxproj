@@ -149,6 +149,7 @@
     <ClInclude Include="Character.h" />
     <ClInclude Include="DamageManager.h" />
     <ClInclude Include="Demon.h" />
+    <ClInclude Include="Dragon.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemyFactory.h" />
     <ClInclude Include="Frogman.h" />
@@ -161,6 +162,8 @@
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Room.h" />
+    <ClInclude Include="Skeleton.h" />
+    <ClInclude Include="Spider.h" />
     <ClInclude Include="Sunflower.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="Weapon.h" />

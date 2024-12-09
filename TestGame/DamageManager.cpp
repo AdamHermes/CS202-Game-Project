@@ -6,6 +6,7 @@ void DamageManager::notify(const std::string& event, float value) {
             if (player.attackRangeBox.intersects(enemy->boundingBox)) {
                 enemy->takeDamage(value);
                 std::cout << "Player hit an enemy for " << value << " damage!" << std::endl;
+                player.hit = true;
             }
         }
     }

@@ -5,6 +5,9 @@
 #include "Demon.h"
 #include "Frogman.h"
 #include "Sunflower.h"
+#include "Spider.h"
+#include "Dragon.h"
+#include "Skeleton.h"
 class EnemyFactory {
 public:
     static std::shared_ptr<Enemy> createEnemy(EnemyType type, sf::Vector2f spawnPosition) {
@@ -22,6 +25,16 @@ public:
         }
         else if (type == EnemyType::Sunflower) {
             return std::make_shared<Sunflower>(spawnPosition);
+
+        }
+        else if (type == EnemyType::Spider) {
+            return std::make_shared<Spider>(spawnPosition);
+        }
+        else if (type == EnemyType::Dragon) {
+            return std::make_shared<Dragon>(spawnPosition);
+        }
+        else if (type == EnemyType::Skeleton) {
+            return std::make_shared<Skeleton>(spawnPosition);
 
         }
         return nullptr;

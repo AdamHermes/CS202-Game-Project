@@ -31,9 +31,9 @@ int main()
         return -1;
     }*/
     int num = 2;
-    player.loadTexture("../Assets/Character/Textures/characters.png",false, num,260, 380 );
+    player.loadTexture("../Assets/Character/Textures/characters.png",false, num,240, 300 );
     player.updateBoundingBox();
-    player.equipWeapon(WeaponType::Sword);
+    player.equipWeapon(WeaponType::Bow);
     Camera camera(720, 480);
     //Enemy enemy(340, 760, 100.0f, 0.1f, "../Assets/Character/Test/warrior1.png");
     //Enemy enemy2(240, 760, 100.0f, 0.1f, "../Assets/Character/mon1.png");
@@ -80,22 +80,35 @@ int main()
         bool isMoving1 = false;
         
         
+        static bool wasSpacePressed = false; // Tracks previous spacebar state
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
             isFighting = true;
             isMoving = false;
+
+            if (!wasSpacePressed) {
+                player.setShooting(true); // Set shooting when spacebar is pressed for the first time
+                wasSpacePressed = true;
+            }
         }
         else {
+            if (wasSpacePressed) {
+                player.setShooting(false); // Clear arrows when spacebar is released
+                wasSpacePressed = false;
+            }
             isFighting = false;
         }
-        player.updateState(isFighting,num);
+
+        // Update player state and handle fighting or movement
+        player.updateState(isFighting, num);
 
         if (isFighting) {
-            player.fightSword(num, room->getEnemies());
-
+            player.fightBow(num, room->getEnemies());
         }
         else {
             player.handleMovement(gameMap, room->getEnemies(), num, isMoving);
         }
+
 
         //if (!isMoving) {
         //    // Reset animation if no key is pressed   
@@ -106,14 +119,14 @@ int main()
         //enemy->fighting(1, player);
         window.clear();
         gameMap.drawTo(window);
-        gameMap.drawWalls(window);
+        //gameMap.drawWalls(window);
         if (game.update()) {
             room = game.getCurLevel()->getRoom(0);
         }
         game.render(window);
         player.drawTo(window);
         player.drawBoundingBox(window);
-          // Draw the bounding box on the window
+        //Draw the bounding box on the window
         //enemy->drawBoundingBox(window);
         /*window.draw(wall);
         window.draw(wall1);

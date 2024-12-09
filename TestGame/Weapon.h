@@ -24,5 +24,7 @@ public:
         }
     }
     float getDamage() const { return damage; }
-
+    WeaponType getType() {
+        return weaponType;
+    }
 };
