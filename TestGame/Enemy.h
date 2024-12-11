@@ -40,6 +40,7 @@ protected:
         Right = 2
     };
     sf::Clock attackCooldownClock;
+    sf::Clock damageFlashTimer;
     float attackCooldown = 0.0f;
     float patrolAngle = 0.0f;
     float directionCooldown = 0.0f;
@@ -61,7 +62,8 @@ public:
     float offsetY = 4;
     void takeDamage(float damage) {
         health -= damage;
-        cout << "Dam" << health;
+        sprite.setColor(sf::Color(255, 0, 0 , 128));// Flash red
+        damageFlashTimer.restart();  // Restart the flash timer
         if (health <= 0) {
             alive = false;
         }

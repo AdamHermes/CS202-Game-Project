@@ -55,7 +55,7 @@ public:
                 std::cerr << "Failed to load map for level " << currentLevelIndex + 1 << std::endl;
                 return;
             }
-            player.loadTexture("../Assets/Character/Textures/characters.png", false, 2, 1360, 260);
+            player.loadTexture("../Assets/Character/Textures/characters.png", false, 2, 1300, 260);
             //player.updateBoundingBox();
             //player.equipWeapon(WeaponType::Sword);
             std::cout << "Loaded map for level " << currentLevelIndex + 1 << std::endl;

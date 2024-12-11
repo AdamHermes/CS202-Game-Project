@@ -19,7 +19,7 @@ int main()
 
 
     // Create the player character
-    Character player;
+    Character player("../Assets/Character/Textures/characters.png","../Assets/Character/Textures/health.png");
     Map gameMap;
     if (!gameMap.loadTexture("../Assets/Character/Textures/map0.png")) {
         return -1; // Exit if texture fails to load
@@ -31,9 +31,13 @@ int main()
         return -1;
     }*/
     int num = 2;
-    player.loadTexture("../Assets/Character/Textures/characters.png",false, num,240, 300 );
+    //player.loadTexture("../Assets/Character/Textures/characters.png",false, num,340, 1280 );*/
     player.updateBoundingBox();
+    player.equipWeapon(WeaponType::Sword);
     player.equipWeapon(WeaponType::Bow);
+    player.equipWeapon(WeaponType::None);
+    auto start_weapon = player.getWeapon(0);
+    player.setCurWeapon(start_weapon);
     Camera camera(720, 480);
     //Enemy enemy(340, 760, 100.0f, 0.1f, "../Assets/Character/Test/warrior1.png");
     //Enemy enemy2(240, 760, 100.0f, 0.1f, "../Assets/Character/mon1.png");
@@ -80,34 +84,53 @@ int main()
         bool isMoving1 = false;
         
         
-        static bool wasSpacePressed = false; // Tracks previous spacebar state
+        static bool wasJPressed = false; // Tracks previous spacebar state
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
+            player.takePortions();
+        }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
             isFighting = true;
             isMoving = false;
-
-            if (!wasSpacePressed) {
-                player.setShooting(true); // Set shooting when spacebar is pressed for the first time
-                wasSpacePressed = true;
-            }
+            wasJPressed = false;
+            player.updateState(isFighting, num, WeaponType::Sword);
+            player.setCurWeapon(player.getWeapon(0));
+            player.setShooting(false);
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::J)) {
+            isFighting = true;
+            isMoving = false;
+            wasJPressed = true;
+            player.updateState(isFighting, num, WeaponType::Bow);
+            player.setCurWeapon(player.getWeapon(1));
+            player.setShooting(true);
         }
         else {
-            if (wasSpacePressed) {
+            if (wasJPressed) {
                 player.setShooting(false); // Clear arrows when spacebar is released
-                wasSpacePressed = false;
+                wasJPressed = false;
             }
             isFighting = false;
+            player.updateState(isFighting, num, WeaponType::None);
+            player.setCurWeapon(player.getWeapon(2));
         }
 
         // Update player state and handle fighting or movement
-        player.updateState(isFighting, num);
 
         if (isFighting) {
-            player.fightBow(num, room->getEnemies());
+            if (wasJPressed) {
+                player.fightBow(num, room->getEnemies());
+
+            }
+            else {
+                player.fightSword(num, room->getEnemies());
+            }
         }
         else {
             player.handleMovement(gameMap, room->getEnemies(), num, isMoving);
         }
+        player.updateSpriteHealth(camera);
+
 
 
         //if (!isMoving) {
@@ -125,7 +148,7 @@ int main()
         }
         game.render(window);
         player.drawTo(window);
-        player.drawBoundingBox(window);
+        //player.drawBoundingBox(window);
         //Draw the bounding box on the window
         //enemy->drawBoundingBox(window);
         /*window.draw(wall);

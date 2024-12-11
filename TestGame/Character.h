@@ -6,6 +6,8 @@
 #include "Map.h"
 #include "Weapon.h"
 #include "GameEntity.h"
+#include "HealthBar.h"
+#include "Camera.h"
 #include <tuple>
 using namespace std;
 class Enemy;
@@ -15,7 +17,8 @@ private:
     bool alive;
     bool isShooting = false; 
 
-    Weapon* equippedWeapon;
+    vector<std::shared_ptr<Weapon>> equippedWeapons;
+    std::shared_ptr<Weapon> curWeapon;
     bool isMoving = false;
     sf::Sprite sprite;
     bool isFighting;
@@ -30,6 +33,7 @@ private:
         Left = 1,
         Right = 3
     };
+    HealthBar healthBar;
     sf::Sprite healthsprite;
     sf::Texture healthtexture;
     sf::Sprite arrowSprite;
@@ -37,16 +41,43 @@ private:
     sf::Clock attackCooldownClock;  
     std::vector<std::tuple<sf::Sprite, sf::Vector2f, float>> vectorArrow;
     float attackCooldown = 0.5f;
+    sf::Clock damageFlashTimer;
+    sf::Clock healingTimer;  // Timer to control healing over time
+
 public:
+    Character(const std::string& characterTexturePath, const std::string& healthTexturePath)
+        : healthBar(healthTexturePath, 300,1200 ), health(100) { 
+        loadTexture(characterTexturePath, false, 2, 240, 310);
+        
+    }
+    std::shared_ptr<Weapon> getWeapon(int num) {
+        return equippedWeapons[num];
+    }
+    std::shared_ptr<Weapon> getCurWeapon() {
+        return curWeapon;
+    }
+    void takePortions();
+    void setCurWeapon(const std::shared_ptr<Weapon>& weapon) {
+        curWeapon = weapon;
+    }
     bool hit = false;
     void setShooting(bool shooting);
     void takeDamage(float damage) {
         health -= damage;
-        cout << health;
-        if (health <= 0) {
+        if (health > 0) {
+            healthBar.startShake();
+
+            sprite.setColor(sf::Color(255, 0, 0, 128));
+            damageFlashTimer.restart();
+
+            cout << health;
+        }        
+        else if (health <= 0) {
+            health = 0;
             cout << "Player dead" << endl;
+            alive = false;
         }
-        alive = false;
+
     }
     bool getisFighting() {
         return isFighting;
@@ -94,13 +125,14 @@ public:
     void fightBow(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies);
     void fightSword(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies);
     void loadTexture(const std::string& path, bool isBig, int num, float x, float y);
-    void drawTo(sf::RenderWindow& window) const;
+    void drawTo(sf::RenderWindow& window) const;   
     void hide() {
         isHiden = true;
     }
     void reveal() {
         isHiden = false;
     }
+    void updateSpriteHealth(const Camera& camera);
     void drawBoundingBox(sf::RenderWindow& window) {
         sf::RectangleShape boundingBoxShape;
         boundingBoxShape.setSize(sf::Vector2f(boundingBox.width, boundingBox.height));
@@ -111,7 +143,7 @@ public:
 
         window.draw(boundingBoxShape);  // Draw the bounding box on the window
     }
-    void updateState(bool fighting,int num);
+    void updateState(bool fighting, int num, WeaponType weaponType);
     void adjustPositionForNewSize(int oldWidth, int oldHeight, int newWidth, int newHeight);
 };
 

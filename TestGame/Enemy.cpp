@@ -193,6 +193,11 @@ void Enemy::handleMovement(Map& gameMap, Character& player) {
     
 }
 void Enemy::updateDead() {
+    if (alive) {
+        if (damageFlashTimer.getElapsedTime().asSeconds() > 0.2f) {
+            sprite.setColor(sf::Color::White);  // Reset to original color
+        }
+    }
     if (!alive && opacity > 0) {
         // Gradually decrease opacity
         opacity -= 100.0f * 0.01f;// Adjust fading speed

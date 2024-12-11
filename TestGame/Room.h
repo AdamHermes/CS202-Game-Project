@@ -28,7 +28,7 @@ public:
         for (const auto& enemy : enemies) {
             if (enemy) {
                 enemy->drawTo(window);
-                enemy->drawBoundingBox(window);
+                //enemy->drawBoundingBox(window);
             }
         }
         cleanupEnemies();

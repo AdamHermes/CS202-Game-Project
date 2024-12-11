@@ -2,7 +2,8 @@
 enum class WeaponType {
 	Sword,
 	Spear,
-	Bow
+	Bow,
+    None
 };
 class Weapon {
 private:
@@ -20,6 +21,9 @@ public:
             break;
         case WeaponType::Bow:
             damage = 15;
+            break;
+        case WeaponType::None:
+            damage = 0;
             break;
         }
     }

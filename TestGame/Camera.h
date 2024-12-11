@@ -18,7 +18,7 @@ public:
 
     // Set zoom level to make the view smaller or larger
     void setZoom(float zoomLevel);
-
+    const sf::View& getView() const;
 private:
     sf::View view;
     sf::FloatRect worldBounds;

@@ -55,7 +55,7 @@ void Character::fightBow(int direction, const std::vector<std::shared_ptr<Enemy>
     const int frameHeight = 64; // Height of a single frame
     const int totalFrames = 12; // Total frames for bow animation
     const float arrowSpeed = 300.0f; // Arrow speed
-    const float maxArrowDistance = 384.0f; // Maximum arrow travel distance
+    const float maxArrowDistance = 416.0f; // Maximum arrow travel distance
 
     // Update animation frame
     if (animationClock.getElapsedTime().asSeconds() > frameDuration) {
@@ -121,7 +121,7 @@ void Character::fightBow(int direction, const std::vector<std::shared_ptr<Enemy>
         attackRangeBox = arrow.getGlobalBounds();
 
         if (manager) {
-            manager->notify("PlayerAttack", equippedWeapon->getDamage());
+            manager->notify("PlayerAttack", curWeapon->getDamage());
         }
 
         // Remove arrow if it hits an enemy or exceeds range
@@ -183,7 +183,7 @@ void Character::fightSword(int direction, const std::vector<std::shared_ptr<Enem
         //    }
 
         if (manager) {
-            manager->notify("PlayerAttack", equippedWeapon->getDamage());
+            manager->notify("PlayerAttack", curWeapon->getDamage());
             std::cout << "Attack launched" << std::endl;
 
         }
@@ -220,30 +220,55 @@ void Character::loadTexture(const std::string& path, bool isBig, int num, float 
     arrowSprite.setTexture(arrowTexture); // Assign the texture to the sprite
 }
 
-void Character::updateState(bool fighting, int num) {
-    if (fighting != isFighting) {
+void Character::updateState(bool fighting, int num, WeaponType weaponType) {
+    if (fighting != isFighting || (curWeapon->getType() != weaponType && weaponType != WeaponType::None)) {
         isFighting = fighting;
         if (isFighting) {
-            if (equippedWeapon->getType() == WeaponType::Sword) {
+            if (weaponType == WeaponType::Sword) {
                 loadTexture("../Assets/Character/Textures/slash.png", true, num, sprite.getPosition().x, sprite.getPosition().y);
+            }
+            else {
+                loadTexture("../Assets/Character/Textures/characters.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
             }
         }
         else {
             loadTexture("../Assets/Character/Textures/characters.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
-        } 
+        }
     }
 }
+void Character::takePortions() {
+    if (healingTimer.getElapsedTime().asSeconds() >= 0.5f) {
+        health += 10;
+        if (health > 100) health = 100;
+        sprite.setColor(sf::Color(0, 255, 0, 128));  // Green glow effect
 
+        // Restart the healing timer after each healing step
+        healingTimer.restart();
+    }
+}
+void Character::updateSpriteHealth(const Camera& camera) {
+    healthBar.update(health);
+    healthBar.updatePosition(camera.getView()); 
+    healthBar.stopShake();
+    if (damageFlashTimer.getElapsedTime().asSeconds() > 0.2f && healingTimer.getElapsedTime().asSeconds() > 0.2f) {
+        sprite.setColor(sf::Color::White);  // Reset to the original sprite color if no healing is applied
+    }
+}
 void Character::drawTo(sf::RenderWindow& window) const {
-    if (!isHiden)
-        window.draw(sprite);
+    // Draw the character sprite
+    window.draw(sprite);
+
+    // Draw the health bar sprite
+    window.draw(healthBar.getSprite());
+
+    // Draw arrows if fighting
     for (const auto& arrow : vectorArrow) {
         if (isFighting) {
             window.draw(std::get<0>(arrow));
         }
     }
-
 }
+
 bool Character::checkCollision(const sf::FloatRect& otherBox) const {
     return boundingBox.intersects(otherBox);
 }
@@ -325,11 +350,8 @@ void Character::handleMovement(Map& gameMap, const std::vector<std::shared_ptr<E
 }
 
 void Character::equipWeapon(WeaponType type){    
-    if (equippedWeapon) {
-        delete equippedWeapon; // Clean up old weapon if it exists
-    }
-    equippedWeapon = new Weapon(type);
-    
+    std::shared_ptr<Weapon> weapon = make_shared<Weapon>(type);
+    equippedWeapons.push_back(weapon);
 }
 
 

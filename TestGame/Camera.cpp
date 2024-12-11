@@ -37,3 +37,6 @@ void Camera::setWorldBounds(const sf::FloatRect& bounds) {
 void Camera::setZoom(float zoomLevel) {
     view.zoom(zoomLevel);
 }
+const sf::View& Camera::getView() const {
+    return view;
+}
