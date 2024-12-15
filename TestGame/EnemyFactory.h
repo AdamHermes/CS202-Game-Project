@@ -7,6 +7,7 @@
 #include "Sunflower.h"
 #include "Spider.h"
 #include "Dragon.h"
+#include "Boarman.h"
 #include "Skeleton.h"
 class EnemyFactory {
 public:
@@ -36,6 +37,9 @@ public:
         else if (type == EnemyType::Skeleton) {
             return std::make_shared<Skeleton>(spawnPosition);
 
+        }
+        else if (type == EnemyType::Boarman) {
+            return std::make_shared<Boarman>(spawnPosition);
         }
         return nullptr;
     }

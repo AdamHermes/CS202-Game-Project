@@ -92,9 +92,9 @@ int getFighitngDirection(sf::Vector2f direction) {
         }
     }
 }
-void Enemy::handleMovement(Map& gameMap, Character& player) {
+void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Character> player) {
     sf::Vector2f enemyPosition = sprite.getPosition();
-    sf::Vector2f playerPosition = player.getSprite().getPosition();
+    sf::Vector2f playerPosition = player->getSprite().getPosition();
 
     sf::Vector2f direction = playerPosition - enemyPosition;
 
@@ -123,7 +123,7 @@ void Enemy::handleMovement(Map& gameMap, Character& player) {
         newBoundingBox.top += 28.0f;
     }
     else if (enemyType == EnemyType::Sunflower) {
-        newBoundingBox.left -= 16.0f;
+        newBoundingBox.left -= 8.0f;
         newBoundingBox.top -= 4.0f;
     }
     else if (enemyType == EnemyType::Dragon) {
@@ -131,8 +131,8 @@ void Enemy::handleMovement(Map& gameMap, Character& player) {
         newBoundingBox.top -= 4.0f;
         
     }
-    bool collidesWithMap = gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
-    bool collidesWithPlayer = player.checkCollision(newBoundingBox);
+    bool collidesWithMap = gameMap->checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
+    bool collidesWithPlayer = player->checkCollision(newBoundingBox);
     
     if (!collidesWithPlayer && !collidesWithMap) {
 
@@ -143,8 +143,8 @@ void Enemy::handleMovement(Map& gameMap, Character& player) {
     }
     else if (collidesWithPlayer) {
 
-        if (gameMap.checkCollision(player.boundingBox.left, player.boundingBox.top, player.boundingBox.width, player.boundingBox.height)) {
-            sf::Vector2f overlap = enemyPosition - player.getSprite().getPosition();    
+        if (gameMap->checkCollision(player->boundingBox.left, player->boundingBox.top, player->boundingBox.width, player->boundingBox.height)) {
+            sf::Vector2f overlap = enemyPosition - player->getSprite().getPosition();    
             float overlapMagnitude = std::sqrt(overlap.x * overlap.x + overlap.y * overlap.y);
 
             if (overlapMagnitude != 0) {
@@ -153,7 +153,7 @@ void Enemy::handleMovement(Map& gameMap, Character& player) {
                 updateBoundingBox();
             }
         }
-        if (enemyType == EnemyType::Golem || enemyType == EnemyType::Frogman || enemyType == EnemyType::Demon || enemyType == EnemyType::Skeleton) {
+        if (enemyType == EnemyType::Golem || enemyType == EnemyType::Frogman || enemyType == EnemyType::Demon || enemyType == EnemyType::Skeleton || enemyType == EnemyType::Boarman) {
             setState(EnemyState::Fighting);
 
         }
@@ -214,152 +214,152 @@ void Enemy::updateDead() {
         removed = true;
     }
 }
-void Enemy::randomPatrol(Map& gameMap) {
-    // Decrease the cooldown time each frame
-    if (directionCooldown > 0.0f) {
-        directionCooldown -= 0.05f;  // Adjust this value for the desired cooldown duration
-    }
-
-    sf::Vector2f enemyPosition = sprite.getPosition();
-    // Patrol parameters
-    float patrolRadius = 100.0f;  // Radius of the patrol circle
-    float patrolSpeed = 0.0001f;    // Speed at which the enemy moves along the circle  
-
-    // Update the patrol angle over time for continuous circular motion
-    patrolAngle += patrolSpeed;  // Increase the angle
-
-    if (patrolAngle >= 2 * 3.14159f) {  // Ensure the angle stays within 0 to 2 * Pi
-        patrolAngle -= 2 * 3.14159f;
-    }
-
-    // Calculate the new patrol target position using polar coordinates
-    float targetX = enemyPosition.x + patrolRadius * std::cos(patrolAngle);
-    float targetY = enemyPosition.y + patrolRadius * std::sin(patrolAngle);
-
-    // Set the patrol target position
-    sf::Vector2f patrolTarget(targetX, targetY);
-
-    // Calculate the direction to the new patrol target
-    sf::Vector2f direction = patrolTarget - enemyPosition;
-    float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-
-    if (magnitude == 0) return;
-
-    // Normalize the direction
-    direction /= magnitude;
-
-    // Calculate the next position based on the direction
-    sf::Vector2f newPosition = enemyPosition + direction * 0.01f;
-
-    // Check for collisions with the map at the new position
-    sf::FloatRect newBoundingBox(newPosition.x - 32.0f + offsetX, newPosition.y - 32.0f + offsetY, boundingBox.width, boundingBox.height);
-    bool collidesWithMap = gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
-
-    if (!collidesWithMap) {
-        sprite.setPosition(newPosition);
-        updateBoundingBox();
-        setState(EnemyState::Moving);
-
-        // Patrol logic (face direction)
-        if (getState() == EnemyState::Moving) {
-            sprite.setOrigin(32.0f, 32.0f);
-
-            if (std::abs(direction.x) > std::abs(direction.y)) {
-                if (direction.x > 0) {
-                    changePos(2); // Face right
-                }
-                else {
-                    changePos(3); // Face left
-                }
-            }
-            else {
-                if (direction.y > 0) {
-                    changePos(0); // Face down
-                }
-                else {
-                    changePos(1); // Face up
-                }
-            }
-        }
-    }
-    else {
-        // If the cooldown is active, don't attempt to change direction
-        if (directionCooldown > 0.0f) return;
-
-        // Handle collision by trying to adjust movement direction
-        int currentDirection = getFighitngDirection(direction);
-        switch (currentDirection) {
-        case Up:
-            currentDirection = Right; // up -> right
-            break;
-        case Right:
-            currentDirection = Down; // right -> down
-            break;
-        case Down:
-            currentDirection = Left; // down -> left
-            break;
-        case Left:
-            currentDirection = Up; // left -> up
-            break;
-        }
-
-        // New direction after adjustment
-        sf::Vector2f newDirection;
-        switch (currentDirection) {
-        case Up:
-            newDirection = sf::Vector2f(0, -1);
-            break;
-        case Right:
-            newDirection = sf::Vector2f(1, 0);
-            break;
-        case Down:
-            newDirection = sf::Vector2f(0, 1);
-            break;
-        case Left:
-            newDirection = sf::Vector2f(-1, 0);
-            break;
-        }
-
-        // Move in the adjusted direction
-        sf::Vector2f oppositePosition = enemyPosition + newDirection * 0.01f;
-
-        sf::FloatRect oppositeBoundingBox(oppositePosition.x - 32.0f + offsetX, oppositePosition.y - 32.0f + offsetY, boundingBox.width, boundingBox.height);
-        if (enemyType == EnemyType::Demon) {
-            oppositeBoundingBox.left += 12.0f;
-            oppositeBoundingBox.top += 24.0f;
-        }
-
-        bool collidesWithOppositeMap = gameMap.checkCollision(oppositeBoundingBox.left, oppositeBoundingBox.top, oppositeBoundingBox.width, oppositeBoundingBox.height);
-
-        if (!collidesWithOppositeMap) {
-            sprite.setPosition(oppositePosition);
-            updateBoundingBox();
-            setState(EnemyState::Moving);
-        }
-
-        sprite.setOrigin(32.0f, 32.0f);
-
-        if (std::abs(newDirection.x) > std::abs(newDirection.y)) {
-            if (newDirection.x > 0) {
-                changePos(2); // Face right
-            }
-            else {
-                changePos(3); // Face left
-            }
-        }
-        else {
-            if (newDirection.y > 0) {
-                changePos(0); // Face down
-            }
-            else {
-                changePos(1); // Face up
-            }
-        }
-
-        // Set the cooldown after a direction change
-        directionCooldown = 0.2f;  // Adjust the cooldown time as needed
-    }
-}
+//void Enemy::randomPatrol(Map& gameMap) {
+//    // Decrease the cooldown time each frame
+//    if (directionCooldown > 0.0f) {
+//        directionCooldown -= 0.05f;  // Adjust this value for the desired cooldown duration
+//    }
+//
+//    sf::Vector2f enemyPosition = sprite.getPosition();
+//    // Patrol parameters
+//    float patrolRadius = 100.0f;  // Radius of the patrol circle
+//    float patrolSpeed = 0.0001f;    // Speed at which the enemy moves along the circle  
+//
+//    // Update the patrol angle over time for continuous circular motion
+//    patrolAngle += patrolSpeed;  // Increase the angle
+//
+//    if (patrolAngle >= 2 * 3.14159f) {  // Ensure the angle stays within 0 to 2 * Pi
+//        patrolAngle -= 2 * 3.14159f;
+//    }
+//
+//    // Calculate the new patrol target position using polar coordinates
+//    float targetX = enemyPosition.x + patrolRadius * std::cos(patrolAngle);
+//    float targetY = enemyPosition.y + patrolRadius * std::sin(patrolAngle);
+//
+//    // Set the patrol target position
+//    sf::Vector2f patrolTarget(targetX, targetY);
+//
+//    // Calculate the direction to the new patrol target
+//    sf::Vector2f direction = patrolTarget - enemyPosition;
+//    float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+//
+//    if (magnitude == 0) return;
+//
+//    // Normalize the direction
+//    direction /= magnitude;
+//
+//    // Calculate the next position based on the direction
+//    sf::Vector2f newPosition = enemyPosition + direction * 0.01f;
+//
+//    // Check for collisions with the map at the new position
+//    sf::FloatRect newBoundingBox(newPosition.x - 32.0f + offsetX, newPosition.y - 32.0f + offsetY, boundingBox.width, boundingBox.height);
+//    bool collidesWithMap = gameMap->checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
+//
+//    if (!collidesWithMap) {
+//        sprite.setPosition(newPosition);
+//        updateBoundingBox();
+//        setState(EnemyState::Moving);
+//
+//        // Patrol logic (face direction)
+//        if (getState() == EnemyState::Moving) {
+//            sprite.setOrigin(32.0f, 32.0f);
+//
+//            if (std::abs(direction.x) > std::abs(direction.y)) {
+//                if (direction.x > 0) {
+//                    changePos(2); // Face right
+//                }
+//                else {
+//                    changePos(3); // Face left
+//                }
+//            }
+//            else {
+//                if (direction.y > 0) {
+//                    changePos(0); // Face down
+//                }
+//                else {
+//                    changePos(1); // Face up
+//                }
+//            }
+//        }
+//    }
+//    else {
+//        // If the cooldown is active, don't attempt to change direction
+//        if (directionCooldown > 0.0f) return;
+//
+//        // Handle collision by trying to adjust movement direction
+//        int currentDirection = getFighitngDirection(direction);
+//        switch (currentDirection) {
+//        case Up:
+//            currentDirection = Right; // up -> right
+//            break;
+//        case Right:
+//            currentDirection = Down; // right -> down
+//            break;
+//        case Down:
+//            currentDirection = Left; // down -> left
+//            break;
+//        case Left:
+//            currentDirection = Up; // left -> up
+//            break;
+//        }
+//
+//        // New direction after adjustment
+//        sf::Vector2f newDirection;
+//        switch (currentDirection) {
+//        case Up:
+//            newDirection = sf::Vector2f(0, -1);
+//            break;
+//        case Right:
+//            newDirection = sf::Vector2f(1, 0);
+//            break;
+//        case Down:
+//            newDirection = sf::Vector2f(0, 1);
+//            break;
+//        case Left:
+//            newDirection = sf::Vector2f(-1, 0);
+//            break;
+//        }
+//
+//        // Move in the adjusted direction
+//        sf::Vector2f oppositePosition = enemyPosition + newDirection * 0.01f;
+//
+//        sf::FloatRect oppositeBoundingBox(oppositePosition.x - 32.0f + offsetX, oppositePosition.y - 32.0f + offsetY, boundingBox.width, boundingBox.height);
+//        if (enemyType == EnemyType::Demon) {
+//            oppositeBoundingBox.left += 12.0f;
+//            oppositeBoundingBox.top += 24.0f;
+//        }
+//
+//        bool collidesWithOppositeMap = gameMap->checkCollision(oppositeBoundingBox.left, oppositeBoundingBox.top, oppositeBoundingBox.width, oppositeBoundingBox.height);
+//
+//        if (!collidesWithOppositeMap) {
+//            sprite.setPosition(oppositePosition);
+//            updateBoundingBox();
+//            setState(EnemyState::Moving);
+//        }
+//
+//        sprite.setOrigin(32.0f, 32.0f);
+//
+//        if (std::abs(newDirection.x) > std::abs(newDirection.y)) {
+//            if (newDirection.x > 0) {
+//                changePos(2); // Face right
+//            }
+//            else {
+//                changePos(3); // Face left
+//            }
+//        }
+//        else {
+//            if (newDirection.y > 0) {
+//                changePos(0); // Face down
+//            }
+//            else {
+//                changePos(1); // Face up
+//            }
+//        }
+//
+//        // Set the cooldown after a direction change
+//        directionCooldown = 0.2f;  // Adjust the cooldown time as needed
+//    }
+//}
 
 
 

@@ -14,7 +14,7 @@ public:
         rooms.push_back(std::make_shared<Room>(position));
     }
 
-    void moveEnemies(Map& gameMap, Character& player) {
+    void moveEnemies(std::shared_ptr<Map> gameMap, std::shared_ptr<Character> player) {
         for (const auto& room : rooms) {
             room->moveEnemies(gameMap, player);
         }
@@ -34,16 +34,16 @@ public:
         // Predefine enemy positions for each room
         std::map<int, std::vector<std::pair<sf::Vector2f, EnemyType>>> enemyPositions = {
             {0, {   // Room 0
-                {sf::Vector2f(480.0f, 1000.0f), EnemyType::Demon},
-                {sf::Vector2f(480.0f, 1140.0f), EnemyType::Demon},
-                {sf::Vector2f(250.0f, 1000.0f), EnemyType::Demon},
+                {sf::Vector2f(480.0f, 1000.0f), EnemyType::Boarman},
+                //{sf::Vector2f(480.0f, 1140.0f), EnemyType::Golem},
+                //{sf::Vector2f(250.0f, 1000.0f), EnemyType::Golem},
                 {sf::Vector2f(920.0f, 500.0f), EnemyType::Golem},
                 {sf::Vector2f(880.0f, 380.0f), EnemyType::Demon},
                 {sf::Vector2f(740.0f, 420.0f), EnemyType::Goblin}
             }},
             {1, {
                 {sf::Vector2f(540.0f, 1000.0f), EnemyType::Frogman},
-                {sf::Vector2f(440.0f, 1000.0f), EnemyType::Frogman},
+                {sf::Vector2f(400.0f, 1000.0f), EnemyType::Frogman},
                 {sf::Vector2f(440.0f, 900.0f), EnemyType::Frogman},
                 {sf::Vector2f(260.0f, 450.0f), EnemyType::Spider},
                 {sf::Vector2f(260.0f, 320.0f), EnemyType::Spider},
@@ -66,7 +66,7 @@ public:
         }
 
     }
-    bool checkGateEntry(const Character& player) const {
+    bool checkGateEntry(const std::shared_ptr<Character> player) const {
         return gate->isPlayerEntering(player);
     }
 };

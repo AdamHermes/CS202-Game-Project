@@ -26,34 +26,55 @@ void Character::changePos(int direction) {
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, direction * frameHeight, frameWidth, frameHeight));
     }
 }
-void Character::fight(int direction) {
+void Character::fightSpear(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies) {
     frameDuration = 0.1f;
     const int frameWidth = 64;   // Width of a single frame
     const int frameHeight = 64;  // Height of a single frame
-    const int totalFrames = 6;   // Number of frames per direction
-
-    // Update the frame based on the time elapsed
+    const int totalFrames = 9;   // Number of frames per direction
+    attackRangeBox = boundingBox;
     if (animationClock.getElapsedTime().asSeconds() > frameDuration) {
         currentFrame = (currentFrame + 1) % totalFrames;  // Loop the frames
         animationClock.restart();  // Reset the clock for the next frame
     }
+    // Update the frame based on the time elapsed
     if (direction == Right) {
+        attackRangeBox.top += 20.0f;// Set position relative to character's position
+        attackRangeBox.width += 30.0f;  // Long range for the spear
+        attackRangeBox.height = 16.0f; // Narrow height
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 7 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Left) {
+        attackRangeBox.top += 20.0f;
+        attackRangeBox.left -= 30.0f;// Extend spear attack to the left
+        attackRangeBox.width = 30.0f;
+        attackRangeBox.height = 16.0f;
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 5 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Up) {
+        attackRangeBox.top -= 30.0f;
+        attackRangeBox.height += 30.0f;
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 4 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Down) {
+        attackRangeBox.height += 30.0f;
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 6 * frameHeight, frameWidth, frameHeight));
     }
+    
+    if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
+        
+
+        if (manager) {
+            manager->notify("PlayerAttack", curWeapon->getDamage());
+            std::cout << "Attack launched" << std::endl;
+
+        }
+        attackCooldownClock.restart();
+    }
 }
-void Character::fightBow(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies) {
+void Character::fightBow(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies, std::shared_ptr<Map>& gameMap) {
     const int frameWidth = 64;   // Width of a single frame
     const int frameHeight = 64; // Height of a single frame
-    const int totalFrames = 12; // Total frames for bow animation
+    const int totalFrames = 13; // Total frames for bow animation
     const float arrowSpeed = 300.0f; // Arrow speed
     const float maxArrowDistance = 416.0f; // Maximum arrow travel distance
 
@@ -81,7 +102,6 @@ void Character::fightBow(int direction, const std::vector<std::shared_ptr<Enemy>
     if (isFighting && currentFrame == 10 && attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
         sf::Sprite newArrow = arrowSprite; // Create a new arrow sprite
         newArrow.setPosition(sprite.getPosition()); // Set initial position of arrow
-
         // Determine arrow texture rect and velocity based on direction
         sf::Vector2f velocity;
         if (direction == Right) {
@@ -115,13 +135,22 @@ void Character::fightBow(int direction, const std::vector<std::shared_ptr<Enemy>
         // Move arrow and update distance
         arrow.move(velocity * 0.0006f);
         distanceTraveled += std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y) * 0.0006f;
-
+        if (direction == Right || direction == Left) {
+            attackRangeBox = sf::FloatRect(arrow.getPosition().x, arrow.getPosition().y, 64.0f, 16.0f); // Horizontal arrow
+        }
+        else if (direction == Up || direction == Down) {
+            attackRangeBox = sf::FloatRect(arrow.getPosition().x, arrow.getPosition().y, 16.0f, 64.0f); // Vertical arrow
+        }
         // Check for collisions with enemies
         hit = false;
-        attackRangeBox = arrow.getGlobalBounds();
+        if (gameMap->checkCollision(attackRangeBox.left, attackRangeBox.top, attackRangeBox.width, attackRangeBox.height)) {
+            hit = true;
+        }
 
-        if (manager) {
-            manager->notify("PlayerAttack", curWeapon->getDamage());
+        if (!hit){
+            if (manager) {
+                manager->notify("PlayerAttack", curWeapon->getDamage());
+            }
         }
 
         // Remove arrow if it hits an enemy or exceeds range
@@ -159,20 +188,25 @@ void Character::fightSword(int direction, const std::vector<std::shared_ptr<Enem
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 3 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Left) {
-        attackRangeBox.left -= 30.0f;
+        attackRangeBox.left -= (30.0f+boundingBox.width);
         attackRangeBox.width += 30.0f;
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 1 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Up) {
-        attackRangeBox.top -= 30.0f; 
-        attackRangeBox.height += 30.0f;
+        attackRangeBox.left -= 24.0f;
+        attackRangeBox.top -= 18.0f; 
+        attackRangeBox.height = 18.0f;
+        attackRangeBox.width += 48.0f;
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 0 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Down) {
+        attackRangeBox.left -= 24.0f;
         attackRangeBox.top += boundingBox.height; 
-        attackRangeBox.height += 30.0f;
+        attackRangeBox.height = 18.0f;
+        attackRangeBox.width += 48.0f;
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 2 * frameHeight, frameWidth, frameHeight));
     }
+    
     if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
         // Loop through all enemies and check if the attack intersects with any of them
         //for (const auto& enemy : enemies) {
@@ -228,11 +262,11 @@ void Character::updateState(bool fighting, int num, WeaponType weaponType) {
                 loadTexture("../Assets/Character/Textures/slash.png", true, num, sprite.getPosition().x, sprite.getPosition().y);
             }
             else {
-                loadTexture("../Assets/Character/Textures/characters.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+                loadTexture("../Assets/Character/Textures/character1.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
             }
         }
         else {
-            loadTexture("../Assets/Character/Textures/characters.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+            loadTexture("../Assets/Character/Textures/character1.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
         }
     }
 }
@@ -272,7 +306,7 @@ void Character::drawTo(sf::RenderWindow& window) const {
 bool Character::checkCollision(const sf::FloatRect& otherBox) const {
     return boundingBox.intersects(otherBox);
 }
-void Character::handleMovement(Map& gameMap, const std::vector<std::shared_ptr<Enemy>>& enemies, int& num, bool& isMoving) {
+void Character::handleMovement(std::shared_ptr<Map>& gameMap, const std::vector<std::shared_ptr<Enemy>>& enemies, int& num, bool& isMoving) {
     sf::Vector2f movement(0.f, 0.f);
     bool isDiagonal = false;
 
@@ -332,7 +366,7 @@ void Character::handleMovement(Map& gameMap, const std::vector<std::shared_ptr<E
                 collideEnemy = true; // Early exit if a collision with an enemy is detected
             }
         }
-        if (!gameMap.checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height) &&
+        if (!gameMap->checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height) &&
             (!collideEnemy)) {
             sprite.setPosition(newPosition);
             updateBoundingBox();

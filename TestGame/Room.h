@@ -33,7 +33,7 @@ public:
         }
         cleanupEnemies();
     }
-    void moveEnemies(Map& gameMap, Character& player) {
+    void moveEnemies(std::shared_ptr<Map> gameMap, std::shared_ptr<Character> player) {
         for (const auto& enemy : enemies) {
             enemy->handleMovement(gameMap, player);
             enemy->updateDead();

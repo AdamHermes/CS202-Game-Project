@@ -10,7 +10,7 @@ public:
         loadTexture("../Assets/Character/Enemies/skeleton.png", spawnPosition.x, spawnPosition.y);
 
     }
-    void fighting(int direction, Character& player) {
+    void fighting(int direction,  std::shared_ptr<Character>& player) {
         const int frameWidth = 64;   // Width of a single frame
         const int frameHeight = 64;  // Height of a single frame
         const int totalFrames = 5;   // Number of frames per direction

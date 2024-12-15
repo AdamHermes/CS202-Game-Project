@@ -10,7 +10,7 @@ public:
 		loadTexture("../Assets/Character/Enemies/demon2.png", spawnPosition.x, spawnPosition.y);
 
 	}
-	void fighting(int direction, Character& player) {
+	void fighting(int direction,  std::shared_ptr<Character>& player) {
         const int frameWidth = 64;   // Width of a single frame
         const int frameHeight = 64;  // Height of a single frame
         const int totalFrames = 4;   // Number of frames per direction
@@ -32,12 +32,6 @@ public:
         }
         else if (direction == Down) {
             sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, frameHeight2 + direction * frameHeight, frameWidth, frameHeight));
-        }
-        if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
-
-            player.takeDamage(10);
-
-            attackCooldownClock.restart();
         }
     
 		if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {

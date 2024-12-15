@@ -1,6 +1,6 @@
 #include "Golem.h"
 #include "Character.h"
-void Golem::fighting(int direction, Character& player) {
+void Golem::fighting(int direction,  std::shared_ptr<Character>& player) {
     const int frameWidth = 64;   // Width of a single frame
     const int frameHeight = 96;  // Height of a single frame
     const int totalFrames = 7;   // Number of frames per direction

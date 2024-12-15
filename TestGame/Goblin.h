@@ -10,7 +10,7 @@ public:
 		loadTexture("../Assets/Character/Enemies/goblin.png", spawnPosition.x, spawnPosition.y);
 
 	}
-	void fighting(int direction, Character& player) {
+	void fighting(int direction,  std::shared_ptr<Character>& player) {
 		if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
 
 			manager->notify("EnemyAttack", 5);

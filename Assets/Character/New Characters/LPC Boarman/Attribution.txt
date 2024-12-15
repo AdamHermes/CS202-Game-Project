@@ -1,0 +1,59 @@
+"LPC Boarman" by Benjamin K. Smith (BenCreating), dalonedrau, Daniel Eddeland (daneeklu), ElizaWy, Johannes Sjölund (wulax), Stephen Challener (Redshrike), and William.Thompsonj. Commissioned by castelonia.
+
+CC-BY-SA 3.0 / GPL 3.0
+
+BASED ON:
+
+Liberated Pixel Cup (LPC) Base Assets (sprites)
+Stephen Challener (Redshrike)
+CC-BY-SA 3.0 / GPL 3.0
+https://opengameart.org/content/liberated-pixel-cup-lpc-base-assets-sprites-map-tiles
+(male walk, cast, slash, and hurt animations)
+
+[LPC] Medieval fantasy character sprites
+Johannes Sjölund (wulax)
+CC-BY-SA 3.0 / GPL 3.0
+https://opengameart.org/content/lpc-medieval-fantasy-character-sprites
+(male thrust animations)
+
+[LPC] Barbarian Sprite Base
+dalonedrau
+CC-BY-SA 3.0
+https://opengameart.org/content/lpc-barbarian-sprite-base
+(muscular stand/walk animations)
+
+[LPC] Muscular Swing Animation
+ElizaWy
+CC-BY-SA 3.0 / GPL 3.0
+https://opengameart.org/content/lpc-muscular-swing-animation
+(muscular swing animation)
+
+[LPC] Muscular Hurt Animation
+ElizaWy
+CC-BY-SA 3.0 / GPL 3.0
+https://opengameart.org/content/lpc-muscular-hurt-animation
+(muscular hurt animation)
+
+LPC Character Bases
+Benjamin K. Smith (BenCreating), thrust commissioned by castelonia
+CC-BY-SA 3.0 / GPL 3.0
+https://opengameart.org/content/lpc-character-bases
+(muscular cast, thrust, and minor fixes)
+
+LPC Wild Boar
+Benjamin K. Smith (BenCreating), commissioned by castelonia
+CC-BY-SA 3.0 / GPL 3.0
+https://opengameart.org/content/lpc-wild-boar
+(boar head)
+
+LPC style farm animals
+Daniel Eddeland (daneeklu)
+CC-BY 3.0 / GPL 2.0
+https://opengameart.org/content/lpc-style-farm-animals
+(pig that the boar head is based on)
+
+[LPC] Wolf Animation
+Stephen Challener (Redshrike), contributed by William.Thompsonj
+CC-BY-SA 3.0 / CC-BY-SA 4.0 / GPL 3.0 / GPL 2.0 / OGA-BY 3.0
+https://opengameart.org/content/lpc-wolf-animation
+(wolf the boar is based on)

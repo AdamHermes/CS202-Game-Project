@@ -14,7 +14,8 @@ enum class EnemyType {
     Sunflower,
     Spider,
     Dragon,
-    Skeleton
+    Skeleton,
+    Boarman
 };
 enum class EnemyState {
     Moving,
@@ -80,10 +81,10 @@ public:
             boundingBox = sf::FloatRect(position.x - 32.0f + offsetX + 12.0f, position.y - 32.0f + offsetY + 20.0f, 8, 16);
         }
         else if (enemyType == EnemyType::Frogman) {
-            boundingBox = sf::FloatRect(position.x - 24.0f + offsetX, position.y  -4.0f + offsetY, 32, 12);
+            boundingBox = sf::FloatRect(position.x - 24.0f + offsetX, position.y  -4.0f + offsetY, 16, 12);
         }
         else if (enemyType == EnemyType::Sunflower) {
-            boundingBox = sf::FloatRect(position.x - 32.0f, position.y -36.0f+ offsetY, 32, 64);
+            boundingBox = sf::FloatRect(position.x - 24.0f, position.y -36.0f+ offsetY, 48, 64);
 
         }
         else if (enemyType == EnemyType::Dragon) {
@@ -102,7 +103,7 @@ public:
     void changePos(int direction);
     void loadTexture(std::string filename, float x, float y);
     void drawTo(sf::RenderWindow& window) const;
-    void handleMovement(Map& gameMap, Character& player);
+    void handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Character> player);
     void drawBoundingBox(sf::RenderWindow& window) {
         sf::RectangleShape boundingBoxShape;
         boundingBoxShape.setSize(sf::Vector2f(boundingBox.width, boundingBox.height));
@@ -113,8 +114,8 @@ public:
 
         window.draw(boundingBoxShape);  // Draw the bounding box on the window
     }
-    void randomPatrol(Map& gameMap);
+    //void randomPatrol(Map& gameMap);
     virtual ~Enemy() = default;
-    virtual void fighting(int direction, Character& player) = 0;
+    virtual void fighting(int direction, std::shared_ptr<Character>& player) = 0;
 
 };

@@ -9,8 +9,8 @@ public:
     Gate(float x, float y, float width, float height)
         : boundingBox(x, y, width, height) {}
 
-    bool isPlayerEntering(const Character& player) const {
-        return boundingBox.intersects(player.boundingBox);
+    bool isPlayerEntering(const std::shared_ptr<Character> player) const {
+        return boundingBox.intersects(player->boundingBox);
     }
 
     sf::FloatRect getBoundingBox() const { return boundingBox; }

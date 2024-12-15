@@ -11,7 +11,7 @@ public:
 		loadTexture("../Assets/Character/Enemies/frogman.png", spawnPosition.x, spawnPosition.y);
 
 	}
-	void fighting(int direction, Character& player) {
+	void fighting(int direction,  std::shared_ptr<Character>& player) {
         const int frameWidth = 80;   // Width of a single frame
         const int frameHeight = 96;  // Height of a single frame
         const int totalFrames = 4;   // Number of frames per direction

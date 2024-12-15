@@ -47,7 +47,7 @@ private:
 public:
     Character(const std::string& characterTexturePath, const std::string& healthTexturePath)
         : healthBar(healthTexturePath, 300,1200 ), health(100) { 
-        loadTexture(characterTexturePath, false, 2, 240, 310);
+        loadTexture(characterTexturePath, false, 2, 340, 1280);
         
     }
     std::shared_ptr<Weapon> getWeapon(int num) {
@@ -63,6 +63,9 @@ public:
     bool hit = false;
     void setShooting(bool shooting);
     void takeDamage(float damage) {
+        if (curWeapon->getType() == WeaponType::Spear) {
+            damage = 0.7* damage;
+        }
         health -= damage;
         if (health > 0) {
             healthBar.startShake();
@@ -120,9 +123,9 @@ public:
     void resetAnimation() {
         currentFrame = 0;
     }
-    void handleMovement(Map& gameMap, const std::vector<std::shared_ptr<Enemy>>& enemies, int& num, bool& isMoving);
-    void fight(int direction);
-    void fightBow(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies);
+    void handleMovement(std::shared_ptr<Map>& gameMap, const std::vector<std::shared_ptr<Enemy>>& enemies, int& num, bool& isMoving);
+    void fightSpear(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies);
+    void fightBow(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies, std::shared_ptr<Map>& gameMap);
     void fightSword(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies);
     void loadTexture(const std::string& path, bool isBig, int num, float x, float y);
     void drawTo(sf::RenderWindow& window) const;   

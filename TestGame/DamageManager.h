@@ -5,10 +5,10 @@
 using namespace std;
 class DamageManager : public Manager {
 private:
-	Character& player;
+	 std::shared_ptr<Character>& player;
 	vector<shared_ptr<Enemy>>& enemies;
 public:
-	DamageManager(Character& pl, std::vector<std::shared_ptr<Enemy>>& en)
+	DamageManager( std::shared_ptr<Character>& pl, std::vector<std::shared_ptr<Enemy>>& en)
 		: player(pl), enemies(en) {};
 	void notify(const std::string& event, float value);
 
