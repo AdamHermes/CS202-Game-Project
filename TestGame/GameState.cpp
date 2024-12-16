@@ -63,7 +63,10 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
         bool isMoving1 = false;
 
         static bool wasJPressed = false;
-        if (gameLoop->getCurLevelIndex() == 2) {
+        
+        if ((gameLoop->getCurLevelIndex() == 2 || gameLoop->getCurLevelIndex() == 1) && guard) {
+
+
             guard->handleGuardianMovement(gameMap, player, room->getEnemies());
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
@@ -134,7 +137,12 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
             player->handleMovement(gameMap, room->getEnemies(), num, isMoving);
         }
         player->updateSpriteHealth(camera);
-        guard->updateSpriteHealth(camera);
+        player->updateItemPositions(camera.getView());
+        if (guard) {
+
+            guard->updateSpriteHealth(camera);
+        }
+       
     }
     
 }
@@ -146,14 +154,16 @@ void GameState::update() {
 
         return;
     }
-    if (guard->isDead()) {
-        guard = nullptr;
+    if (guard && gameLoop->isGuardDead()) {
+
+        guard.reset();
+
     }
-    else {
-        if (gameLoop->update()) {
-            room = gameLoop->getCurLevel()->getRoom(0);
-        }
+
+    if (gameLoop->update()) {
+        room = gameLoop->getCurLevel()->getRoom(0);
     }
+
     
 }
 
@@ -164,9 +174,13 @@ void GameState::draw(sf::RenderWindow& window) {
     if (player) {
         player->drawTo(window);
     }
-    if (gameLoop->getCurLevelIndex() == 2 && guard) {
+   
+    if ((gameLoop->getCurLevelIndex() == 2 || gameLoop->getCurLevelIndex() == 1) && guard) {
         guard->drawTo(window);
+;
     }
+    
+
     //sf::RectangleShape rangeShape(sf::Vector2f(guard->boundingBox.width, guard->attackRangeBox.height));
     //rangeShape.setPosition(guard->attackRangeBox.left, guard->attackRangeBox.top);
     //rangeShape.setFillColor(sf::Color(255, 0, 0, 100)); // Semi-transparent red

@@ -10,7 +10,7 @@ public:
 		loadTexture("../Assets/Character/Enemies/demon2.png", spawnPosition.x, spawnPosition.y);
 
 	}
-	void fighting(int direction,  std::shared_ptr<Character>& player) {
+	void fighting(int direction, const string target) {
         const int frameWidth = 64;   // Width of a single frame
         const int frameHeight = 64;  // Height of a single frame
         const int totalFrames = 4;   // Number of frames per direction
@@ -35,10 +35,9 @@ public:
         }
     
 		if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
-
-            manager->notify("EnemyAttackPlayer", 5);
-
-			attackCooldownClock.restart();
+            if (target == "player")  manager->notify("EnemyAttackPlayer", 9);
+            else if (target == "guard") manager->notify("EnemyAttackGuard", 9);
+            attackCooldownClock.restart();
 		}
 	}
 

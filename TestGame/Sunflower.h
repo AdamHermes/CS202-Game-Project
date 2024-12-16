@@ -10,10 +10,10 @@ public:
 		loadTexture("../Assets/Character/Enemies/sunflower.png", spawnPosition.x, spawnPosition.y);
 
 	}
-	void fighting(int direction, std::shared_ptr<Character>& player) {
+	void fighting(int direction, const string target) {
 		if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
-
-			manager->notify("EnemyAttackPlayer", 5);
+			if (target == "player")  manager->notify("EnemyAttackPlayer", 8);
+			else if (target == "guard") manager->notify("EnemyAttackGuard", 8);
 			attackCooldownClock.restart();
 		}
 	}

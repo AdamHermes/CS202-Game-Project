@@ -10,5 +10,5 @@ public:
 		loadTexture("../Assets/Character/Enemies/golem.png",spawnPosition.x, spawnPosition.y);
 
 	}
-	void fighting(int direction,  std::shared_ptr<Character>& player);
+	void fighting(int direction, const string target);
 };

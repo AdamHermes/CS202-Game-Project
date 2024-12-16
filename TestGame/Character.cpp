@@ -320,6 +320,24 @@ void Character::takePortions(std::shared_ptr<Items>& item) {
         }
     }
 }
+void Character::updateItemPositions(const sf::View& cameraView) {
+    sf::Vector2f viewCenter = cameraView.getCenter();
+    sf::Vector2f viewSize = cameraView.getSize();
+
+    // Bottom-center of the screen
+    float baseX = viewCenter.x + (viewSize.x / 2) - 160.0f; // Starting X position (left edge + margin)
+    float baseY = viewCenter.y - (viewSize.y / 2) + 30.0f; // Bottom edge - margin for height
+
+    float itemSpacing = 50.0f; 
+    for (int i = 0; i < 3; ++i) {
+        if (storedItems[i]) {
+            float x = baseX + (itemSpacing * i); 
+            float y = baseY;
+            storedItems[i]->setPosition(x, y);
+        }
+    }
+}
+
 void Character::updateSpriteHealth(const Camera& camera) {
     if (type == CharacterType::player) {
         healthBar.update(health);
@@ -336,6 +354,11 @@ void Character::drawTo(sf::RenderWindow& window) const {
     }
     if (type == CharacterType::player) {
         window.draw(healthBar.getSprite());
+        for (int i = 0; i < 3; ++i) {
+            if (storedItems[i]) {
+                window.draw(storedItems[i]->getSprite());
+            }
+        }
     }
 
 

@@ -1,6 +1,6 @@
 #include "Golem.h"
 #include "Character.h"
-void Golem::fighting(int direction,  std::shared_ptr<Character>& player) {
+void Golem::fighting(int direction,  const string target) {
     const int frameWidth = 64;   // Width of a single frame
     const int frameHeight = 96;  // Height of a single frame
     const int totalFrames = 7;   // Number of frames per direction
@@ -27,10 +27,9 @@ void Golem::fighting(int direction,  std::shared_ptr<Character>& player) {
 
     
     if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
-
-        manager->notify("EnemyAttackPlayer", 5);
-
-        attackCooldownClock.restart(); 
+        if (target == "player")  manager->notify("EnemyAttackPlayer", 10);
+        else if (target == "guard") manager->notify("EnemyAttackGuard", 10);
+        attackCooldownClock.restart();
     }
     
 

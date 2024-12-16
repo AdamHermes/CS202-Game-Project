@@ -123,7 +123,7 @@ public:
     }
     //void randomPatrol(Map& gameMap);
     virtual ~Enemy() = default;
-    virtual void fighting(int direction, std::shared_ptr<Character>& player) = 0;
+    virtual void fighting(int direction, const string target) = 0;
     virtual void fightingD(int direction, std::shared_ptr<Character>& player, std::shared_ptr<Character>& guard,std::shared_ptr<Map>& gameMap) {
         std::cout << "Dragon Field";
     }

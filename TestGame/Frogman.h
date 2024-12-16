@@ -11,7 +11,7 @@ public:
 		loadTexture("../Assets/Character/Enemies/frogman.png", spawnPosition.x, spawnPosition.y);
 
 	}
-	void fighting(int direction,  std::shared_ptr<Character>& player) {
+	void fighting(int direction, const string target) {
         const int frameWidth = 80;   // Width of a single frame
         const int frameHeight = 96;  // Height of a single frame
         const int totalFrames = 4;   // Number of frames per direction
@@ -34,9 +34,9 @@ public:
             sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, frameHeight2 + direction * frameHeight, frameWidth, frameHeight));
         }
 		if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
-
-            manager->notify("EnemyAttackPlayer", 5);
-			attackCooldownClock.restart();
+            if (target == "player")  manager->notify("EnemyAttackPlayer", 5);
+            else if (target == "guard") manager->notify("EnemyAttackGuard", 5);
+            attackCooldownClock.restart();
 		}
 	}
 

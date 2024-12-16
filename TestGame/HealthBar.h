@@ -55,6 +55,8 @@ public:
     void setPosition(float x, float y) {
         healthBarSprite.setPosition(x, y);
     }
+
+    
     void updatePosition(const sf::View& cameraView) {
         // Calculate the base position of the health bar relative to the camera view
         float offsetX = 10.0f; // X offset from the left edge

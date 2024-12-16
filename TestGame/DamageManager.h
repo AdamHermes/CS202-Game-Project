@@ -12,5 +12,5 @@ public:
 	DamageManager( std::shared_ptr<Character>& pl,std::shared_ptr<Character>& gu, std::vector<std::shared_ptr<Enemy>>& en)
 		: player(pl), guard(gu), enemies(en) {};
 	void notify(const std::string& event, float value);
-
+	std::shared_ptr<Character>& getGuard() { return guard; }
 };

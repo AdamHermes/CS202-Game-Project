@@ -14,25 +14,26 @@ private:
     void cleanupLevel() {
         curLevel.reset(); // Release the current level
     }
+    bool checkGuard = false;
 public:
     void drawBoundingBox(sf::RenderWindow& window, sf::FloatRect boundingBox) {
         sf::RectangleShape boundingBoxShape;
         boundingBoxShape.setSize(sf::Vector2f(boundingBox.width, boundingBox.height));
         boundingBoxShape.setPosition(boundingBox.left, boundingBox.top);
-        boundingBoxShape.setFillColor(sf::Color::Transparent);  // Transparent fill
-        boundingBoxShape.setOutlineColor(sf::Color::Red);  // Red outline for visibility
-        boundingBoxShape.setOutlineThickness(2);  // Thickness of the outline
+        boundingBoxShape.setFillColor(sf::Color::Transparent); 
+        boundingBoxShape.setOutlineColor(sf::Color::Red); 
+        boundingBoxShape.setOutlineThickness(2); 
 
-        window.draw(boundingBoxShape);  // Draw the bounding box on the window
+        window.draw(boundingBoxShape); 
     }
-    GameLoop(std::shared_ptr<Character> player, std::shared_ptr<Map> gameMap, std::shared_ptr<Character> guard)
+    GameLoop(std::shared_ptr<Character>& player, std::shared_ptr<Map>& gameMap, std::shared_ptr<Character>& guard)
         : player(player), gameMap(gameMap), guard(guard) {
         
     }   
 
     void addLevel(const sf::FloatRect& gatePosition) {
         auto newLevel = std::make_shared<Level>();
-        newLevel->setGate(gatePosition); // Set the gate position in the level
+        newLevel->setGate(gatePosition); 
         levels.push_back(newLevel);
     }
 
@@ -40,7 +41,7 @@ public:
         sf::FloatRect gatePositionLevel1(200.0f, 300.0f, 100.0f, 50.0f);  // Gate for level 1
         sf::FloatRect gatePositionLevel2(1030.0f, 1330.0f, 100.0f, 50.0f);  // Gate for level 2
         sf::FloatRect gatePositionLevel3(0, 0, 0, 0);
-        // Add levels with corresponding gate positions
+
         addLevel(gatePositionLevel1);  // Level 1
         addLevel(gatePositionLevel2);  // Level 2
         addLevel(gatePositionLevel3);
@@ -71,9 +72,9 @@ public:
             gameMap->obstacles.clear();
             if (damageManager) {
                 delete damageManager;
-                damageManager = nullptr; // Avoid dangling pointers
+                damageManager = nullptr; 
             }
-            // Load the new map
+
             std::string texturePath = "../Assets/Character/Textures/map" + std::to_string(currentLevelIndex) + ".png";
             std::string tmxPath = "../Assets/Character/TMX MAP/map" + std::to_string(currentLevelIndex) + ".tmx";
 
@@ -82,20 +83,21 @@ public:
                 return;
             }
             if (currentLevelIndex == 1) {
-                player->loadTexture("../Assets/Character/Textures/character1.png", false, 2, 1060, 1400); //1300 260
-
-            }
-            else if (currentLevelIndex == 2) {
-                player->loadTexture("../Assets/Character/Textures/character1.png", false, 2, 160, 950);
-                guard->loadTexture("../Assets/Character/Textures/characters.png", false, 2, 240, 1000);
+                player->setPosition( 1300, 260); //1300 260
+                guard->loadTexture("../Assets/Character/Textures/characters.png", false, 2, 1470, 930);
                 guard->updateBoundingBox();
                 guard->equipWeapon(WeaponType::Bow);
                 auto start_weapon_guard = guard->getWeapon(0);
                 guard->setCurWeapon(start_weapon_guard);
+                
+            }
+            else if (currentLevelIndex == 2) {
+                player->setPosition(160, 950);
+                guard->setPosition(130, 1000);
+                
 
             }
-            //player.updateBoundingBox();
-            //player.equipWeapon(WeaponType::Sword);
+            
             std::cout << "Loaded map for level " << currentLevelIndex + 1 << std::endl;
             cout << "Cur Index " << currentLevelIndex << endl;
             loadEnemiesForRooms(currentLevelIndex);
@@ -106,28 +108,36 @@ public:
             std::cout << "You have completed the game!" << std::endl;
         }
     }
+    bool isGuardDead() {
+        if (guard->isDead()) {
+            guard.reset();
+            
+
+            return true;
+        }
+        return false;
+    }
     bool update() {
-        static bool transitioning = false;     // Flag to check if transition is in progress
-        static sf::Clock transitionClock;     // Clock to measure delay duration
-
+       
+        static bool transitioning = false;  
+        static sf::Clock transitionClock;   
         if (!curLevel) return false;
-
         if (!transitioning) {
-            curLevel->moveEnemies(gameMap, player,guard);
+            
 
-            // Check if player is entering the gate
+            
+            curLevel->moveEnemies(gameMap, player,guard);
+            
             if (curLevel->checkGateEntry(player)) {
-                transitioning = true;         // Start transition
-                transitionClock.restart();    // Reset the clock for delay
-                             // Signal transition has started
+                transitioning = true;        
+                transitionClock.restart();    
             }
         }
         else {
-            // Wait for a short delay before loading the next level
-            if (transitionClock.getElapsedTime().asSeconds() >= 0.5f) { // 1-second delay
-                loadNextLevel();             // Load the next level
+            if (transitionClock.getElapsedTime().asSeconds() >= 0.5f) { 
+                loadNextLevel();        
                 transitioning = false;  
-                return true;     // Reset the transition flag
+                return true;    
             }
         }
 
@@ -157,10 +167,14 @@ public:
 
     void updateDamageManager() {
         auto room = curLevel->getRoom(0);
-        if (damageManager) delete damageManager; // Clean up old manager
+        if (damageManager) delete damageManager; 
         damageManager = new DamageManager(player, guard, room->getEnemies());
         player->setMediator(damageManager);
         guard->setMediator(damageManager);
         room->setMed(damageManager);
+    }
+    ~GameLoop() {
+        delete damageManager;
+        cout << "DELETE MANAGER";
     }
 };

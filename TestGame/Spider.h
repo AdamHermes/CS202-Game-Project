@@ -10,11 +10,10 @@ public:
 		loadTexture("../Assets/Character/Enemies/spider01.png", spawnPosition.x, spawnPosition.y);
 
 	}
-	void fighting(int direction,  std::shared_ptr<Character>&  player) {
+	void fighting(int direction,  const string target) {
 		if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
-
-			manager->notify("EnemyAttackPlayer", 3);
-
+			if (target == "player")  manager->notify("EnemyAttackPlayer", 3);
+			else if (target == "guard") manager->notify("EnemyAttackGuard", 3);
 			attackCooldownClock.restart();
 		}
 	}

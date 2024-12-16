@@ -14,13 +14,13 @@ public:
         weaponType = type;
         switch (type) {
         case WeaponType::Sword:
-            damage = 10;
+            damage = 13;
             break;
         case WeaponType::Spear:
-            damage = 10;
+            damage = 15;
             break;
         case WeaponType::Bow:
-            damage = 15;
+            damage = 10;
             break;
         case WeaponType::None:
             damage = 0;

@@ -28,7 +28,7 @@ public:
     void addEnemy(EnemyType type, const sf::Vector2f& spawnPosition) {
         enemies.push_back(EnemyFactory::createEnemy(type, spawnPosition));
     }
-    void setMed(DamageManager* damageManager) {
+    void setMed(DamageManager*& damageManager) {
         for (auto const& enemy : enemies) {
             enemy->setMediator(damageManager);
         }

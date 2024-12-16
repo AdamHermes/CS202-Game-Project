@@ -11,7 +11,7 @@ public:
         loadTexture("../Assets/Character/Enemies/boarman.png", spawnPosition.x, spawnPosition.y);
 
     }
-    void fighting(int direction,  std::shared_ptr<Character>& player) {
+    void fighting(int direction, const string target) {
         const int frameWidth = 64;   // Width of a  std::shared_ptr<Character> player frame
         const int frameHeight = 64;  // Height of a  std::shared_ptr<Character> player f    rame
         const int totalFrames = 6;   // Number of frames per direction
@@ -34,8 +34,9 @@ public:
             sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, frameHeight2 + direction * frameHeight, frameWidth, frameHeight));
         }
         if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
-
-            manager->notify("EnemyAttackPlayer", 10);
+            
+            if (target == "player")  manager->notify("EnemyAttackPlayer", 7);
+            else if (target == "guard") manager->notify("EnemyAttackGuard", 7);
             attackCooldownClock.restart();
         }
     }

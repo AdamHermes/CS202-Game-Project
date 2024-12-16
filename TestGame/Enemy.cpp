@@ -116,7 +116,10 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
     }
     bool collidesWithMap = gameMap->checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
     bool collidesWithPlayer = player->checkCollision(newBoundingBox);
-    bool collidesWithGuard = guard->checkCollision(newBoundingBox);
+    bool collidesWithGuard = false;
+    if (guard) {
+        collidesWithGuard = guard->checkCollision(newBoundingBox);
+    }
     if (enemyType == EnemyType::Dragon1) {
         int num = getFightingDirection(direction);
         fightingD(num, player, guard, gameMap);
@@ -145,7 +148,12 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
 
         }
         int num = getFightingDirection(direction);
-        fighting(num, player);
+        if (collidesWithPlayer) {
+            fighting(num, "player");
+        }
+        else if (collidesWithGuard) {
+            fighting(num, "guard");
+        }
 
 
     }

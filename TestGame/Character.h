@@ -56,8 +56,10 @@ public:
     Character(const std::string& characterTexturePath, const std::string& healthTexturePath, const CharacterType type)
         : healthBar(healthTexturePath, 300,1200 ), health(100), type(type) { 
         loadTexture(characterTexturePath, false, 2, 340, 1280);
+        if (type == CharacterType::guard) health = 60;
         
     }
+    
     std::shared_ptr<Weapon> getWeapon(int num) {
         return equippedWeapons[num];
     }
@@ -72,8 +74,8 @@ public:
     bool hit = false;
     void setShooting(bool shooting);
     void takeDamage(float damage) {
-        if (curWeapon->getType() == WeaponType::Spear) {
-            damage = 0.7* damage;
+        if (type == CharacterType::guard) {
+            damage = 1.5* damage;
         }
         health -= damage;
         if (health > 0) {
@@ -91,6 +93,7 @@ public:
         }
 
     }
+    void updateItemPositions(const sf::View& cameraView);
     bool getisFighting() {
         return isFighting;
     }
@@ -164,6 +167,9 @@ public:
 
     void setUsedItem(int index) {
         storedItems[index] = nullptr;
+    }
+    void setPosition(float x, float y) {
+        sprite.setPosition(x, y);
     }
     void handleGuardianMovement(std::shared_ptr<Map>& gameMap,
         std::shared_ptr<Character>& player,
