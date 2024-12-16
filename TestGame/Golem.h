@@ -3,7 +3,7 @@
 class Golem : public Enemy {
 public:
 	Golem(sf::Vector2f spawnPosition) : Enemy(EnemyType::Golem) {
-		health = 80;
+		health = 70;
 		totalFrames = 7;
 		frameDuration = 0.1f;
 		attackCooldown = 0.8f;

@@ -6,7 +6,7 @@ bool Map::loadTexture(std::string filename) {
     if (mapTexture.loadFromFile(filename)) cout << "Load Success";
     else return false;
     mapSprite.setTexture(mapTexture);
-    mapSprite.setTextureRect(sf::IntRect(0, 0, 2240, 1600));
+    mapSprite.setTextureRect(sf::IntRect(0, 0, 2240, 3000));
     return true;
 }
 

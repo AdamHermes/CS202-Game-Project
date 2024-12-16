@@ -13,7 +13,10 @@ enum class EnemyType {
     Golem,
     Sunflower,
     Spider,
-    Dragon,
+    Dragon1,
+    Dragon2,
+    Dragon3,
+    Dragon4,
     Skeleton,
     Boarman
 };
@@ -87,7 +90,7 @@ public:
             boundingBox = sf::FloatRect(position.x - 24.0f, position.y -36.0f+ offsetY, 48, 64);
 
         }
-        else if (enemyType == EnemyType::Dragon) {
+        else if (enemyType == EnemyType::Dragon1) {
             boundingBox = sf::FloatRect(position.x - 52.0f, position.y - 32.0f, 104, 64);
         }
         else {
@@ -102,8 +105,12 @@ public:
     void updateDead();
     void changePos(int direction);
     void loadTexture(std::string filename, float x, float y);
-    void drawTo(sf::RenderWindow& window) const;
-    void handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Character> player);
+    virtual void drawTo(sf::RenderWindow& window) const {
+        if (opacity > 0)
+            window.draw(sprite);
+    }
+    sf::Sprite getSprite() const { return sprite; }
+    void handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Character> player, std::shared_ptr<Character> guard);
     void drawBoundingBox(sf::RenderWindow& window) {
         sf::RectangleShape boundingBoxShape;
         boundingBoxShape.setSize(sf::Vector2f(boundingBox.width, boundingBox.height));
@@ -117,5 +124,25 @@ public:
     //void randomPatrol(Map& gameMap);
     virtual ~Enemy() = default;
     virtual void fighting(int direction, std::shared_ptr<Character>& player) = 0;
-
+    virtual void fightingD(int direction, std::shared_ptr<Character>& player, std::shared_ptr<Character>& guard,std::shared_ptr<Map>& gameMap) {
+        std::cout << "Dragon Field";
+    }
+    int getFightingDirection(sf::Vector2f direction) {
+        if (std::abs(direction.x) > std::abs(direction.y)) {
+            if (direction.x > 0) {
+                return 2;
+            }
+            else {
+                return 3;
+            }
+        }
+        else {
+            if (direction.y > 0) {
+                return 0;
+            }
+            else {
+                return 1;
+            }
+        }
+    }
 };

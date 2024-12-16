@@ -6,7 +6,8 @@ class GameLoop {
 private:
     std::vector<std::shared_ptr<Level>> levels;
     std::shared_ptr<Level> curLevel;
-    std::shared_ptr<Character> player; // Player character
+    std::shared_ptr<Character> player;
+    std::shared_ptr<Character> guard;// Player character
     std::shared_ptr<Map> gameMap;
     int currentLevelIndex = 0;                // Index of the current level
     DamageManager* damageManager;
@@ -14,8 +15,22 @@ private:
         curLevel.reset(); // Release the current level
     }
 public:
-    GameLoop(std::shared_ptr<Character> player, std::shared_ptr<Map> gameMap)
-        : player(player), gameMap(gameMap) {}    void addLevel(const sf::FloatRect& gatePosition) {
+    void drawBoundingBox(sf::RenderWindow& window, sf::FloatRect boundingBox) {
+        sf::RectangleShape boundingBoxShape;
+        boundingBoxShape.setSize(sf::Vector2f(boundingBox.width, boundingBox.height));
+        boundingBoxShape.setPosition(boundingBox.left, boundingBox.top);
+        boundingBoxShape.setFillColor(sf::Color::Transparent);  // Transparent fill
+        boundingBoxShape.setOutlineColor(sf::Color::Red);  // Red outline for visibility
+        boundingBoxShape.setOutlineThickness(2);  // Thickness of the outline
+
+        window.draw(boundingBoxShape);  // Draw the bounding box on the window
+    }
+    GameLoop(std::shared_ptr<Character> player, std::shared_ptr<Map> gameMap, std::shared_ptr<Character> guard)
+        : player(player), gameMap(gameMap), guard(guard) {
+        
+    }   
+
+    void addLevel(const sf::FloatRect& gatePosition) {
         auto newLevel = std::make_shared<Level>();
         newLevel->setGate(gatePosition); // Set the gate position in the level
         levels.push_back(newLevel);
@@ -23,20 +38,31 @@ public:
 
     void addLevels() {
         sf::FloatRect gatePositionLevel1(200.0f, 300.0f, 100.0f, 50.0f);  // Gate for level 1
-        sf::FloatRect gatePositionLevel2(800.0f, 1000.0f, 50.0f, 50.0f);  // Gate for level 2
-
+        sf::FloatRect gatePositionLevel2(1030.0f, 1330.0f, 100.0f, 50.0f);  // Gate for level 2
+        sf::FloatRect gatePositionLevel3(0, 0, 0, 0);
         // Add levels with corresponding gate positions
         addLevel(gatePositionLevel1);  // Level 1
         addLevel(gatePositionLevel2);  // Level 2
+        addLevel(gatePositionLevel3);
     }
     void loadEnemiesForRooms(int currentLevelIndex) {
+
+        cout << levels.size();
         curLevel = levels[currentLevelIndex];
         if (currentLevelIndex >= 1) {
             std::shared_ptr<Level> prevLevel = levels[currentLevelIndex - 1];
             prevLevel->getRoom(0)->clearEnemies();
         }
-        
+
         curLevel->populateEnemies(currentLevelIndex);
+    }
+    void loadItemsForRooms(int currentLevelIndex) {
+        if (currentLevelIndex >= 1) {
+            std::shared_ptr<Level> prevLevel = levels[currentLevelIndex - 1];
+            prevLevel->getRoom(0)->clearItems();
+        }
+        
+        curLevel->populateItems(currentLevelIndex);
     }
     void loadNextLevel() {
         if (currentLevelIndex + 1 < levels.size()) {
@@ -55,12 +81,25 @@ public:
                 std::cerr << "Failed to load map for level " << currentLevelIndex + 1 << std::endl;
                 return;
             }
-            player->loadTexture("../Assets/Character/Textures/character1.png", false, 2, 1300, 260);
+            if (currentLevelIndex == 1) {
+                player->loadTexture("../Assets/Character/Textures/character1.png", false, 2, 1060, 1400); //1300 260
+
+            }
+            else if (currentLevelIndex == 2) {
+                player->loadTexture("../Assets/Character/Textures/character1.png", false, 2, 160, 950);
+                guard->loadTexture("../Assets/Character/Textures/characters.png", false, 2, 240, 1000);
+                guard->updateBoundingBox();
+                guard->equipWeapon(WeaponType::Bow);
+                auto start_weapon_guard = guard->getWeapon(0);
+                guard->setCurWeapon(start_weapon_guard);
+
+            }
             //player.updateBoundingBox();
             //player.equipWeapon(WeaponType::Sword);
             std::cout << "Loaded map for level " << currentLevelIndex + 1 << std::endl;
             cout << "Cur Index " << currentLevelIndex << endl;
             loadEnemiesForRooms(currentLevelIndex);
+            loadItemsForRooms(currentLevelIndex);
             updateDamageManager();
         }
         else {
@@ -74,7 +113,7 @@ public:
         if (!curLevel) return false;
 
         if (!transitioning) {
-            curLevel->moveEnemies(gameMap, player);
+            curLevel->moveEnemies(gameMap, player,guard);
 
             // Check if player is entering the gate
             if (curLevel->checkGateEntry(player)) {
@@ -98,6 +137,9 @@ public:
     std::shared_ptr<Level> getCurLevel() {
         return curLevel;
     }
+    int getCurLevelIndex() {
+        return currentLevelIndex;
+    }
     std::shared_ptr<Level> getLevel(size_t index) {
         if (index >= levels.size()) {
             throw std::out_of_range("Level index out of range!");
@@ -109,13 +151,16 @@ public:
     }
     void render(sf::RenderWindow& window) {
         curLevel->render(window);
+        auto gate = curLevel->getGate();
+        drawBoundingBox(window, gate->getBoundingBox());
     }
 
     void updateDamageManager() {
         auto room = curLevel->getRoom(0);
         if (damageManager) delete damageManager; // Clean up old manager
-        damageManager = new DamageManager(player, room->getEnemies() );
+        damageManager = new DamageManager(player, guard, room->getEnemies());
         player->setMediator(damageManager);
+        guard->setMediator(damageManager);
         room->setMed(damageManager);
     }
 };

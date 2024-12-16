@@ -6,9 +6,9 @@
 class Camera {
 public:
     Camera(float screenWidth, float screenHeight);
-
+    ~Camera() = default;
     // Update camera position based on player
-    void update(const sf::Vector2f& playerPosition);
+    void update(const sf::Vector2f& playerPosition,bool isAlive);
 
     // Apply the camera view to the window
     void applyView(sf::RenderWindow& window);
@@ -18,6 +18,7 @@ public:
 
     // Set zoom level to make the view smaller or larger
     void setZoom(float zoomLevel);
+    void setCenter(const sf::Vector2f& position);
     const sf::View& getView() const;
 private:
     sf::View view;

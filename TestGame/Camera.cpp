@@ -5,24 +5,30 @@ Camera::Camera(float screenWidth, float screenHeight)
     view.setSize(screenWidth, screenHeight);
 }
 
-void Camera::update(const sf::Vector2f& playerPosition) {
-    view.setCenter(playerPosition);
+void Camera::update(const sf::Vector2f& playerPosition, bool isAlive) {
+    if (isAlive) {
+        view.setCenter(playerPosition);
 
-    // Apply boundaries if worldBounds are set
-    if (worldBounds.width > 0 && worldBounds.height > 0) {
-        float leftBound = worldBounds.left + screenWidth / 2;
-        float rightBound = worldBounds.left + worldBounds.width - screenWidth / 2;
-        float topBound = worldBounds.top + screenHeight / 2;
-        float bottomBound = worldBounds.top + worldBounds.height - screenHeight / 2;
+        // Apply boundaries if worldBounds are set
+        if (worldBounds.width > 0 && worldBounds.height > 0) {
+            float leftBound = worldBounds.left + screenWidth / 2;
+            float rightBound = worldBounds.left + worldBounds.width - screenWidth / 2;
+            float topBound = worldBounds.top + screenHeight / 2;
+            float bottomBound = worldBounds.top + worldBounds.height - screenHeight / 2;
 
-        sf::Vector2f clampedPosition = view.getCenter();
-        if (clampedPosition.x < leftBound) clampedPosition.x = leftBound;
-        if (clampedPosition.x > rightBound) clampedPosition.x = rightBound;
-        if (clampedPosition.y < topBound) clampedPosition.y = topBound;
-        if (clampedPosition.y > bottomBound) clampedPosition.y = bottomBound;
+            sf::Vector2f clampedPosition = view.getCenter();
+            if (clampedPosition.x < leftBound) clampedPosition.x = leftBound;
+            if (clampedPosition.x > rightBound) clampedPosition.x = rightBound;
+            if (clampedPosition.y < topBound) clampedPosition.y = topBound;
+            if (clampedPosition.y > bottomBound) clampedPosition.y = bottomBound;
 
-        view.setCenter(clampedPosition);
+            view.setCenter(clampedPosition);
+        }
     }
+    
+}
+void Camera::setCenter(const sf::Vector2f& position) {
+    view.setCenter(position);
 }
 
 void Camera::applyView(sf::RenderWindow& window) {

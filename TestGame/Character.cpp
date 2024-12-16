@@ -71,13 +71,12 @@ void Character::fightSpear(int direction, const std::vector<std::shared_ptr<Enem
         attackCooldownClock.restart();
     }
 }
-void Character::fightBow(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies, std::shared_ptr<Map>& gameMap) {
+void Character::fightBow(int direction, CharacterType type, const std::vector<std::shared_ptr<Enemy>>& enemies, std::shared_ptr<Map>& gameMap) {
     const int frameWidth = 64;   // Width of a single frame
     const int frameHeight = 64; // Height of a single frame
     const int totalFrames = 13; // Total frames for bow animation
     const float arrowSpeed = 300.0f; // Arrow speed
     const float maxArrowDistance = 416.0f; // Maximum arrow travel distance
-
     // Update animation frame
     if (animationClock.getElapsedTime().asSeconds() > frameDuration) {
         currentFrame = (currentFrame + 1) % totalFrames;
@@ -102,6 +101,12 @@ void Character::fightBow(int direction, const std::vector<std::shared_ptr<Enemy>
     if (isFighting && currentFrame == 10 && attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
         sf::Sprite newArrow = arrowSprite; // Create a new arrow sprite
         newArrow.setPosition(sprite.getPosition()); // Set initial position of arrow
+        if (direction == Left) {
+            newArrow.setPosition(sprite.getPosition() + sf::Vector2f(-64,0));
+        }
+        else if (direction == Up) {
+            newArrow.setPosition(sprite.getPosition() + sf::Vector2f(0, -64));
+        }
         // Determine arrow texture rect and velocity based on direction
         sf::Vector2f velocity;
         if (direction == Right) {
@@ -146,10 +151,16 @@ void Character::fightBow(int direction, const std::vector<std::shared_ptr<Enemy>
         if (gameMap->checkCollision(attackRangeBox.left, attackRangeBox.top, attackRangeBox.width, attackRangeBox.height)) {
             hit = true;
         }
-
         if (!hit){
+
             if (manager) {
-                manager->notify("PlayerAttack", curWeapon->getDamage());
+                if (type == CharacterType::player) {
+                    manager->notify("PlayerAttack", curWeapon->getDamage());
+
+                }
+                else if (type == CharacterType::guard) {
+                    manager->notify("GuardAttack", curWeapon->getDamage());
+                }
             }
         }
 
@@ -169,7 +180,23 @@ void Character::setShooting(bool shooting) {
     }
 }
 
+void Character::applyItemEffect(std::shared_ptr<Items> item) {
+    switch (item->getType()) {
+    case ItemType::health:
+        if (healingTimer.getElapsedTime().asSeconds() >= 0.5f) {
+            health += 10;
+            if (health > 100) health = 100;
+            sprite.setColor(sf::Color(0, 255, 0, 128));  // Green glow effect
 
+            // Restart the healing timer after each healing step
+            healingTimer.restart();
+        }
+        break;
+    case ItemType::speed:
+        speed += 0.025f;
+        break;
+    }
+}
 
 void Character::fightSword(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies) {
     const int frameWidth = 192;   // Width of a single frame
@@ -270,30 +297,47 @@ void Character::updateState(bool fighting, int num, WeaponType weaponType) {
         }
     }
 }
-void Character::takePortions() {
-    if (healingTimer.getElapsedTime().asSeconds() >= 0.5f) {
-        health += 10;
-        if (health > 100) health = 100;
-        sprite.setColor(sf::Color(0, 255, 0, 128));  // Green glow effect
-
-        // Restart the healing timer after each healing step
-        healingTimer.restart();
+std::shared_ptr<Items> Character::checkItemNearby(std::vector<shared_ptr<Items>>& items_inventory) {
+    for (std::shared_ptr<Items> item : items_inventory) {
+        if (boundingBox.intersects(item->getSprite().getGlobalBounds())) {
+            item->getSprite().setColor(sf::Color(255, 255, 0, 255)); // Yellow glow
+            return item;
+            
+        }
+        else {
+            item->getSprite().setColor(sf::Color(255, 255, 255, 255)); // Normal color
+            
+        }
+    }
+    return nullptr;
+}
+void Character::takePortions(std::shared_ptr<Items>& item) {
+    for (int i = 0; i < 3; ++i) {
+        if (!storedItems[i]) {
+            storedItems[i] = item;
+            item->removed();
+            return;
+        }
     }
 }
 void Character::updateSpriteHealth(const Camera& camera) {
-    healthBar.update(health);
-    healthBar.updatePosition(camera.getView()); 
-    healthBar.stopShake();
+    if (type == CharacterType::player) {
+        healthBar.update(health);
+        healthBar.updatePosition(camera.getView());
+        healthBar.stopShake();
+    }
     if (damageFlashTimer.getElapsedTime().asSeconds() > 0.2f && healingTimer.getElapsedTime().asSeconds() > 0.2f) {
         sprite.setColor(sf::Color::White);  // Reset to the original sprite color if no healing is applied
     }
 }
 void Character::drawTo(sf::RenderWindow& window) const {
-    // Draw the character sprite
-    window.draw(sprite);
+    if (alive) {
+        window.draw(sprite);
+    }
+    if (type == CharacterType::player) {
+        window.draw(healthBar.getSprite());
+    }
 
-    // Draw the health bar sprite
-    window.draw(healthBar.getSprite());
 
     // Draw arrows if fighting
     for (const auto& arrow : vectorArrow) {
@@ -312,22 +356,22 @@ void Character::handleMovement(std::shared_ptr<Map>& gameMap, const std::vector<
 
     // Check for diagonal movement
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-        movement = sf::Vector2f(0.05f, -0.05f);
+        movement = sf::Vector2f(speed, -speed);
         num = 3; // Face right
         isDiagonal = true;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-        movement = sf::Vector2f(-0.05f, -0.05f);
+        movement = sf::Vector2f(-speed, -speed);
         num = 1; // Face left
         isDiagonal = true;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-        movement = sf::Vector2f(0.05f, 0.05f); 
+        movement = sf::Vector2f(speed, speed); 
         num = 3; // Face right
         isDiagonal = true;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-        movement = sf::Vector2f(-0.05f, 0.05f);
+        movement = sf::Vector2f(-speed, speed);
         num = 1; // Face left
         isDiagonal = true;
     }
@@ -337,19 +381,19 @@ void Character::handleMovement(std::shared_ptr<Map>& gameMap, const std::vector<
     // Check for single key movement if no diagonal keys are pressed
     if (!isDiagonal) {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-            movement = sf::Vector2f(0.05f, 0);
+            movement = sf::Vector2f(speed, 0);
             num = 3; // Face right
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-            movement = sf::Vector2f(-0.05f, 0);
+            movement = sf::Vector2f(-speed, 0);
             num = 1; // Face left
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-            movement = sf::Vector2f(0, -0.05f);
+            movement = sf::Vector2f(0, -speed);
             num = 0; // Face up
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-            movement = sf::Vector2f(0, 0.05f);
+            movement = sf::Vector2f(0, speed);
             num = 2; // Face down
         }
     }
@@ -378,7 +422,6 @@ void Character::handleMovement(std::shared_ptr<Map>& gameMap, const std::vector<
         isMoving = false;
     }
 
-    // Update animation based on direction
 
     isFighting = false;
 }
@@ -387,5 +430,100 @@ void Character::equipWeapon(WeaponType type){
     std::shared_ptr<Weapon> weapon = make_shared<Weapon>(type);
     equippedWeapons.push_back(weapon);
 }
+
+void Character::handleGuardianMovement(std::shared_ptr<Map>& gameMap,
+    std::shared_ptr<Character>& player,
+    std::vector<std::shared_ptr<Enemy>>& enemies) {
+    sf::Vector2f guardianPosition = sprite.getPosition();
+    sf::Vector2f playerPosition = player->getSprite().getPosition();
+
+    // Frame counter for enemy search optimization
+    float closestEnemyDistanceSquared = 300.0f * 300.0f;
+
+    frameCounter++;
+   
+
+    
+    if (frameCounter % 10 == 0) { 
+        frameCounter /= 10;// Run enemy search logic every 10th frame
+        targetEnemy = nullptr;
+        float closestEnemyDistanceSquared = 300.0f * 300.0f;
+        
+        for (const auto& enemy : enemies) {
+            if (!enemy) continue; // Skip invalid pointers
+            sf::Vector2f enemyPosition = enemy->getSprite().getPosition();
+            sf::Vector2f distanceToEnemy = enemyPosition - guardianPosition;
+            float squaredDistance = distanceToEnemy.x * distanceToEnemy.x + distanceToEnemy.y * distanceToEnemy.y;
+
+            if (squaredDistance < closestEnemyDistanceSquared) {
+                closestEnemyDistanceSquared = squaredDistance;
+                targetEnemy = enemy;
+            }
+        }
+    }
+
+    // Decide movement target (enemy or player)
+    sf::Vector2f targetPosition = targetEnemy ? targetEnemy->getSprite().getPosition() : playerPosition;
+
+    // Calculate direction to the target
+    sf::Vector2f direction = targetPosition - guardianPosition;
+    float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (magnitude == 0) return; // Prevent division by zero
+    direction /= magnitude; // Normalize direction vector
+
+    // Calculate new position
+    sf::Vector2f newPosition = guardianPosition + direction * speed * 0.5f;
+
+    // Check collisions
+    sf::FloatRect newBoundingBox(newPosition.x - 32.0f + offsetX, newPosition.y - 32.0f + offsetY, boundingBox.width, boundingBox.height);
+    bool collidesWithMap = gameMap->checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
+    bool collidesWithPlayer = player->checkCollision(newBoundingBox);
+    bool collideEnemy = false;
+    for (const auto& enemy : enemies) {
+        if (enemy && enemy->checkCollision(newBoundingBox)) {
+            collideEnemy = true; // Early exit if a collision with an enemy is detected
+        }
+    }
+    // Move if no collisions
+    if (!collidesWithMap && !collidesWithPlayer && !collideEnemy) {
+        sprite.setPosition(newPosition);
+        updateBoundingBox();
+        isMoving = true;
+    }
+
+    // Attack logic
+    if (targetEnemy && magnitude < 300.0f) {
+        int num = getFightingDirection(targetEnemy->getSprite().getPosition() - guardianPosition);
+        isFighting = true;
+        isMoving = false;
+
+        setCurWeapon(player->getWeapon(0));
+        setShooting(true);
+        fightBow(num, CharacterType::guard, enemies, gameMap); // Use bow to fight
+    }
+
+    // Update guardian facing direction
+    if (isMoving) {
+        sprite.setOrigin(32.0f, 32.0f); // Set origin to the center
+        if (std::abs(direction.x) > std::abs(direction.y)) {
+            if (direction.x > 0) {
+                changePos(3); // Face right
+            }
+            else {
+                changePos(1); // Face left
+            }
+        }
+        else {
+            if (direction.y > 0) {
+                changePos(2); // Face down
+            }
+            else {
+                changePos(0); // Face up
+            }
+        }
+    }
+}
+
+
 
 

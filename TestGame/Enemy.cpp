@@ -13,7 +13,7 @@ void Enemy::changePos(int direction) {
         frameWidth = 128;
         frameHeight = 128;
     }
-    else if (enemyType == EnemyType::Dragon) {
+    else if (enemyType == EnemyType::Dragon1) {
         frameWidth = 144;
         frameHeight = 128;
     }
@@ -51,7 +51,7 @@ void Enemy::loadTexture(std::string filename, float x, float y) {
     else if (enemyType == EnemyType::Sunflower) {
         sprite.setTextureRect(sf::IntRect(0, 0, 128, 128));
     }
-    else if (enemyType == EnemyType::Dragon) {
+    else if (enemyType == EnemyType::Dragon1) {
         sprite.setTextureRect(sf::IntRect(0, 0, 144, 128));
     }
     else sprite.setTextureRect(sf::IntRect(0, 0, 64, 64)); // Default frame
@@ -63,36 +63,16 @@ void Enemy::loadTexture(std::string filename, float x, float y) {
     else if (enemyType == EnemyType::Sunflower) {
         sprite.setOrigin(64, 64);
     }
-    else if (enemyType == EnemyType::Dragon) {
+    else if (enemyType == EnemyType::Dragon1) {
         sprite.setOrigin(72,64 );
     }
     sprite.setPosition(x, y);
 }
 
-void Enemy::drawTo(sf::RenderWindow& window) const {
-    if (opacity > 0)
-        window.draw(sprite);
-}
 
-int getFighitngDirection(sf::Vector2f direction) {
-    if (std::abs(direction.x) > std::abs(direction.y)) {
-        if (direction.x > 0) {
-            return 2;
-        }
-        else {
-            return 3;
-        }
-    }
-    else {
-        if (direction.y > 0) {
-            return 0;
-        }
-        else {
-            return 1;
-        }
-    }
-}
-void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Character> player) {
+
+
+void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Character> player, std::shared_ptr<Character> guard) {
     sf::Vector2f enemyPosition = sprite.getPosition();
     sf::Vector2f playerPosition = player->getSprite().getPosition();
 
@@ -101,8 +81,11 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
     // Calculate the normalized direction vector
 
     float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-    if (magnitude > 250) {
+    if (magnitude > 250 && enemyType != EnemyType::Dragon1) {
         //randomPatrol(gameMap);
+        return;
+    }
+    else if (magnitude > 400) {
         return;
     }
     if (magnitude == 0) return; // Prevent division by zero
@@ -126,14 +109,18 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
         newBoundingBox.left -= 8.0f;
         newBoundingBox.top -= 4.0f;
     }
-    else if (enemyType == EnemyType::Dragon) {
+    else if (enemyType == EnemyType::Dragon1) {
         newBoundingBox.left -= 36.0f;
         newBoundingBox.top -= 4.0f;
         
     }
     bool collidesWithMap = gameMap->checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
     bool collidesWithPlayer = player->checkCollision(newBoundingBox);
-    
+    bool collidesWithGuard = guard->checkCollision(newBoundingBox);
+    if (enemyType == EnemyType::Dragon1) {
+        int num = getFightingDirection(direction);
+        fightingD(num, player, guard, gameMap);
+    }
     if (!collidesWithPlayer && !collidesWithMap) {
 
         sprite.setPosition(newPosition);
@@ -141,7 +128,7 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
         setState(EnemyState::Moving);
 
     }
-    else if (collidesWithPlayer) {
+    else if ((collidesWithPlayer || collidesWithGuard) && enemyType != EnemyType::Dragon1) {
 
         if (gameMap->checkCollision(player->boundingBox.left, player->boundingBox.top, player->boundingBox.width, player->boundingBox.height)) {
             sf::Vector2f overlap = enemyPosition - player->getSprite().getPosition();    
@@ -157,10 +144,13 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
             setState(EnemyState::Fighting);
 
         }
-        int num = getFighitngDirection(direction);
+        int num = getFightingDirection(direction);
         fighting(num, player);
 
+
     }
+    
+
     if (getState() == EnemyState::Moving) {
         sprite.setOrigin(32.0f, 32.0f); // Set origin to the center (192/2)
         if (enemyType == EnemyType::Frogman) {
@@ -170,7 +160,7 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
         else if (enemyType == EnemyType::Sunflower) {
             sprite.setOrigin(64, 64);
         }
-        else if (enemyType == EnemyType::Dragon) {
+        else if (enemyType == EnemyType::Dragon1) {
             sprite.setOrigin(72, 64);
         }
         if (std::abs(direction.x) > std::abs(direction.y)) {

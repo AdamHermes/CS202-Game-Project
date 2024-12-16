@@ -13,7 +13,7 @@ public:
 	void fighting(int direction, std::shared_ptr<Character>& player) {
 		if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
 
-			manager->notify("EnemyAttack", 5);
+			manager->notify("EnemyAttackPlayer", 5);
 			attackCooldownClock.restart();
 		}
 	}

@@ -8,15 +8,21 @@
 #include "GameEntity.h"
 #include "HealthBar.h"
 #include "Camera.h"
+#include "Items.h"
 #include <tuple>
 using namespace std;
 class Enemy;
+enum class CharacterType {
+    player,
+    guard
+};
 class Character : public GameEntity {
 private:
-    float health = 100;
+    CharacterType type;
+    float health = 100, speed = 0.1f;
     bool alive;
     bool isShooting = false; 
-
+    std::shared_ptr<Items> storedItems[3] = { nullptr, nullptr, nullptr };
     vector<std::shared_ptr<Weapon>> equippedWeapons;
     std::shared_ptr<Weapon> curWeapon;
     bool isMoving = false;
@@ -42,11 +48,13 @@ private:
     std::vector<std::tuple<sf::Sprite, sf::Vector2f, float>> vectorArrow;
     float attackCooldown = 0.5f;
     sf::Clock damageFlashTimer;
-    sf::Clock healingTimer;  // Timer to control healing over time
-
+    sf::Clock healingTimer;
+    std::shared_ptr<Enemy> targetEnemy = nullptr; // Timer to control healing over time
+    int frameCounter = 0;
+    
 public:
-    Character(const std::string& characterTexturePath, const std::string& healthTexturePath)
-        : healthBar(healthTexturePath, 300,1200 ), health(100) { 
+    Character(const std::string& characterTexturePath, const std::string& healthTexturePath, const CharacterType type)
+        : healthBar(healthTexturePath, 300,1200 ), health(100), type(type) { 
         loadTexture(characterTexturePath, false, 2, 340, 1280);
         
     }
@@ -56,7 +64,8 @@ public:
     std::shared_ptr<Weapon> getCurWeapon() {
         return curWeapon;
     }
-    void takePortions();
+    void takePortions(std::shared_ptr<Items>& item);
+    void applyItemEffect(std::shared_ptr<Items> item);
     void setCurWeapon(const std::shared_ptr<Weapon>& weapon) {
         curWeapon = weapon;
     }
@@ -92,7 +101,9 @@ public:
     sf::Sprite getSprite() {
         return sprite;
     }
-
+    bool isDead() {
+        return !alive;
+    }
     void updateBoundingBox() {
         sf::Vector2f position = sprite.getPosition();
 
@@ -125,7 +136,7 @@ public:
     }
     void handleMovement(std::shared_ptr<Map>& gameMap, const std::vector<std::shared_ptr<Enemy>>& enemies, int& num, bool& isMoving);
     void fightSpear(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies);
-    void fightBow(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies, std::shared_ptr<Map>& gameMap);
+    void fightBow(int direction, CharacterType type, const std::vector<std::shared_ptr<Enemy>>& enemies, std::shared_ptr<Map>& gameMap);
     void fightSword(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies);
     void loadTexture(const std::string& path, bool isBig, int num, float x, float y);
     void drawTo(sf::RenderWindow& window) const;   
@@ -135,6 +146,7 @@ public:
     void reveal() {
         isHiden = false;
     }
+    std::shared_ptr<Items>  checkItemNearby(std::vector<shared_ptr<Items>>& items_inventory);
     void updateSpriteHealth(const Camera& camera);
     void drawBoundingBox(sf::RenderWindow& window) {
         sf::RectangleShape boundingBoxShape;
@@ -146,8 +158,37 @@ public:
 
         window.draw(boundingBoxShape);  // Draw the bounding box on the window
     }
+    const std::shared_ptr<Items>* getItems() const {
+        return storedItems;
+    }
+
+    void setUsedItem(int index) {
+        storedItems[index] = nullptr;
+    }
+    void handleGuardianMovement(std::shared_ptr<Map>& gameMap,
+        std::shared_ptr<Character>& player,
+        std::vector<std::shared_ptr<Enemy>>& enemies);
     void updateState(bool fighting, int num, WeaponType weaponType);
     void adjustPositionForNewSize(int oldWidth, int oldHeight, int newWidth, int newHeight);
+    int getFightingDirection(sf::Vector2f direction) {
+        if (std::abs(direction.x) > std::abs(direction.y)) {
+            if (direction.x > 0) {
+                return 3;
+            }
+            else {
+                return 1;
+            }
+        }
+        else {
+            if (direction.y > 0) {
+                return 2;
+            }
+            else {
+                return 0;
+            }
+        }
+    }
 };
+
 
 

@@ -3,12 +3,26 @@
 
 Game::Game()
     : window(sf::VideoMode(1500, 1000), "Game Menu") {
-    currentState = std::make_unique<MenuState>("../Assets/Menu/Menu.png", [this]() {
+    transitionToMenu();
+}
 
-        currentState = std::make_unique<GameState>();
+void Game::transitionToMenu() {
+    currentState = std::make_unique<MenuState>("../Assets/Menu/Menu.png", [this]() {
+        transitionToGame();
         });
 }
 
+void Game::transitionToGame() {
+    currentState = std::make_unique<GameState>([this]() {
+        transitionToGameOver();
+        });
+}
+
+void Game::transitionToGameOver() {
+    currentState = std::make_unique<GameOverState>("../Assets/Menu/gameOver.jpg", [this]() {
+        transitionToMenu();
+        });
+}
 void Game::run() {
     while (window.isOpen()) {
         sf::Event event;
@@ -16,12 +30,11 @@ void Game::run() {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-            //if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-            //    //currentState->handleEvent(sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
-            //}
+            
         }
         currentState->handleEvent(event, window);
         currentState->update();
+        
         window.clear();
         currentState->draw(window);
         window.display();

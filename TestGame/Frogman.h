@@ -3,7 +3,7 @@
 class Frogman: public Enemy {
 public:
 	Frogman(sf::Vector2f spawnPosition) : Enemy(EnemyType::Frogman) {
-		health = 50;
+		health = 40;
 		totalFrames = 6;
 		frameDuration = 0.1f;
 		attackCooldown = 0.8f;
@@ -35,7 +35,7 @@ public:
         }
 		if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
 
-            manager->notify("EnemyAttack", 5);
+            manager->notify("EnemyAttackPlayer", 5);
 			attackCooldownClock.restart();
 		}
 	}

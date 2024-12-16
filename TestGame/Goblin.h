@@ -3,7 +3,7 @@
 class Goblin : public Enemy {
 public:
 	Goblin(sf::Vector2f spawnPosition) : Enemy(EnemyType::Goblin) {
-		health = 70;
+		health = 55;
 		totalFrames = 11;
 		frameDuration = 0.1f;
 		attackCooldown = 0.8f;
@@ -13,7 +13,7 @@ public:
 	void fighting(int direction,  std::shared_ptr<Character>& player) {
 		if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
 
-			manager->notify("EnemyAttack", 5);
+			manager->notify("EnemyAttackPlayer", 5);
 
 			attackCooldownClock.restart();
 		}

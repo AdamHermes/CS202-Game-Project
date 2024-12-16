@@ -26,13 +26,21 @@ public:
         }
         else if (type == EnemyType::Sunflower) {
             return std::make_shared<Sunflower>(spawnPosition);
-
         }
         else if (type == EnemyType::Spider) {
             return std::make_shared<Spider>(spawnPosition);
         }
-        else if (type == EnemyType::Dragon) {
-            return std::make_shared<Dragon>(spawnPosition);
+        else if (type == EnemyType::Dragon1) {
+            return std::make_shared<Dragon>(spawnPosition,1);
+        }
+        else if (type == EnemyType::Dragon2) {
+            return std::make_shared<Dragon>(spawnPosition, 2);
+        }
+        else if (type == EnemyType::Dragon3) {
+            return std::make_shared<Dragon>(spawnPosition, 3);
+        }
+        else if (type == EnemyType::Dragon4) {
+            return std::make_shared<Dragon>(spawnPosition, 4);
         }
         else if (type == EnemyType::Skeleton) {
             return std::make_shared<Skeleton>(spawnPosition);

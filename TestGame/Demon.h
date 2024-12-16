@@ -3,7 +3,7 @@
 class Demon : public Enemy {
 public:
 	Demon(sf::Vector2f spawnPosition) : Enemy(EnemyType::Demon) {
-		health = 90;
+		health = 80;
 		totalFrames = 4;
 		frameDuration = 0.1f;
 		attackCooldown = 0.8f;
@@ -36,7 +36,7 @@ public:
     
 		if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
 
-            manager->notify("EnemyAttack", 5);
+            manager->notify("EnemyAttackPlayer", 5);
 
 			attackCooldownClock.restart();
 		}

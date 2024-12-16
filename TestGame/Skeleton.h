@@ -34,7 +34,7 @@ public:
         }
         if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
 
-            manager->notify("EnemyAttack", 7);
+            manager->notify("EnemyAttackPlayer", 7);
             attackCooldownClock.restart();
         }
     }

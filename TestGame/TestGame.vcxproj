@@ -139,6 +139,7 @@
     <ClCompile Include="DamageManager.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="Gameloop.cpp" />
     <ClCompile Include="Golem.cpp" />
@@ -162,11 +163,14 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameLoop.h" />
     <ClInclude Include="GameEntity.h" />
+    <ClInclude Include="GameOverState.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="Gate.h" />
     <ClInclude Include="Goblin.h" />
     <ClInclude Include="Golem.h" />
     <ClInclude Include="HealthBar.h" />
+    <ClInclude Include="ItemFactory.h" />
+    <ClInclude Include="Items.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Map.h" />
@@ -178,7 +182,6 @@
     <ClInclude Include="Sunflower.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="Weapon.h" />
-    <ClInclude Include="WeaponFactory.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
