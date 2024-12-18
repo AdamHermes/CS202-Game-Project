@@ -10,6 +10,9 @@ public:
         else if (type == ItemType::speed) {
             return std::make_shared<Items>(type, "../Assets/Character/Items/speed_portion.png", spawnLocation);
         }
+        else if (type == ItemType::power) {
+            return std::make_shared<Items>(type, "../Assets/Character/Items/power_portion.png",spawnLocation);
+        }
         return nullptr;
     }
 };

@@ -156,6 +156,7 @@
     <ClInclude Include="Character.h" />
     <ClInclude Include="DamageManager.h" />
     <ClInclude Include="Demon.h" />
+    <ClInclude Include="Door.h" />
     <ClInclude Include="Dragon.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemyFactory.h" />

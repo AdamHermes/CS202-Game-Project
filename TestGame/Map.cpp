@@ -6,13 +6,13 @@ bool Map::loadTexture(std::string filename) {
     if (mapTexture.loadFromFile(filename)) cout << "Load Success";
     else return false;
     mapSprite.setTexture(mapTexture);
-    mapSprite.setTextureRect(sf::IntRect(0, 0, 2240, 3000));
+    mapSprite.setTextureRect(sf::IntRect(0, 0, 3240, 3240));
     return true;
 }
 
-void Map::addObstacles(std::unique_ptr<Obstacle> obstacle) {
-    obstacles.push_back(std::move(obstacle));
-}
+//void Map::addObstacles(std::shared_ptr<Obstacle> obstacle) {
+//    obstacles.push_back(std::move(obstacle));
+//}
 
 
 bool Map::loadFromTMX(const std::string& fileName) {
@@ -50,7 +50,7 @@ bool Map::loadFromTMX(const std::string& fileName) {
                 int height = static_cast<int>(objectElement->FloatAttribute("height"));
 
                 // Create and add an obstacle
-                obstacles.push_back(make_unique<Obstacle>(x, y, width, height));
+                obstacles.push_back(make_shared<Obstacle>(x, y, width, height));
 
             }
         }

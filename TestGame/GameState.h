@@ -26,6 +26,7 @@ private:
     std::unique_ptr<GameLoop> gameLoop;
     std::shared_ptr<Level> level;
     std::shared_ptr<Room> room;
+
     Camera camera;                     // Camera for the game
     bool isFighting;
     int num = 2;// Fighting state

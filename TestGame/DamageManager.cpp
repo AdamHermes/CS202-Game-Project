@@ -1,9 +1,9 @@
 #include "DamageManager.h"
 void DamageManager::notify(const std::string& event, float value) {
-    // Player attacking an enemy
     if (event == "PlayerAttack") {
         for (const auto& enemy : enemies) {
             if (player->attackRangeBox.intersects(enemy->boundingBox)) {
+                value += player->baseStrength;
                 enemy->takeDamage(value);
                 std::cout << "Player hit an enemy for " << value << " damage!" << std::endl;
                 player->hit = true;
@@ -13,7 +13,7 @@ void DamageManager::notify(const std::string& event, float value) {
     else if (event == "GuardAttack") {
         for (const auto& enemy : enemies) {
             if (guard->attackRangeBox.intersects(enemy->boundingBox)) {
-                value = 0.5 * value;
+                value = 0.45 * value;
                 enemy->takeDamage(value);
                 std::cout << "Player hit an enemy for " << value << " damage!" << std::endl;
                 guard->hit = true;

@@ -3,7 +3,7 @@
 class Demon : public Enemy {
 public:
 	Demon(sf::Vector2f spawnPosition) : Enemy(EnemyType::Demon) {
-		health = 80;
+		health = 65;
 		totalFrames = 4;
 		frameDuration = 0.1f;
 		attackCooldown = 0.8f;

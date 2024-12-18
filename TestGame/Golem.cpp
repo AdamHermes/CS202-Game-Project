@@ -27,7 +27,12 @@ void Golem::fighting(int direction,  const string target) {
 
     
     if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
-        if (target == "player")  manager->notify("EnemyAttackPlayer", 10);
+
+
+        if (target == "player") {
+            manager->notify("EnemyAttackPlayer", 10);
+        }
+
         else if (target == "guard") manager->notify("EnemyAttackGuard", 10);
         attackCooldownClock.restart();
     }

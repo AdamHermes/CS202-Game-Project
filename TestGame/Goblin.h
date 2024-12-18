@@ -3,7 +3,7 @@
 class Goblin : public Enemy {
 public:
 	Goblin(sf::Vector2f spawnPosition) : Enemy(EnemyType::Goblin) {
-		health = 55;
+		health = 45;
 		totalFrames = 11;
 		frameDuration = 0.1f;
 		attackCooldown = 0.8f;

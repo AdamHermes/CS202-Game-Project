@@ -76,7 +76,7 @@ void Character::fightBow(int direction, CharacterType type, const std::vector<st
     const int frameHeight = 64; // Height of a single frame
     const int totalFrames = 13; // Total frames for bow animation
     const float arrowSpeed = 300.0f; // Arrow speed
-    const float maxArrowDistance = 416.0f; // Maximum arrow travel distance
+    const float maxArrowDistance = 384.0f; // Maximum arrow travel distance
     // Update animation frame
     if (animationClock.getElapsedTime().asSeconds() > frameDuration) {
         currentFrame = (currentFrame + 1) % totalFrames;
@@ -193,7 +193,10 @@ void Character::applyItemEffect(std::shared_ptr<Items> item) {
         }
         break;
     case ItemType::speed:
-        speed += 0.025f;
+        speed += 0.02f;
+        break;
+    case ItemType::power:
+        baseStrength += 3.0f;
         break;
     }
 }
@@ -300,12 +303,12 @@ void Character::updateState(bool fighting, int num, WeaponType weaponType) {
 std::shared_ptr<Items> Character::checkItemNearby(std::vector<shared_ptr<Items>>& items_inventory) {
     for (std::shared_ptr<Items> item : items_inventory) {
         if (boundingBox.intersects(item->getSprite().getGlobalBounds())) {
-            item->getSprite().setColor(sf::Color(255, 255, 0, 255)); // Yellow glow
+            //item->getSprite().setColor(sf::Color(255, 255, 0, 255)); // Yellow glow
             return item;
             
         }
         else {
-            item->getSprite().setColor(sf::Color(255, 255, 255, 255)); // Normal color
+            //item->getSprite().setColor(sf::Color(255, 255, 255, 255)); // Normal color
             
         }
     }
@@ -325,8 +328,8 @@ void Character::updateItemPositions(const sf::View& cameraView) {
     sf::Vector2f viewSize = cameraView.getSize();
 
     // Bottom-center of the screen
-    float baseX = viewCenter.x + (viewSize.x / 2) - 160.0f; // Starting X position (left edge + margin)
-    float baseY = viewCenter.y - (viewSize.y / 2) + 30.0f; // Bottom edge - margin for height
+    float baseX = viewCenter.x + (viewSize.x / 2) - 160.0f; 
+    float baseY = viewCenter.y - (viewSize.y / 2) + 30.0f; 
 
     float itemSpacing = 50.0f; 
     for (int i = 0; i < 3; ++i) {
@@ -345,7 +348,7 @@ void Character::updateSpriteHealth(const Camera& camera) {
         healthBar.stopShake();
     }
     if (damageFlashTimer.getElapsedTime().asSeconds() > 0.2f && healingTimer.getElapsedTime().asSeconds() > 0.2f) {
-        sprite.setColor(sf::Color::White);  // Reset to the original sprite color if no healing is applied
+        sprite.setColor(sf::Color::White);  
     }
 }
 void Character::drawTo(sf::RenderWindow& window) const {
@@ -495,7 +498,7 @@ void Character::handleGuardianMovement(std::shared_ptr<Map>& gameMap,
     direction /= magnitude; // Normalize direction vector
 
     // Calculate new position
-    sf::Vector2f newPosition = guardianPosition + direction * speed * 0.5f;
+    sf::Vector2f newPosition = guardianPosition + direction * speed;
 
     // Check collisions
     sf::FloatRect newBoundingBox(newPosition.x - 32.0f + offsetX, newPosition.y - 32.0f + offsetY, boundingBox.width, boundingBox.height);

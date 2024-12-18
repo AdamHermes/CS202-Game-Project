@@ -116,6 +116,8 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
     }
     bool collidesWithMap = gameMap->checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
     bool collidesWithPlayer = player->checkCollision(newBoundingBox);
+   
+
     bool collidesWithGuard = false;
     if (guard) {
         collidesWithGuard = guard->checkCollision(newBoundingBox);
@@ -142,6 +144,8 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
                 sprite.setPosition(enemyPosition + pushback);
                 updateBoundingBox();
             }
+
+
         }
         if (enemyType == EnemyType::Golem || enemyType == EnemyType::Frogman || enemyType == EnemyType::Demon || enemyType == EnemyType::Skeleton || enemyType == EnemyType::Boarman) {
             setState(EnemyState::Fighting);
@@ -154,6 +158,7 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
         else if (collidesWithGuard) {
             fighting(num, "guard");
         }
+
 
 
     }

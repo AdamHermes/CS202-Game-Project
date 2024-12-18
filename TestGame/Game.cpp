@@ -35,6 +35,8 @@ void Game::run() {
         currentState->handleEvent(event, window);
         currentState->update();
         
+
+
         window.clear();
         currentState->draw(window);
         window.display();

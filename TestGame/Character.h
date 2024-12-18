@@ -55,11 +55,11 @@ private:
 public:
     Character(const std::string& characterTexturePath, const std::string& healthTexturePath, const CharacterType type)
         : healthBar(healthTexturePath, 300,1200 ), health(100), type(type) { 
-        loadTexture(characterTexturePath, false, 2, 340, 1280);
-        if (type == CharacterType::guard) health = 60;
+        loadTexture(characterTexturePath, false, 2, 300, 1300); //300 1300
+        if (type == CharacterType::guard) health = 80;
         
     }
-    
+    float baseStrength = 0.0f;
     std::shared_ptr<Weapon> getWeapon(int num) {
         return equippedWeapons[num];
     }

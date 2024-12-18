@@ -3,7 +3,7 @@
 class Boarman : public Enemy {
 public:
     Boarman(sf::Vector2f spawnPosition) : Enemy(EnemyType::Boarman) {
-        health = 60;
+        health = 50;
         totalFrames = 9;
         frameDuration = 0.1f;
         attackCooldown = 0.8f;

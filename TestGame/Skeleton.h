@@ -3,7 +3,7 @@
 class Skeleton : public Enemy {
 public:
     Skeleton(sf::Vector2f spawnPosition) : Enemy(EnemyType::Skeleton) {
-        health = 60;
+        health = 50;
         totalFrames = 9;
         frameDuration = 0.2f;
         attackCooldown = 0.8f;

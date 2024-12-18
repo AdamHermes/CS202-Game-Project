@@ -21,14 +21,14 @@ public:
     int getWidth() const { return width; }
     int getHeight() const { return height; }
 };
-class Map : public Obstacle {
+class Map {
 public:
     
     sf::Sprite mapSprite;
     sf::Texture mapTexture;
-    vector<unique_ptr <Obstacle>> obstacles;
+    vector<shared_ptr<Obstacle>> obstacles;
     bool loadTexture(std::string filename);
-    void addObstacles(std::unique_ptr<Obstacle> obstacle);
+    //void addObstacles(std::unique_ptr<Obstacle> obstacle);
     bool loadFromTMX(const std::string& fileName);
     bool checkCollision(int px, int py, int pwidth, int pheight) const;
     void drawWalls(sf::RenderWindow& window) const;

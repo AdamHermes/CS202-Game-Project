@@ -21,7 +21,7 @@ GameState::GameState(Callback gameOverCallback)
     if (!gameMap->loadFromTMX("../Assets/Character/TMX MAP/map0.tmx")) {
         throw std::runtime_error("Failed to load map data.");
     }
-
+    cout << "Constructing";
     // Set up player
     player->updateBoundingBox();
     player->equipWeapon(WeaponType::Spear);
@@ -33,7 +33,7 @@ GameState::GameState(Callback gameOverCallback)
 
     // Set up camera
     camera.setZoom(1.5f);
-    sf::FloatRect worldBounds(0, 0, 2000, 2000);
+    sf::FloatRect worldBounds(0, 0, 3000, 3000);
     camera.setWorldBounds(worldBounds);
     
     gameLoop = std::make_unique<GameLoop>(player, gameMap,guard);
@@ -41,7 +41,16 @@ GameState::GameState(Callback gameOverCallback)
     gameLoop->loadEnemiesForRooms(0);
     gameLoop->loadItemsForRooms(0);
     gameLoop->updateDamageManager();
+    gameLoop->doorPositions.push_back({
+            std::make_tuple(256, 1088, 96, 32,0), // Door In for Room 1
+            std::make_tuple(512, 928, 32, 64,0)   // Door Out for Room 1
+        });
+    gameLoop->doorPositions.push_back({
+            std::make_tuple(768, 480, 64, 32,0), // Door In for Room 1
+            std::make_tuple(928, 320, 32, 96,0)   // Door Out for Room 1
+        });
     level = gameLoop->getLevel(0);
+    level->loadDoors(gameLoop->doorPositions);
     room = level->getRoom(0);
     this->gameOverCallback = gameOverCallback;
 }
@@ -63,14 +72,16 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
         bool isMoving1 = false;
 
         static bool wasJPressed = false;
-        
+       /* if (gameLoop->getCurLevelIndex() == 2) {
+            
+        }*/
         if ((gameLoop->getCurLevelIndex() == 2 || gameLoop->getCurLevelIndex() == 1) && guard) {
 
 
             guard->handleGuardianMovement(gameMap, player, room->getEnemies());
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
-            auto item = player->checkItemNearby(room->getItems());
+            auto item = player->checkItemNearby(level->getItems());
             if (item) {
                 player->takePortions(item);
             }
@@ -122,14 +133,15 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
             player->updateState(isFighting, num, WeaponType::None);
             player->setCurWeapon(player->getWeapon(2));
         }
-
-
+        
+        
         if (isFighting) {
+
             if (wasJPressed) {
                 player->fightBow(num, CharacterType::player, room->getEnemies(), gameMap);
 
             }
-            else {
+            else {             
                 player->fightSpear(num, room->getEnemies());
             }
         }
@@ -142,7 +154,7 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
 
             guard->updateSpriteHealth(camera);
         }
-       
+
     }
     
 }
@@ -157,13 +169,25 @@ void GameState::update() {
     if (guard && gameLoop->isGuardDead()) {
 
         guard.reset();
+    }
+    if (!gameLoop->playerInRoom && gameLoop->updateDoors()) {
+
+        gameLoop->playerInRoom = true;
+        int roomIndex = gameLoop->getCurLevel()->getRoomIndex();
+        room = gameLoop->getCurLevel()->getRoom(roomIndex);
+    }
+    if (room->isCleared() && gameLoop->playerInRoom) {
+        gameLoop->playerInRoom = false;
 
     }
-
     if (gameLoop->update()) {
         room = gameLoop->getCurLevel()->getRoom(0);
+        level = gameLoop->getCurLevel();
     }
+    
+    gameLoop->updateLevel2();
 
+    
     
 }
 
@@ -174,13 +198,12 @@ void GameState::draw(sf::RenderWindow& window) {
     if (player) {
         player->drawTo(window);
     }
-   
+    
     if ((gameLoop->getCurLevelIndex() == 2 || gameLoop->getCurLevelIndex() == 1) && guard) {
         guard->drawTo(window);
 ;
     }
-    
-
+    //gameMap->drawWalls(window);
     //sf::RectangleShape rangeShape(sf::Vector2f(guard->boundingBox.width, guard->attackRangeBox.height));
     //rangeShape.setPosition(guard->attackRangeBox.left, guard->attackRangeBox.top);
     //rangeShape.setFillColor(sf::Color(255, 0, 0, 100)); // Semi-transparent red

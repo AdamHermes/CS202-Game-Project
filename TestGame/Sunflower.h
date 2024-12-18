@@ -3,7 +3,7 @@
 class Sunflower : public Enemy {
 public:
 	Sunflower(sf::Vector2f spawnPosition) : Enemy(EnemyType::Sunflower) {
-		health = 70;
+		health = 55;
 		totalFrames = 6;
 		frameDuration = 0.2f;
 		attackCooldown = 0.8f;

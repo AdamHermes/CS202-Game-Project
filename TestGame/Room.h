@@ -2,29 +2,32 @@
 #include <vector>
 #include "Enemy.h"
 #include "EnemyFactory.h"
-#include "Items.h"
-#include "ItemFactory.h"
+
 #include "DamageManager.h"
+#include "Door.h"
 class Room {
 private:
+    std::map<int, std::pair<std::tuple<int, int, int, int>, std::tuple<int, int, int, int>>> doorPositions;
     std::vector<std::shared_ptr<Enemy>> enemies;
-    std::vector<std::shared_ptr<Items>> items;
-    sf::Vector2f position; // Room's position on the level map (optional)
 
+    int index;
+    bool doorsActive;
 public:
-    Room(const sf::Vector2f& pos) : position(pos) {
-        // Ensure position is correctly initialized
-        std::cout << "Room created at: " << position.x << ", " << position.y << std::endl;
+    Room(const int index) : index(index) {
+        
     }
-    void clearItems() {
-        items.clear();
+    bool areDoorsActive() const { return doorsActive; }
+    void setDoorsActive(bool active) { doorsActive = active; }
+    bool isCleared() {
+        if (enemies.size() == 0) return true;
+        return false;
     }
+    
+    
     void clearEnemies() {
         enemies.clear();  // Clears the existing enemies
     }
-    void addItem(ItemType type, const sf::Vector2f& spawnLocation) {
-        items.push_back(ItemFactory::createItems(type, spawnLocation));
-    }
+    
     void addEnemy(EnemyType type, const sf::Vector2f& spawnPosition) {
         enemies.push_back(EnemyFactory::createEnemy(type, spawnPosition));
     }
@@ -33,14 +36,7 @@ public:
             enemy->setMediator(damageManager);
         }
     }
-    void renderItems(sf::RenderWindow& window) {
-        for (const auto& item : items) {
-            if (item) {
-                item->drawTo(window);
-            }
-        }
-        cleanupItems();
-    }
+    
     void renderEnemies(sf::RenderWindow& window) {
         for (const auto& enemy : enemies) {
             if (enemy) {
@@ -57,14 +53,7 @@ public:
         }
         
     }   
-    void cleanupItems() {
-        items.erase(
-            std::remove_if(items.begin(), items.end(),
-                [](const std::shared_ptr<Items>& item) {
-                    return item->isRemoved(); // Remove if enemy is marked as removed
-                }),
-            items.end());
-    }
+    
     void cleanupEnemies() {
         enemies.erase(
             std::remove_if(enemies.begin(), enemies.end(),
@@ -74,6 +63,6 @@ public:
             enemies.end());
     }
     std::vector<std::shared_ptr<Enemy>>& getEnemies() { return enemies; }
-    std::vector<std::shared_ptr<Items>>& getItems() { return items; }
+
 
 };
