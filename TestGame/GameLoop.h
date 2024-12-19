@@ -1,6 +1,7 @@
 #pragma once
 #include "Level.h"
 #include "DamageManager.h"
+#include "DamageTextManager.h"
 #include "Map.h"
 class GameLoop {
 private:
@@ -11,12 +12,14 @@ private:
     std::shared_ptr<Map> gameMap;
     int currentLevelIndex = 0;                // Index of the current level
     DamageManager* damageManager;
+    shared_ptr<DamageTextManager> damageTextManager;
     void cleanupLevel() {
         curLevel.reset(); // Release the current level
     }
     sf::Sprite doorSprite;
     sf::Texture doorTexture;
-
+    sf::Font font;
+    sf::Text templateText;
 public:
     std::vector<pair<tuple<int, int, int, int,int>, tuple<int, int, int, int,int>>> doorPositions;
     bool playerInRoom = false;
@@ -79,6 +82,20 @@ public:
         
         curLevel->populateItems(currentLevelIndex);
     }
+    void initializeTextDamage() {
+
+        if (!font.loadFromFile("../Assets/Roboto-Black.ttf")) {
+            throw std::runtime_error("Failed to load font!");
+        }
+
+        damageTextManager = std::make_shared<DamageTextManager>();
+        templateText.setFont(font);
+        templateText.setCharacterSize(14);
+        templateText.setFillColor(sf::Color::Red);
+        damageTextManager->setTemplate(templateText);
+
+
+    }
     void loadNextLevel() {
         if (currentLevelIndex + 1 < levels.size()) {
             cleanupLevel();
@@ -101,7 +118,7 @@ public:
             }
             if (currentLevelIndex == 1) {
                 player->setPosition( 1280, 260); //1300 260
-                guard->loadTexture("../Assets/Character/Textures/characters.png", false, 2, 1470, 930);
+                guard->loadTexture("../Assets/Character/Textures/character1.png", false, 2, 1470, 930);
                 guard->updateBoundingBox();
                 guard->equipWeapon(WeaponType::Bow);
                 auto start_weapon_guard = guard->getWeapon(0);
@@ -268,7 +285,7 @@ public:
         if (!transitioning) {
             
             curLevel->moveEnemies(gameMap, player,guard);
-            
+            damageTextManager->update(0.0002f);
             if (curLevel->checkGateEntry(player)) {
                 transitioning = true;        
                 transitionClock.restart();    
@@ -303,7 +320,7 @@ public:
     void render(sf::RenderWindow& window) {
         curLevel->render(window);
         if (playerInRoom) window.draw(doorSprite);
-        
+        damageTextManager->draw(window);
 
     }
 
@@ -311,6 +328,7 @@ public:
         auto room = curLevel->getRoom(curLevel->getRoomIndex());
         if (damageManager) delete damageManager; 
         damageManager = new DamageManager(player, guard, room->getEnemies());
+        damageManager->addListener(damageTextManager);
         player->setMediator(damageManager);
         if (guard) {
             guard->setMediator(damageManager);

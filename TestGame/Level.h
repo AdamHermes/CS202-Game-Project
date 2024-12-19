@@ -125,7 +125,7 @@ public:
     void populateItems(int currentLevelIndex) {
         std::map<int, std::vector<std::pair<sf::Vector2f, ItemType>>> itemPositions = {
             {0, {   // Room 0
-                {sf::Vector2f(780.0f, 950.0f), ItemType::health},
+                {sf::Vector2f(780.0f, 950.0f), ItemType::power},
                 {sf::Vector2f(1310.0f, 320.0f), ItemType::speed},
                 {sf::Vector2f(1340.0f, 320.0f), ItemType::health},
                 
@@ -159,30 +159,30 @@ public:
         // Predefine enemy positions for each room
         std::map<int, std::vector<std::pair<sf::Vector2f, EnemyType>>> enemyPositions = {
             {0, {   // Room 0
-                {sf::Vector2f(330.0f, 900.0f), EnemyType::Golem},
+                /*{sf::Vector2f(330.0f, 900.0f), EnemyType::Golem},
                 {sf::Vector2f(240.0f, 685.0f), EnemyType::Boarman},
-                {sf::Vector2f(210.0f, 900.0f), EnemyType::Boarman},
+                {sf::Vector2f(210.0f, 900.0f), EnemyType::Boarman},*/
                 
             }},
             {3, {   // Room 0
                 
-                {sf::Vector2f(880.0f, 400.0f), EnemyType::Golem},
+                /*{sf::Vector2f(880.0f, 400.0f), EnemyType::Golem},
                 {sf::Vector2f(840.0f, 280.0f), EnemyType::Goblin},
-                {sf::Vector2f(700.0f, 320.0f), EnemyType::Goblin}
+                {sf::Vector2f(700.0f, 320.0f), EnemyType::Goblin}*/
             }},
             {1, {
-                {sf::Vector2f(260.0f, 450.0f), EnemyType::Sunflower},
+                /*{sf::Vector2f(260.0f, 450.0f), EnemyType::Sunflower},
                 {sf::Vector2f(260.0f, 320.0f), EnemyType::Spider},
                 {sf::Vector2f(560.0f, 200.0f), EnemyType::Sunflower},
-                {sf::Vector2f(570.0f, 520.0f), EnemyType::Spider},
+                {sf::Vector2f(570.0f, 520.0f), EnemyType::Spider},*/
 
             }},
             {4, {
-                {sf::Vector2f(540.0f, 1000.0f), EnemyType::Frogman},
-                {sf::Vector2f(400.0f, 1000.0f), EnemyType::Frogman},
-                {sf::Vector2f(340.0f, 980.0f), EnemyType::Frogman},
-                {sf::Vector2f(870.0f,1000.0f), EnemyType::Demon},
-                {sf::Vector2f(960.0f, 900.0f), EnemyType::Demon}
+                //{sf::Vector2f(540.0f, 1000.0f), EnemyType::Frogman},
+                //{sf::Vector2f(400.0f, 1000.0f), EnemyType::Frogman},
+                //{sf::Vector2f(340.0f, 980.0f), EnemyType::Frogman},
+                //{sf::Vector2f(870.0f,1000.0f), EnemyType::Demon},
+                //{sf::Vector2f(960.0f, 900.0f), EnemyType::Demon}
             }},
             {2, {
                 {sf::Vector2f(900.0f, 290.0f), EnemyType::Dragon2},

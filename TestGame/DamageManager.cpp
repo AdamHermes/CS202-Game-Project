@@ -7,6 +7,8 @@ void DamageManager::notify(const std::string& event, float value) {
                 enemy->takeDamage(value);
                 std::cout << "Player hit an enemy for " << value << " damage!" << std::endl;
                 player->hit = true;
+                
+                listener->notify(value, enemy->getSprite().getPosition());
             }
         }
     }
@@ -17,6 +19,7 @@ void DamageManager::notify(const std::string& event, float value) {
                 enemy->takeDamage(value);
                 std::cout << "Player hit an enemy for " << value << " damage!" << std::endl;
                 guard->hit = true;
+                listener->notify(value, enemy->getSprite().getPosition());
             }
         }
     }
@@ -24,6 +27,7 @@ void DamageManager::notify(const std::string& event, float value) {
     else if (event == "EnemyAttackPlayer") {
         player->takeDamage(value);
         std::cout << "Enemy hit the player for " << value << " damage!" << std::endl;
+        listener->notify(value, player->getSprite().getPosition());
     }
     else if (event == "EnemyAttackGuard") {
         if (guard) {

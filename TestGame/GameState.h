@@ -18,6 +18,7 @@ public:
     void handleEvent(sf::Event& event, sf::RenderWindow& window) override;
     void update() override;
     void draw(sf::RenderWindow& window) override;
+    
 
 private:
     std::shared_ptr<Character> player; // Player character

@@ -9,7 +9,9 @@
 #include "HealthBar.h"
 #include "Camera.h"
 #include "Items.h"
+#include "ArrowProjectile.h"
 #include <tuple>
+#include <queue>
 using namespace std;
 class Enemy;
 enum class CharacterType {
@@ -45,10 +47,14 @@ private:
     sf::Sprite arrowSprite;
     sf::Texture arrowTexture;
     sf::Clock attackCooldownClock;  
-    std::vector<std::tuple<sf::Sprite, sf::Vector2f, float>> vectorArrow;
+    //std::vector<std::tuple<sf::Sprite, sf::Vector2f, float>> vectorArrow;
+    std::queue<ArrowProjectile> availableArrows;  // Object pool
+    std::vector<ArrowProjectile> activeArrows;
     float attackCooldown = 0.5f;
     sf::Clock damageFlashTimer;
     sf::Clock healingTimer;
+    sf::Clock speedingTimer;
+    sf::Clock poweringTimer;
     std::shared_ptr<Enemy> targetEnemy = nullptr; // Timer to control healing over time
     int frameCounter = 0;
     
@@ -57,7 +63,9 @@ public:
         : healthBar(healthTexturePath, 300,1200 ), health(100), type(type) { 
         loadTexture(characterTexturePath, false, 2, 300, 1300); //300 1300
         if (type == CharacterType::guard) health = 80;
-        
+        for (int i = 0; i < 10; ++i) {  // Adjust pool size based on expected max breath projectiles
+            availableArrows.push(ArrowProjectile(arrowSprite, { 0, 0 }));
+        }
     }
     float baseStrength = 0.0f;
     std::shared_ptr<Weapon> getWeapon(int num) {

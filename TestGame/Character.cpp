@@ -99,52 +99,55 @@ void Character::fightBow(int direction, CharacterType type, const std::vector<st
 
     // Launch arrow when frame is 10
     if (isFighting && currentFrame == 10 && attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
-        sf::Sprite newArrow = arrowSprite; // Create a new arrow sprite
-        newArrow.setPosition(sprite.getPosition()); // Set initial position of arrow
+        ArrowProjectile newArrow = availableArrows.empty() ? ArrowProjectile(arrowSprite, { 0, 0 }) : availableArrows.front();
+        availableArrows.pop();
+
+        sf::Vector2f playerPos = sprite.getPosition();
+        sf::Vector2f arrowPos = playerPos;
+        sf::Vector2f velocity;
         if (direction == Left) {
-            newArrow.setPosition(sprite.getPosition() + sf::Vector2f(-64,0));
+            arrowPos = playerPos + sf::Vector2f(-64,0);
         }
         else if (direction == Up) {
-            newArrow.setPosition(sprite.getPosition() + sf::Vector2f(0, -64));
+            arrowPos = playerPos + sf::Vector2f(0, -64);
         }
-        // Determine arrow texture rect and velocity based on direction
-        sf::Vector2f velocity;
+
         if (direction == Right) {
             velocity = { arrowSpeed, 0 };
-            newArrow.setTextureRect(sf::IntRect(0, frameHeight * 2, frameWidth, frameHeight)); // Right-facing arrow
+            newArrow.sprite.setTextureRect(sf::IntRect(0, frameHeight * 2, frameWidth, frameHeight)); // Right-facing arrow
         }
         else if (direction == Left) {
             velocity = { -arrowSpeed, 0 };
-            newArrow.setTextureRect(sf::IntRect(0, frameHeight * 3, frameWidth, frameHeight)); // Left-facing arrow
+            newArrow.sprite.setTextureRect(sf::IntRect(0, frameHeight * 3, frameWidth, frameHeight)); // Left-facing arrow
         }
         else if (direction == Up) {
             velocity = { 0, -arrowSpeed };
-            newArrow.setTextureRect(sf::IntRect(0, frameHeight * 1, frameWidth, frameHeight)); // Up-facing arrow
+            newArrow.sprite.setTextureRect(sf::IntRect(0, frameHeight * 1, frameWidth, frameHeight)); // Up-facing arrow
         }
         else if (direction == Down) {
             velocity = { 0, arrowSpeed };
-            newArrow.setTextureRect(sf::IntRect(0, frameHeight * 0, frameWidth, frameHeight)); // Down-facing arrow
+            newArrow.sprite.setTextureRect(sf::IntRect(0, frameHeight * 0, frameWidth, frameHeight)); // Down-facing arrow
         }
 
         // Add arrow to vectorArrow
-        vectorArrow.push_back({ newArrow, velocity, 0.0f }); // Distance starts at 0
+        newArrow.reset(arrowPos, velocity);
+        activeArrows.push_back(newArrow);
         attackCooldownClock.restart(); // Reset attack cooldown
     }
 
     // Update all arrows in flight
-    for (auto it = vectorArrow.begin(); it != vectorArrow.end();) {
-        sf::Sprite& arrow = std::get<0>(*it);       // Arrow sprite
-        sf::Vector2f& velocity = std::get<1>(*it); // Arrow velocity
-        float& distanceTraveled = std::get<2>(*it); // Distance traveled
+    for (auto it = activeArrows.begin(); it != activeArrows.end();) {
+        it->update(0.0006f);
+        
 
         // Move arrow and update distance
-        arrow.move(velocity * 0.0006f);
-        distanceTraveled += std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y) * 0.0006f;
+        /*arrow.move(velocity * 0.0006f);
+        distanceTraveled += std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y) * 0.0006f;*/
         if (direction == Right || direction == Left) {
-            attackRangeBox = sf::FloatRect(arrow.getPosition().x, arrow.getPosition().y, 64.0f, 16.0f); // Horizontal arrow
+            attackRangeBox = sf::FloatRect(it->sprite.getPosition().x, it->sprite.getPosition().y, 64.0f, 16.0f); // Horizontal arrow
         }
         else if (direction == Up || direction == Down) {
-            attackRangeBox = sf::FloatRect(arrow.getPosition().x, arrow.getPosition().y, 16.0f, 64.0f); // Vertical arrow
+            attackRangeBox = sf::FloatRect(it->sprite.getPosition().x, it->sprite.getPosition().y, 16.0f, 64.0f); // Vertical arrow
         }
         // Check for collisions with enemies
         hit = false;
@@ -165,8 +168,9 @@ void Character::fightBow(int direction, CharacterType type, const std::vector<st
         }
 
         // Remove arrow if it hits an enemy or exceeds range
-        if (hit || distanceTraveled >= maxArrowDistance) {
-            it = vectorArrow.erase(it);
+        if (hit || it->distanceTraveled >= maxArrowDistance) {
+            availableArrows.push(*it);
+            it = activeArrows.erase(it);
         }
         else {
             ++it;
@@ -176,27 +180,34 @@ void Character::fightBow(int direction, CharacterType type, const std::vector<st
 void Character::setShooting(bool shooting) {
     isShooting = shooting;
     if (!isShooting) {
-        vectorArrow.clear(); // Clear all arrows when spacebar is released
+        activeArrows.clear(); // Clear all arrows when spacebar is released
     }
 }
 
 void Character::applyItemEffect(std::shared_ptr<Items> item) {
     switch (item->getType()) {
     case ItemType::health:
-        if (healingTimer.getElapsedTime().asSeconds() >= 0.5f) {
+        if (healingTimer.getElapsedTime().asSeconds() >= 3.0f) {
             health += 10;
             if (health > 100) health = 100;
-            sprite.setColor(sf::Color(0, 255, 0, 128));  // Green glow effect
-
-            // Restart the healing timer after each healing step
+            sprite.setColor(sf::Color(0, 255, 0, 128));  
             healingTimer.restart();
         }
         break;
     case ItemType::speed:
-        speed += 0.02f;
+        if (speedingTimer.getElapsedTime().asSeconds() >= 3.0f) {
+            speed += 0.02f;
+            sprite.setColor(sf::Color(0, 191, 255, 128)); 
+            speedingTimer.restart();
+        }
         break;
     case ItemType::power:
-        baseStrength += 3.0f;
+        if (poweringTimer.getElapsedTime().asSeconds() >= 3.0f) {
+            baseStrength += 5;
+            sprite.setColor(sf::Color(255, 165, 0, 128)); 
+
+            poweringTimer.restart();
+        }
         break;
     }
 }
@@ -292,11 +303,11 @@ void Character::updateState(bool fighting, int num, WeaponType weaponType) {
                 loadTexture("../Assets/Character/Textures/slash.png", true, num, sprite.getPosition().x, sprite.getPosition().y);
             }
             else {
-                loadTexture("../Assets/Character/Textures/character1.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+                loadTexture("../Assets/Character/Textures/characters.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
             }
         }
         else {
-            loadTexture("../Assets/Character/Textures/character1.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+            loadTexture("../Assets/Character/Textures/characters.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
         }
     }
 }
@@ -347,7 +358,9 @@ void Character::updateSpriteHealth(const Camera& camera) {
         healthBar.updatePosition(camera.getView());
         healthBar.stopShake();
     }
-    if (damageFlashTimer.getElapsedTime().asSeconds() > 0.2f && healingTimer.getElapsedTime().asSeconds() > 0.2f) {
+    if (damageFlashTimer.getElapsedTime().asSeconds() > 0.2f && healingTimer.getElapsedTime().asSeconds() > 0.35f &&
+        speedingTimer.getElapsedTime().asSeconds() > 0.35f && 
+        poweringTimer.getElapsedTime().asSeconds() > 0.35f ) {
         sprite.setColor(sf::Color::White);  
     }
 }
@@ -366,9 +379,9 @@ void Character::drawTo(sf::RenderWindow& window) const {
 
 
     // Draw arrows if fighting
-    for (const auto& arrow : vectorArrow) {
+    for (const auto& arrow : activeArrows) {
         if (isFighting) {
-            window.draw(std::get<0>(arrow));
+            window.draw(arrow.sprite);
         }
     }
 }

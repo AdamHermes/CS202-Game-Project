@@ -150,6 +150,7 @@
     <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ArrowProjectile.h" />
     <ClInclude Include="Boarman.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
@@ -181,6 +182,7 @@
     <ClInclude Include="Spider.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="Sunflower.h" />
+    <ClInclude Include="DamageTextManager.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="Weapon.h" />
   </ItemGroup>

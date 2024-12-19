@@ -3,7 +3,7 @@
 class Frogman: public Enemy {
 public:
 	Frogman(sf::Vector2f spawnPosition) : Enemy(EnemyType::Frogman) {
-        health = 40;
+        health = 35;
 		totalFrames = 6;
 		frameDuration = 0.1f;
 		attackCooldown = 0.8f;

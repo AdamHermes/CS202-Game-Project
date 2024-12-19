@@ -4,12 +4,12 @@ GameState::GameState(Callback gameOverCallback)
     : camera(720, 480), isFighting(false){
     // Initialize player
     player = std::make_shared<Character>(
-        "../Assets/Character/Textures/character1.png",
+        "../Assets/Character/Textures/characters.png",
         "../Assets/Character/Textures/health.png",
         CharacterType::player
     );
     guard = std::make_shared<Character>(
-        "../Assets/Character/Textures/characters.png",
+        "../Assets/Character/Textures/character1.png",
         "../Assets/Character/Textures/health.png",
         CharacterType::guard
     );
@@ -24,7 +24,7 @@ GameState::GameState(Callback gameOverCallback)
     cout << "Constructing";
     // Set up player
     player->updateBoundingBox();
-    player->equipWeapon(WeaponType::Spear);
+    player->equipWeapon(WeaponType::Sword);
     player->equipWeapon(WeaponType::Bow);
     player->equipWeapon(WeaponType::None);
     auto start_weapon = player->getWeapon(0);
@@ -33,14 +33,16 @@ GameState::GameState(Callback gameOverCallback)
 
     // Set up camera
     camera.setZoom(1.5f);
-    sf::FloatRect worldBounds(0, 0, 3000, 3000);
+    sf::FloatRect worldBounds(0, 0, 2560, 2560);
     camera.setWorldBounds(worldBounds);
     
     gameLoop = std::make_unique<GameLoop>(player, gameMap,guard);
     gameLoop->addLevels();
     gameLoop->loadEnemiesForRooms(0);
     gameLoop->loadItemsForRooms(0);
+    gameLoop->initializeTextDamage();
     gameLoop->updateDamageManager();
+
     gameLoop->doorPositions.push_back({
             std::make_tuple(256, 1088, 96, 32,0), // Door In for Room 1
             std::make_tuple(512, 928, 32, 64,0)   // Door Out for Room 1
@@ -52,6 +54,7 @@ GameState::GameState(Callback gameOverCallback)
     level = gameLoop->getLevel(0);
     level->loadDoors(gameLoop->doorPositions);
     room = level->getRoom(0);
+
     this->gameOverCallback = gameOverCallback;
 }
 
@@ -112,7 +115,7 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
             isFighting = true;
             isMoving = false;
             wasJPressed = false;
-            player->updateState(isFighting, num, WeaponType::Spear);
+            player->updateState(isFighting, num, WeaponType::Sword);
             player->setCurWeapon(player->getWeapon(0));
             player->setShooting(false);
         }
@@ -142,12 +145,13 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
 
             }
             else {             
-                player->fightSpear(num, room->getEnemies());
+                player->fightSword(num, room->getEnemies());
             }
         }
         else {
             player->handleMovement(gameMap, room->getEnemies(), num, isMoving);
         }
+        
         player->updateSpriteHealth(camera);
         player->updateItemPositions(camera.getView());
         if (guard) {
