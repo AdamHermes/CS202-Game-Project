@@ -35,8 +35,10 @@ GameState::GameState(Callback gameOverCallback)
     camera.setZoom(1.5f);
     sf::FloatRect worldBounds(0, 0, 2560, 2560);
     camera.setWorldBounds(worldBounds);
-    
+   
     gameLoop = std::make_unique<GameLoop>(player, gameMap,guard);
+    gameLoop->loadMusic("../Assets/SoundTrack/level1.mp3",false);
+    gameLoop->playMusic();
     gameLoop->addLevels();
     gameLoop->loadEnemiesForRooms(0);
     gameLoop->loadItemsForRooms(0);
@@ -49,7 +51,7 @@ GameState::GameState(Callback gameOverCallback)
         });
     gameLoop->doorPositions.push_back({
             std::make_tuple(768, 480, 64, 32,0), // Door In for Room 1
-            std::make_tuple(928, 320, 32, 96,0)   // Door Out for Room 1
+            std::make_tuple(1056, 320, 32, 96,0)   // Door Out for Room 1
         });
     level = gameLoop->getLevel(0);
     level->loadDoors(gameLoop->doorPositions);
@@ -70,7 +72,10 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
 
         window.clear();
         camera.applyView(window);
-
+        static bool finale = false;
+        if (gameLoop->getCurLevelIndex() == 3) {
+            finale = true;
+        }
         bool isMoving = false;
         bool isMoving1 = false;
 
@@ -83,59 +88,62 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
 
             guard->handleGuardianMovement(gameMap, player, room->getEnemies());
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
-            auto item = player->checkItemNearby(level->getItems());
-            if (item) {
-                player->takePortions(item);
+        if (!finale) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
+                auto item = player->checkItemNearby(level->getItems());
+                if (item) {
+                    player->takePortions(item);
+                }
             }
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) {
-            auto usedItem = player->getItems(); // Use the getter
-            if (usedItem[0]) { // Check if the first item exists
-                player->applyItemEffect(usedItem[0]);
-                player->setUsedItem(0);
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) {
+                auto usedItem = player->getItems(); // Use the getter
+                if (usedItem[0]) { // Check if the first item exists
+                    player->applyItemEffect(usedItem[0]);
+                    player->setUsedItem(0);
+                }
             }
-        }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2)) {
-            auto usedItem = player->getItems();
-            if (usedItem[1]) {
-                player->applyItemEffect(usedItem[1]);
-                player->setUsedItem(1);
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2)) {
+                auto usedItem = player->getItems();
+                if (usedItem[1]) {
+                    player->applyItemEffect(usedItem[1]);
+                    player->setUsedItem(1);
+                }
             }
-        }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3)) {
-            auto usedItem = player->getItems();
-            if (usedItem[2]) {
-                player->applyItemEffect(usedItem[2]);
-                player->setUsedItem(2);
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3)) {
+                auto usedItem = player->getItems();
+                if (usedItem[2]) {
+                    player->applyItemEffect(usedItem[2]);
+                    player->setUsedItem(2);
+                }
             }
-        }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-            isFighting = true;
-            isMoving = false;
-            wasJPressed = false;
-            player->updateState(isFighting, num, WeaponType::Sword);
-            player->setCurWeapon(player->getWeapon(0));
-            player->setShooting(false);
-        }
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::J)) {
-            isFighting = true;
-            isMoving = false;
-            wasJPressed = true;
-            player->updateState(isFighting, num, WeaponType::Bow);
-            player->setCurWeapon(player->getWeapon(1));
-            player->setShooting(true);
-        }
-        else {
-            if (wasJPressed) {
-                player->setShooting(false); // Clear arrows when spacebar is released
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+                isFighting = true;
+                isMoving = false;
                 wasJPressed = false;
+                player->updateState(isFighting, num, WeaponType::Sword);
+                player->setCurWeapon(player->getWeapon(0));
+                player->setShooting(false);
             }
-            isFighting = false;
-            player->updateState(isFighting, num, WeaponType::None);
-            player->setCurWeapon(player->getWeapon(2));
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::J)) {
+                isFighting = true;
+                isMoving = false;
+                wasJPressed = true;
+                player->updateState(isFighting, num, WeaponType::Bow);
+                player->setCurWeapon(player->getWeapon(1));
+                player->setShooting(true);
+            }
+            else {
+                if (wasJPressed) {
+                    player->setShooting(false); // Clear arrows when spacebar is released
+                    wasJPressed = false;
+                }
+                isFighting = false;
+                player->updateState(isFighting, num, WeaponType::None);
+                player->setCurWeapon(player->getWeapon(2));
+            }
         }
+        
         
         
         if (isFighting) {
@@ -164,33 +172,40 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
 }
 
 void GameState::update() {
-    if (player->isDead()) {
-        
-        gameOverCallback();
+    if (gameLoop->getCurLevelIndex() < 3) {
+        if (player->isDead()) {
 
-        return;
-    }
-    if (guard && gameLoop->isGuardDead()) {
+            gameOverCallback();
 
-        guard.reset();
-    }
-    if (!gameLoop->playerInRoom && gameLoop->updateDoors()) {
+            return;
+        }
+        if (guard && gameLoop->isGuardDead()) {
 
-        gameLoop->playerInRoom = true;
-        int roomIndex = gameLoop->getCurLevel()->getRoomIndex();
-        room = gameLoop->getCurLevel()->getRoom(roomIndex);
-    }
-    if (room->isCleared() && gameLoop->playerInRoom) {
-        gameLoop->playerInRoom = false;
+            guard.reset();
+        }
+        if (!gameLoop->playerInRoom && gameLoop->updateDoors()) {
 
-    }
-    if (gameLoop->update()) {
-        room = gameLoop->getCurLevel()->getRoom(0);
-        level = gameLoop->getCurLevel();
+            gameLoop->playerInRoom = true;
+            int roomIndex = gameLoop->getCurLevel()->getRoomIndex();
+            room = gameLoop->getCurLevel()->getRoom(roomIndex);
+        }
+        if (room->isCleared() && gameLoop->playerInRoom) {
+            gameLoop->playerInRoom = false;
+
+        }
+        gameLoop->updateLevel2();
+        if (gameLoop->update()) {
+            cout << "GOT HERE2";
+            if (gameLoop->getCurLevelIndex() < 3) {
+                room = gameLoop->getCurLevel()->getRoom(0);
+                level = gameLoop->getCurLevel();
+            }
+            cout << "GOT HERE1";
+        }
+
+
     }
     
-    gameLoop->updateLevel2();
-
     
     
 }
@@ -198,7 +213,10 @@ void GameState::update() {
 void GameState::draw(sf::RenderWindow& window) {
     
     gameMap->drawTo(window);
-    gameLoop->render(window);
+    if (gameLoop->getCurLevelIndex() != 3) {
+        gameLoop->render(window);
+    }
+
     if (player) {
         player->drawTo(window);
     }

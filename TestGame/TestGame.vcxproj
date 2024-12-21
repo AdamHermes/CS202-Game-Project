@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Character.cpp" />
@@ -151,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArrowProjectile.h" />
+    <ClInclude Include="AudioManager.h" />
     <ClInclude Include="Boarman.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />

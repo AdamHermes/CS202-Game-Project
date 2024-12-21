@@ -289,7 +289,7 @@ void Character::loadTexture(const std::string& path, bool isBig, int num, float 
     else {
         std::cerr << "Failed to load texture: " << path << std::endl;
     }
-    if (!arrowTexture.loadFromFile("../Assets/Character/Textures/arrow.png")) {
+    if (!arrowTexture.loadFromFile("../Assets/Character/Textures/fireball.png")) {
         throw std::runtime_error("Failed to load arrow texture from assets/arrow.png");
     }
     arrowSprite.setTexture(arrowTexture); // Assign the texture to the sprite

@@ -8,7 +8,7 @@ public:
     void notify(float value, const sf::Vector2f& position) {
         sf::Text damageText = templateText;
         damageText.setString(std::to_string(static_cast<int>(value)));
-        damageText.setPosition(position.x, position.y - 20);
+        damageText.setPosition(position.x-30, position.y - 30);
         damageTexts.push_back(damageText);
     }
     

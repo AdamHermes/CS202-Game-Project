@@ -21,7 +21,7 @@ enum class CharacterType {
 class Character : public GameEntity {
 private:
     CharacterType type;
-    float health = 100, speed = 0.1f;
+    float health = 100, speed = 0.14f;
     bool alive;
     bool isShooting = false; 
     std::shared_ptr<Items> storedItems[3] = { nullptr, nullptr, nullptr };
@@ -78,6 +78,9 @@ public:
     void applyItemEffect(std::shared_ptr<Items> item);
     void setCurWeapon(const std::shared_ptr<Weapon>& weapon) {
         curWeapon = weapon;
+    }
+    void setSpeed() {
+        speed = 0.1f;
     }
     bool hit = false;
     void setShooting(bool shooting);

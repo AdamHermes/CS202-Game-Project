@@ -70,7 +70,7 @@ public:
         loadBreath("../Assets/Character/Textures/breath.png");
 
         // Initialize object pool with some BreathProjectiles
-        for (int i = 0; i < 100; ++i) {  // Adjust pool size based on expected max breath projectiles
+        for (int i = 0; i < 20; ++i) {  // Adjust pool size based on expected max breath projectiles
             availableBreaths.push(BreathProjectile(breathSprite, { 0, 0 }));
         }
     }

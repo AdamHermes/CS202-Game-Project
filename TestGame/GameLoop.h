@@ -2,6 +2,7 @@
 #include "Level.h"
 #include "DamageManager.h"
 #include "DamageTextManager.h"
+#include "AudioManager.h"
 #include "Map.h"
 class GameLoop {
 private:
@@ -13,6 +14,8 @@ private:
     int currentLevelIndex = 0;                // Index of the current level
     DamageManager* damageManager;
     shared_ptr<DamageTextManager> damageTextManager;
+    AudioManager& audioManager;
+    string currentMusicFile;
     void cleanupLevel() {
         curLevel.reset(); // Release the current level
     }
@@ -34,12 +37,28 @@ public:
         window.draw(boundingBoxShape); 
     }
     GameLoop(std::shared_ptr<Character>& player, std::shared_ptr<Map>& gameMap, std::shared_ptr<Character>& guard)
-        : player(player), gameMap(gameMap), guard(guard) {
+        : player(player), gameMap(gameMap), guard(guard), audioManager(AudioManager::getInstance()), currentMusicFile("") {
         if (doorTexture.loadFromFile("../Assets/Character/Textures/door1.png")) {
             doorSprite.setTexture(doorTexture);
         }
     }   
-
+    void loadMusic(const string& musicFile, bool loop) {
+        currentMusicFile = musicFile;
+        try {
+            audioManager.playMusic(musicFile, loop); // Pass the loop parameter here
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Error loading music: " << e.what() << std::endl;
+        }
+    }
+    void playMusic() {
+        try {
+            audioManager.playMusic(currentMusicFile, true); // Pass the loop parameter here
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Error loading music: " << e.what() << std::endl;
+        }
+    }
     void addLevel(const sf::FloatRect& gatePosition) {
         auto newLevel = std::make_shared<Level>();
         newLevel->setGate(gatePosition); 
@@ -56,11 +75,12 @@ public:
     void addLevels() {
         sf::FloatRect gatePositionLevel1(160.0f, 200.0f, 100.0f, 50.0f);  // Gate for level 1
         sf::FloatRect gatePositionLevel2(1030.0f, 1330.0f, 100.0f, 50.0f);  // Gate for level 2
-        sf::FloatRect gatePositionLevel3(0, 0, 0, 0);
-
+        sf::FloatRect gatePositionLevel3(1952, 992, 64, 64);
+        sf::FloatRect gatePositionLevel4(0, 0, 0, 0);
         addLevel(gatePositionLevel1);  // Level 1
         addLevel(gatePositionLevel2);  // Level 2
         addLevel(gatePositionLevel3);
+        addLevel(gatePositionLevel4);
     }
     void loadEnemiesForRooms(int currentLevelIndex) {
 
@@ -98,6 +118,29 @@ public:
     }
     void loadNextLevel() {
         if (currentLevelIndex + 1 < levels.size()) {
+            if (currentLevelIndex == 2) {
+                cout << "HOLA";
+                cleanupLevel();
+                currentLevelIndex++;
+                gameMap->obstacles.clear();
+                if (damageManager) {
+                    delete damageManager;
+                    damageManager = nullptr;
+                }
+                std::string texturePath = "../Assets/Character/Textures/map" + std::to_string(currentLevelIndex) + ".png";
+                std::string tmxPath = "../Assets/Character/TMX MAP/map" + std::to_string(currentLevelIndex) + ".tmx";
+                if (!gameMap->loadTexture(texturePath) || !gameMap->loadFromTMX(tmxPath)) {
+                    std::cerr << "Failed to load map for level " << currentLevelIndex + 1 << std::endl;
+                    return;
+                }
+                audioManager.stopMusic();
+                loadMusic("../Assets/SoundTrack/final.mp3", false);
+                playMusic();
+                player->setPosition(256, 1248);
+                cout << "DAMN FUCK";
+                return;
+            
+            }
             cleanupLevel();
             currentLevelIndex++;
             gameMap->obstacles.clear();
@@ -117,7 +160,10 @@ public:
                 doorSprite.setTexture(doorTexture);
             }
             if (currentLevelIndex == 1) {
-                player->setPosition( 1280, 260); //1300 260
+                audioManager.stopMusic();
+                loadMusic("../Assets/SoundTrack/level2.mp3",false);
+                playMusic();
+                player->setPosition( 1280,260); //1280 260
                 guard->loadTexture("../Assets/Character/Textures/character1.png", false, 2, 1470, 930);
                 guard->updateBoundingBox();
                 guard->equipWeapon(WeaponType::Bow);
@@ -135,8 +181,11 @@ public:
                 playerInRoom = false;
             }
             else if (currentLevelIndex == 2) {
+                audioManager.stopMusic();
+                loadMusic("../Assets/SoundTrack/level3.mp3",false);
+                playMusic();
                 doorPositions.clear();
-                player->setPosition(160, 950);
+                player->setPosition(130, 970);
                 guard->setPosition(130, 1000);
                 guard->setShooting(false);
                 doorPositions.push_back({
@@ -152,20 +201,19 @@ public:
                     std::make_tuple(1312, 992, 32, 64,1)   // Door Out for Room 1
                 });
                 playerInRoom = false;
-
+                player->setSpeed();
             }
             
-            std::cout << "Loaded map for level " << currentLevelIndex + 1 << std::endl;
-            cout << "Cur Index " << currentLevelIndex << endl;
-            loadEnemiesForRooms(currentLevelIndex);
-            curLevel->loadDoors(doorPositions);
-            loadItemsForRooms(currentLevelIndex);
-            updateDamageManager();
+        }
+        
+        std::cout << "Loaded map for level " << currentLevelIndex + 1 << std::endl;
+        cout << "Cur Index " << currentLevelIndex << endl;
+        loadEnemiesForRooms(currentLevelIndex);
+        curLevel->loadDoors(doorPositions);
+        loadItemsForRooms(currentLevelIndex);
+        updateDamageManager();
 
-        }
-        else {
-            std::cout << "You have completed the game!" << std::endl;
-        }
+        
     }
     bool isGuardDead() {
         if (guard->isDead()) {
@@ -224,7 +272,7 @@ public:
 
         if (room->isCleared() && room->areDoorsActive()) {
             auto& doors = curLevel->getDoors();
-            if (currentLevelIndex == 2) cout << "KILLED THE DRAGON";
+
             // Retrieve shared_ptr back from gameMap obstacles
             gameMap->obstacles.pop_back();
             gameMap->obstacles.pop_back();
@@ -277,7 +325,7 @@ public:
             }
         }
     }
-
+    
     bool update() {
         static bool transitioning = false;  
         static sf::Clock transitionClock;   
