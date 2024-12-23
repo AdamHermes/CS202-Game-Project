@@ -11,6 +11,7 @@
 #include "Skeleton.h"
 #include "Ghost.h"
 #include "Worm.h"
+#include "Medusa.h"
 #include "Mage.h"
 class EnemyFactory {
 public:
@@ -59,6 +60,9 @@ public:
         }
         else if (type == EnemyType::Mage) {
             return std::make_shared<Mage>(spawnPosition);
+        }
+        else if (type == EnemyType::Medusa) {
+            return std::make_shared<Medusa>(spawnPosition);
         }
         return nullptr;
     }

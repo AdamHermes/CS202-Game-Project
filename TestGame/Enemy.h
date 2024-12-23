@@ -21,7 +21,8 @@ enum class EnemyType {
     Boarman,
     Ghost,
     Worm,
-    Mage
+    Mage,
+    Medusa
 };
 enum class EnemyState {
     Moving,
@@ -98,6 +99,9 @@ public:
         }
         else if (enemyType == EnemyType::Mage) {
             boundingBox = sf::FloatRect(position.x - 50.0f, position.y - 35.0f, 100, 70);
+        }
+        else if (enemyType == EnemyType::Mage) {
+            boundingBox = sf::FloatRect(position.x - 28.0f, position.y - 44.0f, 56, 88);
         }
         else {
             boundingBox = sf::FloatRect(position.x - 32.0f + offsetX, position.y - 32.0f + offsetY, 32, 56);

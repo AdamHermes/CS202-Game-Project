@@ -75,7 +75,7 @@ public:
     void addLevels() {
         sf::FloatRect gatePositionLevel1(160.0f, 200.0f, 100.0f, 50.0f);  // Gate for level 1
         sf::FloatRect gatePositionLevel2(1030.0f, 1330.0f, 100.0f, 50.0f);  // Gate for level 2
-        sf::FloatRect gatePositionLevel3(1952, 992, 64, 64);
+        sf::FloatRect gatePositionLevel3(1696, 1792, 64, 64);
         sf::FloatRect gatePositionLevel4(0, 0, 0, 0);
         addLevel(gatePositionLevel1);  // Level 1
         addLevel(gatePositionLevel2);  // Level 2
@@ -84,7 +84,7 @@ public:
     }
     void loadEnemiesForRooms(int currentLevelIndex) {
 
-        cout << levels.size();
+
         curLevel = levels[currentLevelIndex];
         if (currentLevelIndex >= 1) {
             std::shared_ptr<Level> prevLevel = levels[currentLevelIndex - 1];
@@ -100,7 +100,7 @@ public:
             std::shared_ptr<Level> prevLevel = levels[currentLevelIndex - 1];
             prevLevel->clearItems();
         }
-        cout << "GOT1";
+
         curLevel->populateItems(currentLevelIndex);
     }
     void initializeTextDamage() {
@@ -136,13 +136,13 @@ public:
                 }
                 audioManager.stopMusic();
                 loadMusic("../Assets/SoundTrack/final.mp3", false);
-                //playMusic();
+                playMusic();
                 player->setPosition(256, 1248);
                 player->setSpeed();
-                cout << "GOT";
+
                 curLevel = levels[currentLevelIndex];
                 loadItemsForRooms(currentLevelIndex);
-                cout << "BUM";
+
                 return;
             
             }
@@ -167,9 +167,9 @@ public:
             if (currentLevelIndex == 1) {
                 audioManager.stopMusic();
                 loadMusic("../Assets/SoundTrack/level2.mp3",false);
-                //playMusic();
-                player->setPosition( 1060,1430); //1280 260
-                guard->loadTexture("../Assets/Character/Textures/character1.png", false, 2, 1470, 930);
+                playMusic();
+                player->setPosition( 1280,260); //1280 260
+                guard->loadTexture("../Assets/Character/Textures/character1.png", false, 2, 1570, 930);
                 guard->updateBoundingBox();
                 guard->equipWeapon(WeaponType::Bow);
                 auto start_weapon_guard = guard->getWeapon(0);
@@ -193,9 +193,9 @@ public:
             else if (currentLevelIndex == 2) {
                 audioManager.stopMusic();
                 loadMusic("../Assets/SoundTrack/level3.mp3",false);
-                //playMusic();
+                playMusic();
                 doorPositions.clear();
-                player->setPosition(1130, 990);
+                player->setPosition(130, 960);
                 guard->setPosition(130, 1000);
                 guard->setShooting(false);
                 doorPositions.push_back({
@@ -208,7 +208,7 @@ public:
                 });
                 doorPositions.push_back({
                     std::make_tuple(1312, 992, 32, 64,1), // Door In for Room 1
-                    std::make_tuple(1312, 992, 32, 64,1)   // Door Out for Room 1
+                    std::make_tuple(1696, 1408, 64, 64,1)   // Door Out for Room 1
                 });
                 playerInRoom = false;
 
@@ -218,7 +218,6 @@ public:
         }
         
         std::cout << "Loaded map for level " << currentLevelIndex + 1 << std::endl;
-        cout << "Cur Index " << currentLevelIndex << endl;
         loadEnemiesForRooms(currentLevelIndex);
         curLevel->loadDoors(doorPositions);
         loadItemsForRooms(currentLevelIndex);
@@ -238,7 +237,6 @@ public:
     bool updateDoors() {
         
         if (curLevel->checkDoorEntry(player)) {
-
             int currentRoomIndex = curLevel->getRoomIndex();
 
             auto room = curLevel->getRoom(currentRoomIndex);

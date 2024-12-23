@@ -77,7 +77,7 @@ public:
             // Emplace back shared_ptr without moving
             doors.emplace_back(std::make_pair(doorInPtr, doorOutPtr));
 
-            cout << "DOORS CONSTRUCT: " << doors.size() << endl;
+
         }
     }
     void setCurLevelIndex(int n) {
@@ -130,7 +130,7 @@ public:
                 return true;
             }
             else if (door->getDir() == 2 && (playerBox.top >= door->getY() + door->getHeight() &&
-                playerBox.top <= door->getY() + door->getHeight() + playerBox.height && 
+                playerBox.top <= door->getY() + door->getHeight() + 2*playerBox.height && 
                 playerBox.left + playerBox.width > door->getX() &&          // Player horizontally overlaps the door
                 playerBox.left < door->getX() + door->getWidth())){
                 currentRoomIndex = i;
@@ -164,7 +164,19 @@ public:
     }
     int getRoomIndex() const { return currentRoomIndex; }
     void populateItems(int currentLevelIndex) {
-        cout << "GOT6";
+
+        string text1 = "A worthy opponent... I’ll remember your name.";
+        string text2 = "I accept defeated...";
+        string text3 = "The darkness... will never fade... even if I do...";
+        string text4 = "Your blade strikes true... I concede this battle to you.";
+        string text5 = "At last, justice has been delivered... we owe you everything.";
+        string text6 = "With their defeat, the weight on our souls is lifted... thank you.";
+        string text7 = "Through your blade, we’ve found redemption... and peace at last.";
+        string text8 = "Have you heard? The monsters fell to a hero whose courage burned brighter than the darkest night.";
+        string text9 = "They say the hero’s name will never be forgotten, for they were the one who brought peace back to the land.";
+        string text11 = "I couldn’t have asked for a better companion on this journey. You’re more than a hero—you’re family.";
+        string text10 = "You’ve saved our people and my spirit. Stay with me, my hero, and let us write the next chapter together.";
+        string text12 = "This victory is yours, but it will be cherished by all who live under the skies of this land.";
         std::map<int, std::vector<std::pair<sf::Vector2f, ItemType>>> itemPositions = {
             {0, {   // Room 0
                 {sf::Vector2f(780.0f, 950.0f), ItemType::health},
@@ -174,17 +186,17 @@ public:
                 {sf::Vector2f(1450.0f,1322.0f), ItemType::health}
             }},
             {1, {
-                {sf::Vector2f(1030.0f, 930.0f), ItemType::health},
-                {sf::Vector2f(1130.0f, 930.0f), ItemType::health},
+                {sf::Vector2f(1240.0f, 935.0f), ItemType::health},
+                {sf::Vector2f(1340.0f, 935.0f), ItemType::health},
                 {sf::Vector2f(950.0f, 550.0f), ItemType::health},
-                {sf::Vector2f(1230.0f,930.0f), ItemType::health},
+                {sf::Vector2f(1440.0f,935.0f), ItemType::health},
                 {sf::Vector2f(2215.0f,1370.0f), ItemType::power},
                 {sf::Vector2f(2175.0f,1370.0f), ItemType::health},
                 {sf::Vector2f(2255.0f,1370.0f), ItemType::speed}
                 
             }},
             {2, {
-                {sf::Vector2f(126.0f, 1084.0f), ItemType::health},
+                {sf::Vector2f(930.0f, 330.0f), ItemType::health},
                 {sf::Vector2f(350.0f, 400.0f), ItemType::health},
                 {sf::Vector2f(800.0f, 1880.0f), ItemType::health},
                 {sf::Vector2f(420.0f, 1820.0f), ItemType::health},
@@ -211,77 +223,94 @@ public:
                 {sf::Vector2f(512.0f, 611.0f), ItemType::statue}
             }}
         };
-        cout << "GOT5";
+
         clearItems();
-        cout << items.size() << endl;
-        cout << "GOT7";
 
 
+        vector<string> Texts;
+        Texts.push_back(text1);
+        Texts.push_back(text2);
+        Texts.push_back(text4);
+        Texts.push_back(text3);
+        Texts.push_back(text2);
+        Texts.push_back(text1);
+        Texts.push_back(text4);
+        Texts.push_back(text8);
+        Texts.push_back(text9);
+        Texts.push_back(text1);
+        Texts.push_back(text6);
+        Texts.push_back(text5);
+        Texts.push_back(text7);
+        Texts.push_back(text12);
+        Texts.push_back(text11);
+        Texts.push_back(text10);
+        int count = 0;
         for (const std::pair<sf::Vector2f, ItemType>& item : itemPositions[currentLevelIndex]) {
-            cout << "GOT3";
-            addItem(item.second, item.first);
-            cout << "GOT4";
+
+            addItem(item.second, item.first,Texts[count]);
+
+            ++count;
         }
     }
     void populateEnemies(int currentLevelIndex) {
         // Predefine enemy positions for each room
         std::map<int, std::vector<std::pair<sf::Vector2f, EnemyType>>> enemyPositions = {
             {0, {   // Room 0
-                {sf::Vector2f(230.0f, 900.0f), EnemyType::Mage},
-                //{sf::Vector2f(240.0f, 685.0f), EnemyType::Golem},
-                //{sf::Vector2f(210.0f, 900.0f), EnemyType::Boarman},
+                /*{sf::Vector2f(450.0f, 950.0f), EnemyType::Boarman},
+                {sf::Vector2f(240.0f, 685.0f), EnemyType::Golem},
+                {sf::Vector2f(210.0f, 900.0f), EnemyType::Boarman},*/
                 
             }},
             {3, {   // Room 0
                 
-                /*{sf::Vector2f(940.0f, 350.0f), EnemyType::Golem},
+               /* {sf::Vector2f(940.0f, 350.0f), EnemyType::Golem},
                 {sf::Vector2f(1000.0f, 280.0f), EnemyType::Goblin},
                 {sf::Vector2f(750.0f, 320.0f), EnemyType::Goblin}*/
             }},
             {6,{
 
-                /*{sf::Vector2f(1504.0f, 768.0f), EnemyType::Golem},
+                /*{sf::Vector2f(1404.0f, 768.0f), EnemyType::Dragon1},
                 {sf::Vector2f(1256.0f, 754.0f), EnemyType::Demon},
-                {sf::Vector2f(1376,928), EnemyType::Demon}*/
+                {sf::Vector2f(1376,928), EnemyType::Golem}*/
             }},
             {1, {
-                /*{sf::Vector2f(260.0f, 450.0f), EnemyType::Sunflower},
+                /*{sf::Vector2f(260.0f, 450.0f), EnemyType::Spider},
                 {sf::Vector2f(260.0f, 320.0f), EnemyType::Spider},
-                {sf::Vector2f(560.0f, 200.0f), EnemyType::Sunflower},
+                {sf::Vector2f(560.0f, 200.0f), EnemyType::Medusa},
                 {sf::Vector2f(470.0f, 380.0f), EnemyType::Spider},*/
 
             }},
             {4, {
                 /*{sf::Vector2f(540.0f, 1000.0f), EnemyType::Frogman},
                 {sf::Vector2f(400.0f, 1000.0f), EnemyType::Frogman},
-                {sf::Vector2f(340.0f, 980.0f), EnemyType::Frogman},*/
+                {sf::Vector2f(340.0f, 980.0f), EnemyType::Ghost},
+                {sf::Vector2f(280.0f, 940.0f), EnemyType::Ghost}*/
                 
             }},
             {7, {
-                /*{sf::Vector2f(870.0f,1000.0f), EnemyType::Worm},
-                {sf::Vector2f(960.0f, 900.0f), EnemyType::Worm},
-                {sf::Vector2f(1040.0f,950.0f), EnemyType::Ghost},
-                {sf::Vector2f(860.0f, 915.0f), EnemyType::Ghost}*/
+                /*{sf::Vector2f(1000.0f, 900.0f), EnemyType::Worm},
+                {sf::Vector2f(900.0f, 950.0f), EnemyType::Worm},
+                {sf::Vector2f(1210.0f,950.0f), EnemyType::Sunflower},
+                {sf::Vector2f(1100.0f, 1015.0f), EnemyType::Sunflower}*/
             }},
             {2, {
-                /*{sf::Vector2f(900.0f, 290.0f), EnemyType::Dragon2},
+                {sf::Vector2f(900.0f, 290.0f), EnemyType::Dragon2},
                 {sf::Vector2f(280.0f, 350.0f), EnemyType::Dragon2},
-                {sf::Vector2f(610.0f, 420.0f), EnemyType::Dragon2},*/
-
-                /*{sf::Vector2f(340.0f,480.0f),EnemyType::Skeleton},
-                {sf::Vector2f(910.0f,400.0f),EnemyType::Skeleton}*/
+                {sf::Vector2f(610.0f, 420.0f), EnemyType::Dragon2},
+                {sf::Vector2f(340.0f,480.0f),EnemyType::Skeleton},
+                {sf::Vector2f(910.0f,400.0f),EnemyType::Skeleton}
             }},
             {5, {
-                /*{sf::Vector2f(800.0f, 1900.0f), EnemyType::Dragon3},
-                {sf::Vector2f(420.0f, 1720.0f), EnemyType::Dragon3},
+                {sf::Vector2f(800.0f, 1900.0f), EnemyType::Dragon3},
+                {sf::Vector2f(420.0f, 1720.0f), EnemyType::Medusa},
                 {sf::Vector2f(600.0f,1800.0f),EnemyType::Skeleton},
-                {sf::Vector2f(530.0f,1640.0f),EnemyType::Skeleton}*/
+                {sf::Vector2f(530.0f,1640.0f),EnemyType::Skeleton}
                 
             }},
             {8, {
-                //{sf::Vector2f(1600.0f, 750.0f), EnemyType::Dragon1},
-                //{sf::Vector2f(1900.0f, 1000.0f), EnemyType::Mage},
-                //{sf::Vector2f(1750.0f, 1250.0f), EnemyType::Dragon1}
+                {sf::Vector2f(1600.0f, 750.0f), EnemyType::Dragon4},
+                {sf::Vector2f(1900.0f, 1000.0f), EnemyType::Mage},
+                {sf::Vector2f(1750.0f, 1250.0f), EnemyType::Dragon4}
 
             }}
         };
@@ -289,7 +318,7 @@ public:
             room->clearEnemies();
         }
 
-        cout << rooms.size();
+
         addRoom(0);
         addRoom(1);
         addRoom(2);
@@ -330,14 +359,14 @@ public:
     bool checkGateEntry(const std::shared_ptr<Character> player) const {
         return gate->isPlayerEntering(player);
     }
-    void addItem(ItemType type, const sf::Vector2f& spawnLocation) {
-        cout << "GOT2";
-        items.push_back(ItemFactory::createItems(type, spawnLocation));
+    void addItem(ItemType type, const sf::Vector2f& spawnLocation, const string& text) {
+
+        items.push_back(ItemFactory::createItems(type, spawnLocation, text));
     }
     void clearItems() {
-        cout << "HELL";
+
         items.clear();
-        cout << "CLEAR";
+
     }
     void renderItems(sf::RenderWindow& window) {
         for (const auto& item : items) {

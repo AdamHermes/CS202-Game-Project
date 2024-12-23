@@ -188,5 +188,8 @@
     <ClInclude Include="Mage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Medusa.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

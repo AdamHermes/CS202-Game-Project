@@ -182,6 +182,7 @@
     <ClInclude Include="Mage.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="Medusa.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="Skeleton.h" />

@@ -1,7 +1,7 @@
 #include "GameState.h"
 
-GameState::GameState(Callback gameOverCallback)
-    : camera(720, 480), isFighting(false){
+GameState::GameState(Callback gameOverCallback, Callback gameWinCallback)
+    : camera(720, 480), isFighting(false), targetLocation(640,600){
     // Initialize player
     player = std::make_shared<Character>(
         "../Assets/Character/Textures/characters.png",
@@ -21,7 +21,7 @@ GameState::GameState(Callback gameOverCallback)
     if (!gameMap->loadFromTMX("../Assets/Character/TMX MAP/map0.tmx")) {
         throw std::runtime_error("Failed to load map data.");
     }
-    cout << "Constructing";
+
     // Set up player
     player->updateBoundingBox();
     player->equipWeapon(WeaponType::Sword);
@@ -38,7 +38,7 @@ GameState::GameState(Callback gameOverCallback)
    
     gameLoop = std::make_unique<GameLoop>(player, gameMap,guard);
     gameLoop->loadMusic("../Assets/SoundTrack/level1.mp3",false);
-    //gameLoop->playMusic();
+    gameLoop->playMusic();
     gameLoop->addLevels();
     gameLoop->loadEnemiesForRooms(0);
     gameLoop->loadItemsForRooms(0);
@@ -56,13 +56,16 @@ GameState::GameState(Callback gameOverCallback)
         });
     gameLoop->doorPositions.push_back({
             std::make_tuple(1344,640,64,32,2),
-            std::make_tuple(1152,896,32,64,1)
+            std::make_tuple(1120,896,32,64,1)
         });
     level = gameLoop->getLevel(0);
     level->loadDoors(gameLoop->doorPositions);
     room = level->getRoom(0);
-
+    
+    float locationTolerance = 10.0f;
     this->gameOverCallback = gameOverCallback;
+    this->gameWinCallback = gameWinCallback;
+    
 }
 
 void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
@@ -228,6 +231,7 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
 }
 
 void GameState::update() {
+    
     if (gameLoop->getCurLevelIndex() < 3) {
         if (player->isDead()) {
 
@@ -240,7 +244,6 @@ void GameState::update() {
             guard.reset();
         }
         if (!gameLoop->playerInRoom && gameLoop->updateDoors()) {
-            cout << "CLEAR2" << endl;
             gameLoop->playerInRoom = true;
             int roomIndex = gameLoop->getCurLevel()->getRoomIndex();
             gameLoop->getCurLevel()->setRoomIndex(1);
@@ -262,6 +265,24 @@ void GameState::update() {
     }
     else if (gameLoop->getCurLevelIndex() == 3) {
         level = gameLoop->getCurLevel();
+        if (std::abs(player->getSprite().getPosition().x - targetLocation.x) <= locationTolerance &&
+            std::abs(player->getSprite().getPosition().y - targetLocation.y) <= locationTolerance) {
+
+            if (!playerAtLocation) {
+                stayClock.restart();  // Restart the clock when the player enters the target location
+                playerAtLocation = true;
+            }
+
+            // Check if the player has stayed at the location for the required time
+            if (stayClock.getElapsedTime().asSeconds() >= requiredTimeAtLocation) {
+
+                gameWinCallback();
+            }
+        }
+        else {
+            // Reset the clock if the player moves away from the location
+            playerAtLocation = false;
+        }
     }
     
     

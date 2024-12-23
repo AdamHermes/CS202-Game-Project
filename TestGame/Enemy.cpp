@@ -21,6 +21,10 @@ void Enemy::changePos(int direction) {
         frameWidth = 122;
         frameHeight = 110;
     }
+    else if (enemyType == EnemyType::Medusa) {
+        frameWidth = 57;
+        frameHeight = 88;
+    }
     // Update the current frame based on elapsed time
     if (animationClock.getElapsedTime().asSeconds() > frameDuration) {
         currentFrame = (currentFrame + 1) % totalFrames; // Loop through frames
@@ -61,6 +65,9 @@ void Enemy::loadTexture(std::string filename, float x, float y) {
     else if (enemyType == EnemyType::Mage) {
         sprite.setTextureRect(sf::IntRect(0, 0, 122, 110));
     }
+    else if (enemyType == EnemyType::Medusa) {
+        sprite.setTextureRect(sf::IntRect(0, 0, 57, 88));
+    }
     else sprite.setTextureRect(sf::IntRect(0, 0, 64, 64)); // Default frame
     sprite.setOrigin(32.0f, 32.0f); // Set origin to the center (192/2)
     if (enemyType == EnemyType::Frogman) {
@@ -75,6 +82,9 @@ void Enemy::loadTexture(std::string filename, float x, float y) {
     }
     else if (enemyType == EnemyType::Mage) {
         sprite.setOrigin(61, 55);
+    }
+    else if (enemyType == EnemyType::Medusa) {
+        sprite.setOrigin(28.50f, 44.0f);
     }
     sprite.setPosition(x, y);
 }
@@ -91,7 +101,7 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
     // Calculate the normalized direction vector
 
     float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-    if (magnitude > 250 && enemyType != EnemyType::Dragon1 && enemyType != EnemyType::Mage) {
+    if (magnitude > 250 && enemyType != EnemyType::Dragon1 && enemyType != EnemyType::Mage && enemyType != EnemyType::Medusa) {
         //randomPatrol(gameMap);
         return;
     }
@@ -128,6 +138,10 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
         newBoundingBox.left -= 34.0f;
         newBoundingBox.top -= 7.0f;
     }
+    else if (enemyType == EnemyType::Medusa) {
+        newBoundingBox.left -= 12.0f;
+        newBoundingBox.top -= 16.0f;
+    }
     bool collidesWithMap = gameMap->checkCollision(newBoundingBox.left, newBoundingBox.top, newBoundingBox.width, newBoundingBox.height);
     bool collidesWithPlayer = player->checkCollision(newBoundingBox);
    
@@ -136,7 +150,7 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
     if (guard) {
         collidesWithGuard = guard->checkCollision(newBoundingBox);
     }
-    if (enemyType == EnemyType::Dragon1 || enemyType == EnemyType::Mage) {
+    if (enemyType == EnemyType::Dragon1 || enemyType == EnemyType::Mage || enemyType == EnemyType::Medusa) {
         int num = getFightingDirection(direction);
         fightingD(num, player, guard, gameMap);
     }
@@ -147,7 +161,7 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
         setState(EnemyState::Moving);
 
     }
-    else if ((collidesWithPlayer || collidesWithGuard) &&  enemyType != EnemyType::Dragon1 && enemyType != EnemyType::Mage) {
+    else if ((collidesWithPlayer || collidesWithGuard) &&  enemyType != EnemyType::Dragon1 && enemyType != EnemyType::Mage && enemyType != EnemyType::Medusa) {
 
         if (gameMap->checkCollision(player->boundingBox.left, player->boundingBox.top, player->boundingBox.width, player->boundingBox.height)) {
             sf::Vector2f overlap = enemyPosition - player->getSprite().getPosition();    
@@ -192,6 +206,9 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
         }
         else if (enemyType == EnemyType::Mage) {
             sprite.setOrigin(61, 55);
+        }
+        else if (enemyType == EnemyType::Medusa) {
+            sprite.setOrigin(28.50f, 44.0f);
         }
         if (std::abs(direction.x) > std::abs(direction.y)) {
             if (direction.x > 0) {

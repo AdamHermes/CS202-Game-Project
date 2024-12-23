@@ -263,11 +263,10 @@
   <object id="82" x="109.333" y="1068.33" width="36.1667" height="25"/>
   <object id="7" x="300" y="195.667" width="40.6667" height="45"/>
   <object id="8" x="356" y="259.667" width="40.6667" height="45"/>
-  <object id="9" x="617.333" y="262.333" width="40.6667" height="45"/>
-  <object id="42" x="617.333" y="269.667" width="40.6667" height="35"/>
+  <object id="42" x="619.333" y="270.667" width="40.6667" height="35"/>
   <object id="43" x="548" y="166.333" width="26.6667" height="59"/>
   <object id="44" x="674" y="164.333" width="26.6667" height="59"/>
-  <object id="10" x="620" y="177" width="40.6667" height="45"/>
+  <object id="10" x="620" y="177" width="40.6667" height="31.25"/>
   <object id="11" x="872" y="238.333" width="40.6667" height="45"/>
   <object id="12" x="938.667" y="238.333" width="40.6667" height="45"/>
   <object id="14" x="944" y="815.667" width="40.6667" height="45"/>

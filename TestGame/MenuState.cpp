@@ -24,6 +24,7 @@ MenuState::MenuState(const std::string& backgroundTextureFile, Callback startGam
 }
 
 void MenuState::draw(sf::RenderWindow& window) {
+    window.setView(window.getDefaultView());
     window.draw(backgroundSprite);
 
     for (auto& button : buttons) {

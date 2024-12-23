@@ -13,7 +13,7 @@
 class GameState : public State {
 public:
     using Callback = std::function<void()>;
-    GameState(Callback gameOverCallback);
+    GameState(Callback gameOverCallback, Callback gameWinCallback);
     
     void handleEvent(sf::Event& event, sf::RenderWindow& window) override;
     void update() override;
@@ -31,7 +31,13 @@ private:
     Camera camera;                     // Camera for the game
     bool isFighting;
     int num = 2;// Fighting state
+    sf::Clock stayClock;               // Clock to track time spent at target location
+    bool playerAtLocation = false;     // Whether player is at the target location
+    const float requiredTimeAtLocation = 6.0f;  // Time threshold to trigger game win
+    sf::Vector2f targetLocation;       // Target position to check
+    float locationTolerance = 10.0f;
     Callback gameOverCallback;
+    Callback gameWinCallback;
 };
 
 #endif // GAMESTATE_H

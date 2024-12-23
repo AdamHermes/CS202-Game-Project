@@ -65,7 +65,7 @@ void Character::fightSpear(int direction, const std::vector<std::shared_ptr<Enem
 
         if (manager) {
             manager->notify("PlayerAttack", curWeapon->getDamage());
-            std::cout << "Attack launched" << std::endl;
+            //std::cout << "Attack launched" << std::endl;
 
         }
         attackCooldownClock.restart();
@@ -259,7 +259,7 @@ void Character::fightSword(int direction, const std::vector<std::shared_ptr<Enem
 
         if (manager) {
             manager->notify("PlayerAttack", curWeapon->getDamage());
-            std::cout << "Attack launched" << std::endl;
+            //std::cout << "Attack launched" << std::endl;
 
         }
         // Restart the cooldown timer after the attack
@@ -270,7 +270,7 @@ void Character::fightSword(int direction, const std::vector<std::shared_ptr<Enem
 void Character::loadTexture(const std::string& path, bool isBig, int num, float x, float y) {
 
     if (texture.loadFromFile(path)) {
-        std::cout << "Load Success: " << path << std::endl;
+        //std::cout << "Load Success: " << path << std::endl;
         sprite.setTexture(texture);
 
         // Adjust texture rect based on size
@@ -418,7 +418,7 @@ void Character::fightSkill() {
 
         if (manager) {
             manager->notify("PlayerAttack", 15);
-            std::cout << "Attack launched" << std::endl;
+            //std::cout << "Attack launched" << std::endl;
 
         }
         attackCooldownClock.restart();

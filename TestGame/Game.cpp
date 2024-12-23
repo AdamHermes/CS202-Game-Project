@@ -13,9 +13,10 @@ void Game::transitionToMenu() {
 }
 
 void Game::transitionToGame() {
-    currentState = std::make_unique<GameState>([this]() {
-        transitionToGameOver();
-        });
+    currentState = std::make_unique<GameState>(
+        [this]() { transitionToGameOver(); },  // gameOverCallback
+        [this]() { transitionToMenu(); }      // gameWinCallback
+    );
 }
 
 void Game::transitionToGameOver() {
