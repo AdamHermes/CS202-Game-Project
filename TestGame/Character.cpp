@@ -111,7 +111,7 @@ void Character::fightBow(int direction, CharacterType type, const std::vector<st
         else if (direction == Up) {
             arrowPos = playerPos + sf::Vector2f(0, -64);
         }
-
+        
         if (direction == Right) {
             velocity = { arrowSpeed, 0 };
             newArrow.sprite.setTextureRect(sf::IntRect(0, frameHeight * 2, frameWidth, frameHeight)); // Right-facing arrow
@@ -312,18 +312,22 @@ void Character::updateState(bool fighting, int num, WeaponType weaponType) {
     }
 }
 std::shared_ptr<Items> Character::checkItemNearby(std::vector<shared_ptr<Items>>& items_inventory) {
-    for (std::shared_ptr<Items> item : items_inventory) {
+    std::shared_ptr<Items> nearbyItem = nullptr;
+    for (auto& item : items_inventory) {
         if (boundingBox.intersects(item->getSprite().getGlobalBounds())) {
-            //item->getSprite().setColor(sf::Color(255, 255, 0, 255)); // Yellow glow
-            return item;
-            
+            nearbyItem = item;
+
+            if (!item->getHighlightState()) {
+                item->highlight(); 
+            }
         }
         else {
-            //item->getSprite().setColor(sf::Color(255, 255, 255, 255)); // Normal color
-            
+            if (item->getHighlightState()) {
+                item->removeHighlight(); 
+            }
         }
     }
-    return nullptr;
+    return nearbyItem;
 }
 void Character::takePortions(std::shared_ptr<Items>& item) {
     for (int i = 0; i < 3; ++i) {
@@ -384,8 +388,42 @@ void Character::drawTo(sf::RenderWindow& window) const {
             window.draw(arrow.sprite);
         }
     }
+    if (isUsingSkill) {
+        window.draw(skillSprite);
+    }
 }
+void Character::fightSkill() {
+    if (!isUsingSkill) return;
+    if (skillDuration.getElapsedTime().asSeconds() > 4.0f) {
+        // Skill duration has ended, hide the skill and reset
+        skillSprite.setPosition(-1000, -1000);  
+        isUsingSkill = false;// Move out of screen
+        return; // Exit the function, no more animation
+    }
+    frameDuration = 0.1f;
+    const int frameWidth = 128;   // Width of a single frame
+    const int frameHeight = 128;  // Height of a single frame
+    const int totalFrames = 8;   // Number of frames per direction
+    attackRangeBox = boundingBox;
+    if (skillClock.getElapsedTime().asSeconds() > frameDuration) {
+        currentFrameSkill = (currentFrameSkill + 1) % totalFrames;  // Loop the frames
+        skillClock.restart();  // Reset the clock for the next frame
+    }
+    // Update the frame based on the time elapsed
+    skillSprite.setTextureRect(sf::IntRect(currentFrameSkill * frameWidth, 0, frameWidth, frameHeight));
+    skillSprite.setPosition(sprite.getPosition() - sf::Vector2f(64,64));
+    attackRangeBox = sf::FloatRect(skillSprite.getPosition().x, skillSprite.getPosition().y, 128, 128);
+    if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
 
+
+        if (manager) {
+            manager->notify("PlayerAttack", 15);
+            std::cout << "Attack launched" << std::endl;
+
+        }
+        attackCooldownClock.restart();
+    }
+}
 bool Character::checkCollision(const sf::FloatRect& otherBox) const {
     return boundingBox.intersects(otherBox);
 }
@@ -507,6 +545,7 @@ void Character::handleGuardianMovement(std::shared_ptr<Map>& gameMap,
     // Calculate direction to the target
     sf::Vector2f direction = targetPosition - guardianPosition;
     float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (magnitude > 400.0f) return;
     if (magnitude == 0) return; // Prevent division by zero
     direction /= magnitude; // Normalize direction vector
 

@@ -18,7 +18,10 @@ enum class EnemyType {
     Dragon3,
     Dragon4,
     Skeleton,
-    Boarman
+    Boarman,
+    Ghost,
+    Worm,
+    Mage
 };
 enum class EnemyState {
     Moving,
@@ -41,7 +44,7 @@ protected:
         Up = 1,
         Down = 0,
         Left = 3,
-        Right = 2
+        Right = 2   
     };
     sf::Clock attackCooldownClock;
     sf::Clock damageFlashTimer;
@@ -92,6 +95,9 @@ public:
         }
         else if (enemyType == EnemyType::Dragon1) {
             boundingBox = sf::FloatRect(position.x - 52.0f, position.y - 32.0f, 104, 64);
+        }
+        else if (enemyType == EnemyType::Mage) {
+            boundingBox = sf::FloatRect(position.x - 50.0f, position.y - 35.0f, 100, 70);
         }
         else {
             boundingBox = sf::FloatRect(position.x - 32.0f + offsetX, position.y - 32.0f + offsetY, 32, 56);

@@ -9,6 +9,9 @@
 #include "Dragon.h"
 #include "Boarman.h"
 #include "Skeleton.h"
+#include "Ghost.h"
+#include "Worm.h"
+#include "Mage.h"
 class EnemyFactory {
 public:
     static std::shared_ptr<Enemy> createEnemy(EnemyType type, sf::Vector2f spawnPosition) {
@@ -44,10 +47,18 @@ public:
         }
         else if (type == EnemyType::Skeleton) {
             return std::make_shared<Skeleton>(spawnPosition);
-
         }
         else if (type == EnemyType::Boarman) {
             return std::make_shared<Boarman>(spawnPosition);
+        }
+        else if (type == EnemyType::Ghost) {
+            return std::make_shared<Ghost>(spawnPosition);
+        }
+        else if (type == EnemyType::Worm) {
+            return std::make_shared<Worm>(spawnPosition);
+        }
+        else if (type == EnemyType::Mage) {
+            return std::make_shared<Mage>(spawnPosition);
         }
         return nullptr;
     }

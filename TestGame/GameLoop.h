@@ -90,6 +90,7 @@ public:
             std::shared_ptr<Level> prevLevel = levels[currentLevelIndex - 1];
             prevLevel->getRoom(0)->clearEnemies();
             prevLevel->getRoom(1)->clearEnemies();
+            prevLevel->getRoom(2)->clearEnemies();
         }
 
         curLevel->populateEnemies(currentLevelIndex);
@@ -99,7 +100,7 @@ public:
             std::shared_ptr<Level> prevLevel = levels[currentLevelIndex - 1];
             prevLevel->clearItems();
         }
-        
+        cout << "GOT1";
         curLevel->populateItems(currentLevelIndex);
     }
     void initializeTextDamage() {
@@ -119,7 +120,7 @@ public:
     void loadNextLevel() {
         if (currentLevelIndex + 1 < levels.size()) {
             if (currentLevelIndex == 2) {
-                cout << "HOLA";
+
                 cleanupLevel();
                 currentLevelIndex++;
                 gameMap->obstacles.clear();
@@ -135,9 +136,13 @@ public:
                 }
                 audioManager.stopMusic();
                 loadMusic("../Assets/SoundTrack/final.mp3", false);
-                playMusic();
+                //playMusic();
                 player->setPosition(256, 1248);
-                cout << "DAMN FUCK";
+                player->setSpeed();
+                cout << "GOT";
+                curLevel = levels[currentLevelIndex];
+                loadItemsForRooms(currentLevelIndex);
+                cout << "BUM";
                 return;
             
             }
@@ -162,8 +167,8 @@ public:
             if (currentLevelIndex == 1) {
                 audioManager.stopMusic();
                 loadMusic("../Assets/SoundTrack/level2.mp3",false);
-                playMusic();
-                player->setPosition( 1280,260); //1280 260
+                //playMusic();
+                player->setPosition( 1060,1430); //1280 260
                 guard->loadTexture("../Assets/Character/Textures/character1.png", false, 2, 1470, 930);
                 guard->updateBoundingBox();
                 guard->equipWeapon(WeaponType::Bow);
@@ -178,14 +183,19 @@ public:
                     std::make_tuple(352, 768, 96, 32,2), // Door In for Room 1
                     std::make_tuple(352, 1168, 96, 32,2)   // Door Out for Room 1
                 });
+                doorPositions.push_back({
+                    std::make_tuple(608,896,32,32,1),
+                    std::make_tuple(608,896,32,32,1)
+                    });
                 playerInRoom = false;
+
             }
             else if (currentLevelIndex == 2) {
                 audioManager.stopMusic();
                 loadMusic("../Assets/SoundTrack/level3.mp3",false);
-                playMusic();
+                //playMusic();
                 doorPositions.clear();
-                player->setPosition(130, 970);
+                player->setPosition(1130, 990);
                 guard->setPosition(130, 1000);
                 guard->setShooting(false);
                 doorPositions.push_back({
@@ -201,7 +211,8 @@ public:
                     std::make_tuple(1312, 992, 32, 64,1)   // Door Out for Room 1
                 });
                 playerInRoom = false;
-                player->setSpeed();
+
+
             }
             
         }
@@ -227,7 +238,9 @@ public:
     bool updateDoors() {
         
         if (curLevel->checkDoorEntry(player)) {
+
             int currentRoomIndex = curLevel->getRoomIndex();
+
             auto room = curLevel->getRoom(currentRoomIndex);
             auto doors = curLevel->getDoors();
             if (currentLevelIndex == 2) {
@@ -238,6 +251,7 @@ public:
                     if (!room->isCleared()) {
                         gameMap->obstacles.push_back(doors[currentRoomIndex].first);  // "door in"
                         gameMap->obstacles.push_back(doors[currentRoomIndex].second); // "door out"
+                        
                         room->setDoorsActive(true);
 
                         return true;
@@ -247,7 +261,7 @@ public:
 
                     if (!room->isCleared()) {
                         gameMap->obstacles.push_back(doors[currentRoomIndex].first);  // "door in"
-                        gameMap->obstacles.push_back(doors[currentRoomIndex].second); // "door out"
+                        gameMap->obstacles.push_back(doors[currentRoomIndex].second);
                         room->setDoorsActive(true);
 
                         return true;
@@ -255,10 +269,13 @@ public:
                 }
             }           
             else {
+                updateDamageManager();
                 if (!room->isCleared()) {
-                    // Copy shared_ptr of doors into gameMap obstacles
                     gameMap->obstacles.push_back(doors[currentRoomIndex].first);  // "door in"
-                    gameMap->obstacles.push_back(doors[currentRoomIndex].second); // "door out"
+                    gameMap->obstacles.push_back(doors[currentRoomIndex].second);
+                    if (currentLevelIndex == 1 && currentRoomIndex == 1) {
+                        gameMap->obstacles.push_back(doors[currentRoomIndex + 1].first);
+                    }// "door out"
                     room->setDoorsActive(true);
 
                     return true;
@@ -276,19 +293,12 @@ public:
             // Retrieve shared_ptr back from gameMap obstacles
             gameMap->obstacles.pop_back();
             gameMap->obstacles.pop_back();
-
-            
-            room->setDoorsActive(false);
- 
-            if ((currentLevelIndex == 1 || currentLevelIndex == 0) && curLevel->getRoomIndex() == 0) {
-                room = curLevel->getRoom(curLevel->getRoomIndex() + 1);
-                curLevel->setRoomIndex(curLevel->getRoomIndex() + 1);
-                updateDamageManager();
+            if (currentLevelIndex == 1 && currentRoomIndex == 1) {
+                gameMap->obstacles.pop_back();
             }
             
-
-
-            
+            room->setDoorsActive(false);
+   
         }
         return false;
     }
@@ -331,9 +341,11 @@ public:
         static sf::Clock transitionClock;   
         if (!curLevel) return false;
         if (!transitioning) {
-            
-            curLevel->moveEnemies(gameMap, player,guard);
-            damageTextManager->update(0.0002f);
+            if (playerInRoom) {
+                curLevel->moveEnemies(gameMap, player, guard);
+                damageTextManager->update(0.0002f);
+            }
+
             if (curLevel->checkGateEntry(player)) {
                 transitioning = true;        
                 transitionClock.restart();    

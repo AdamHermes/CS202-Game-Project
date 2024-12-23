@@ -4,6 +4,7 @@ class ArrowProjectile {
 public:
     sf::Sprite sprite;
     sf::Vector2f velocity;
+
     float distanceTraveled = 0.0f;
 
     ArrowProjectile(sf::Sprite& arrowSprite, sf::Vector2f initVelocity)

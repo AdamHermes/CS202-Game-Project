@@ -3,7 +3,7 @@
 class Spider : public Enemy {
 public:
 	Spider(sf::Vector2f spawnPosition) : Enemy(EnemyType::Spider) {
-		health = 25;
+		health = 15;
 		totalFrames = 10;
 		frameDuration = 0.1f;
 		attackCooldown = 0.8f;

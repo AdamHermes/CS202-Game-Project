@@ -35,8 +35,8 @@ public:
         }
     
 		if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
-            if (target == "player")  manager->notify("EnemyAttackPlayer", 9);
-            else if (target == "guard") manager->notify("EnemyAttackGuard", 9);
+            if (target == "player")  manager->notify("EnemyAttackPlayer", 8);
+            else if (target == "guard") manager->notify("EnemyAttackGuard", 8);
             attackCooldownClock.restart();
 		}
 	}

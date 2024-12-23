@@ -138,6 +138,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="DamageManager.cpp" />
+    <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameOverState.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Character.h" />
     <ClInclude Include="DamageManager.h" />
     <ClInclude Include="Demon.h" />
+    <ClInclude Include="Dialog.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Dragon.h" />
     <ClInclude Include="Enemy.h" />
@@ -170,12 +172,14 @@
     <ClInclude Include="GameOverState.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="Gate.h" />
+    <ClInclude Include="Ghost.h" />
     <ClInclude Include="Goblin.h" />
     <ClInclude Include="Golem.h" />
     <ClInclude Include="HealthBar.h" />
     <ClInclude Include="ItemFactory.h" />
     <ClInclude Include="Items.h" />
     <ClInclude Include="Level.h" />
+    <ClInclude Include="Mage.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MenuState.h" />
@@ -187,6 +191,7 @@
     <ClInclude Include="DamageTextManager.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="Weapon.h" />
+    <ClInclude Include="Worm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

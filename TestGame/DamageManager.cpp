@@ -25,6 +25,7 @@ void DamageManager::notify(const std::string& event, float value) {
     }
     // Enemy attacking the player
     else if (event == "EnemyAttackPlayer") {
+        if (player->getUsingSkill()) return;
         player->takeDamage(value);
         std::cout << "Enemy hit the player for " << value << " damage!" << std::endl;
         listener->notify(value, player->getSprite().getPosition());

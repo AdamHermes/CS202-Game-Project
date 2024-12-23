@@ -38,7 +38,7 @@ GameState::GameState(Callback gameOverCallback)
    
     gameLoop = std::make_unique<GameLoop>(player, gameMap,guard);
     gameLoop->loadMusic("../Assets/SoundTrack/level1.mp3",false);
-    gameLoop->playMusic();
+    //gameLoop->playMusic();
     gameLoop->addLevels();
     gameLoop->loadEnemiesForRooms(0);
     gameLoop->loadItemsForRooms(0);
@@ -49,9 +49,14 @@ GameState::GameState(Callback gameOverCallback)
             std::make_tuple(256, 1088, 96, 32,0), // Door In for Room 1
             std::make_tuple(512, 928, 32, 64,0)   // Door Out for Room 1
         });
+    
     gameLoop->doorPositions.push_back({
             std::make_tuple(768, 480, 64, 32,0), // Door In for Room 1
-            std::make_tuple(1056, 320, 32, 96,0)   // Door Out for Room 1
+            std::make_tuple(1056, 320, 32, 96,3)   // Door Out for Room 1
+        });
+    gameLoop->doorPositions.push_back({
+            std::make_tuple(1344,640,64,32,2),
+            std::make_tuple(1152,896,32,64,1)
         });
     level = gameLoop->getLevel(0);
     level->loadDoors(gameLoop->doorPositions);
@@ -83,16 +88,64 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
        /* if (gameLoop->getCurLevelIndex() == 2) {
             
         }*/
-        if ((gameLoop->getCurLevelIndex() == 2 || gameLoop->getCurLevelIndex() == 1) && guard) {
+       if ((gameLoop->getCurLevelIndex() == 2 || gameLoop->getCurLevelIndex() == 1) && guard) {
 
 
             guard->handleGuardianMovement(gameMap, player, room->getEnemies());
-        }
+       }
+       static bool wasKeyEPressed = false; // Tracks if the E key was previously pressed
+       static bool wasKeyOPressed = false;
+       static bool isDialogOpen = false;  // Tracks whether a dialog is currently open
+       static shared_ptr<Items> currentStatue = nullptr; // Tracks the statue currently showing a dialog
+       
+       if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
+           if (!wasKeyEPressed) { // Only trigger when the key is first pressed
+               wasKeyEPressed = true;
+
+               auto item = player->checkItemNearby(level->getItems());
+               if (item) {
+                   if (item->getType() == ItemType::statue) {
+
+                        if (isDialogOpen && currentStatue == item) {
+                            // Hide the dialog if the same statue is interacted with
+                            item->hideDialog();
+                            isDialogOpen = false;
+                            currentStatue = nullptr;
+                        }
+                        else {
+                            // Show the dialog for the statue
+                            if (currentStatue && isDialogOpen) {
+                                // Hide the currently open dialog if switching statues
+                                currentStatue->hideDialog();
+                            }
+                            item->showDialog();
+                            isDialogOpen = true;
+                            currentStatue = item;
+                        }
+                    }
+                   
+                   else {
+                       player->takePortions(item);
+                   }
+               }
+           }
+       }
+       else {
+           // Reset the key press state when the key is released
+           wasKeyEPressed = false;
+       }
+
         if (!finale) {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
-                auto item = player->checkItemNearby(level->getItems());
-                if (item) {
-                    player->takePortions(item);
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::O)) {
+                if (!wasKeyOPressed && !used) {
+                    player->loadSkill();
+                    player->skillDuration.restart();  // Start the 6 seconds countdown
+                    wasKeyOPressed = true;
+                    used = true;
+
+                }
+                else {
+                    wasKeyOPressed = false;
                 }
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) {
@@ -142,6 +195,9 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
                 player->updateState(isFighting, num, WeaponType::None);
                 player->setCurWeapon(player->getWeapon(2));
             }
+            if (player->getUsingSkill()) {
+                player->fightSkill();
+            }
         }
         
         
@@ -184,28 +240,29 @@ void GameState::update() {
             guard.reset();
         }
         if (!gameLoop->playerInRoom && gameLoop->updateDoors()) {
-
+            cout << "CLEAR2" << endl;
             gameLoop->playerInRoom = true;
             int roomIndex = gameLoop->getCurLevel()->getRoomIndex();
+            gameLoop->getCurLevel()->setRoomIndex(1);
             room = gameLoop->getCurLevel()->getRoom(roomIndex);
         }
         if (room->isCleared() && gameLoop->playerInRoom) {
             gameLoop->playerInRoom = false;
-
         }
         gameLoop->updateLevel2();
         if (gameLoop->update()) {
-            cout << "GOT HERE2";
+            used = false;
             if (gameLoop->getCurLevelIndex() < 3) {
                 room = gameLoop->getCurLevel()->getRoom(0);
                 level = gameLoop->getCurLevel();
             }
-            cout << "GOT HERE1";
         }
 
 
     }
-    
+    else if (gameLoop->getCurLevelIndex() == 3) {
+        level = gameLoop->getCurLevel();
+    }
     
     
 }
@@ -213,10 +270,11 @@ void GameState::update() {
 void GameState::draw(sf::RenderWindow& window) {
     
     gameMap->drawTo(window);
+
     if (gameLoop->getCurLevelIndex() != 3) {
         gameLoop->render(window);
     }
-
+    else if (gameLoop->getCurLevelIndex() == 3) gameLoop->getCurLevel()->renderItems(window);
     if (player) {
         player->drawTo(window);
     }

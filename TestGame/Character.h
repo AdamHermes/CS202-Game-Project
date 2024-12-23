@@ -33,6 +33,7 @@ private:
     sf::Texture texture;
     bool isHiden = false;
     int currentFrame = 0;
+    int currentFrameSkill = 0;
     float frameDuration = 0.1f;
     sf::Clock animationClock;
     enum Direction {
@@ -55,10 +56,15 @@ private:
     sf::Clock healingTimer;
     sf::Clock speedingTimer;
     sf::Clock poweringTimer;
+    sf::Clock skillClock;
     std::shared_ptr<Enemy> targetEnemy = nullptr; // Timer to control healing over time
     int frameCounter = 0;
+    sf::Texture skillTexture;
+    sf::Sprite skillSprite;
+    bool isUsingSkill = false;
     
 public:
+    sf::Clock skillDuration;
     Character(const std::string& characterTexturePath, const std::string& healthTexturePath, const CharacterType type)
         : healthBar(healthTexturePath, 300,1200 ), health(100), type(type) { 
         loadTexture(characterTexturePath, false, 2, 300, 1300); //300 1300
@@ -67,6 +73,9 @@ public:
             availableArrows.push(ArrowProjectile(arrowSprite, { 0, 0 }));
         }
     }
+    bool& getUsingSkill() {
+        return isUsingSkill;
+    }
     float baseStrength = 0.0f;
     std::shared_ptr<Weapon> getWeapon(int num) {
         return equippedWeapons[num];
@@ -74,6 +83,17 @@ public:
     std::shared_ptr<Weapon> getCurWeapon() {
         return curWeapon;
     }
+    void loadSkill() {
+        if (!skillTexture.loadFromFile("../Assets/Character/Textures/skill.png")) {
+            return;
+        }
+        skillSprite.setTexture(skillTexture);
+        skillSprite.setTextureRect(sf::IntRect(0, 0, 128, 128));
+        skillSprite.setPosition(sprite.getPosition() - sf::Vector2f(64,64));// First frame, each frame is 128x128
+        isUsingSkill = true;
+        //attackRangeBox = sprite.getGlobalBounds(); // Initially the skill's hitbox
+    }
+    void fightSkill();
     void takePortions(std::shared_ptr<Items>& item);
     void applyItemEffect(std::shared_ptr<Items> item);
     void setCurWeapon(const std::shared_ptr<Weapon>& weapon) {
