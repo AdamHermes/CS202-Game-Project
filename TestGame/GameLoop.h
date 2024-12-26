@@ -169,7 +169,7 @@ public:
                 loadMusic("../Assets/SoundTrack/level2.mp3",false);
                 playMusic();
                 player->setPosition( 1280,260); //1280 260
-                guard->loadTexture("../Assets/Character/Textures/character1.png", false, 2, 1570, 930);
+                guard->setPosition(1570, 930);
                 guard->updateBoundingBox();
                 guard->equipWeapon(WeaponType::Bow);
                 auto start_weapon_guard = guard->getWeapon(0);

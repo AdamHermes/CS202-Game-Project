@@ -59,7 +59,7 @@ class Mage : public Enemy {
 private:
     sf::Sprite breathSprite;
     sf::Texture breathTexture;
-    float breathSpeed = 50.0f;
+    float breathSpeed = 85.0f;
     std::vector<sf::Texture> vectTextures;
     sf::FloatRect attackRangeBox;
     bool hit;
@@ -79,7 +79,7 @@ public:
     }
 
     Mage(sf::Vector2f spawnPosition) : Enemy(EnemyType::Mage) {
-        health = 120;
+        health = 150;
         totalFrames = 8;
         frameDuration = 0.15f;
         attackCooldown = 0.8f;

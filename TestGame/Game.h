@@ -5,6 +5,7 @@
 #include "MenuState.h"
 #include "GameState.h"
 #include "GameOverState.h"
+#include "ChooseCharacter.h"
 class Game {
 public:
     Game();
@@ -14,7 +15,8 @@ private:
     sf::RenderWindow window;
     bool gameOverRequested = false;
     void transitionToMenu();
-    void transitionToGame();
+    void transitionToGame(int char_id);
+    void transitionToChooseCharacter();
     void transitionToGameOver();
     std::unique_ptr<State> currentState;
 

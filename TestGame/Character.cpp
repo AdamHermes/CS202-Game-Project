@@ -27,37 +27,38 @@ void Character::changePos(int direction) {
     }
 }
 void Character::fightSpear(int direction, const std::vector<std::shared_ptr<Enemy>>& enemies) {
-    frameDuration = 0.1f;
-    const int frameWidth = 64;   // Width of a single frame
-    const int frameHeight = 64;  // Height of a single frame
-    const int totalFrames = 9;   // Number of frames per direction
+    const int frameWidth = 192;   // Width of a single frame
+    const int frameHeight = 192;  // Height of a single frame
+    const int totalFrames = 8;   // Number of frames per direction
     attackRangeBox = boundingBox;
+    // Update the frame based on the time elapsed
     if (animationClock.getElapsedTime().asSeconds() > frameDuration) {
-        currentFrame = (currentFrame + 1) % totalFrames;  // Loop the frames
-        animationClock.restart();  // Reset the clock for the next frame
+        currentFrame = (currentFrame + 1) % totalFrames;
+        animationClock.restart();
     }
     // Update the frame based on the time elapsed
     if (direction == Right) {
         attackRangeBox.top += 20.0f;// Set position relative to character's position
-        attackRangeBox.width += 30.0f;  // Long range for the spear
+        attackRangeBox.width += 60.0f;  // Long range for the spear
         attackRangeBox.height = 16.0f; // Narrow height
-        sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 7 * frameHeight, frameWidth, frameHeight));
+
+        sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 3 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Left) {
         attackRangeBox.top += 20.0f;
-        attackRangeBox.left -= 30.0f;// Extend spear attack to the left
-        attackRangeBox.width = 30.0f;
+        attackRangeBox.left -= 60.0f;// Extend spear attack to the left
+        attackRangeBox.width = 90.0f;
         attackRangeBox.height = 16.0f;
-        sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 5 * frameHeight, frameWidth, frameHeight));
+        sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 1 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Up) {
-        attackRangeBox.top -= 30.0f;
-        attackRangeBox.height += 30.0f;
-        sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 4 * frameHeight, frameWidth, frameHeight));
+        attackRangeBox.top -= 60.0f;
+        attackRangeBox.height += 60.0f;
+        sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 0 * frameHeight, frameWidth, frameHeight));
     }
     else if (direction == Down) {
-        attackRangeBox.height += 30.0f;
-        sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 6 * frameHeight, frameWidth, frameHeight));
+        attackRangeBox.height += 60.0f;
+        sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 2 * frameHeight, frameWidth, frameHeight));
     }
     
     if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
@@ -295,19 +296,52 @@ void Character::loadTexture(const std::string& path, bool isBig, int num, float 
     arrowSprite.setTexture(arrowTexture); // Assign the texture to the sprite
 }
 
-void Character::updateState(bool fighting, int num, WeaponType weaponType) {
+void Character::updateState(bool fighting, int num, WeaponType weaponType, int char_id) {
     if (fighting != isFighting || (curWeapon->getType() != weaponType && weaponType != WeaponType::None)) {
         isFighting = fighting;
         if (isFighting) {
             if (weaponType == WeaponType::Sword) {
-                loadTexture("../Assets/Character/Textures/slash.png", true, num, sprite.getPosition().x, sprite.getPosition().y);
+                loadTexture("../Assets/Character/Textures/slash1.png", true, num, sprite.getPosition().x, sprite.getPosition().y);
+            }
+            else if (weaponType == WeaponType::Spear) {
+                cout << "Fight Weapon Spear" << endl;
+                if (char_id == 1) {
+                    loadTexture("../Assets/Character/Textures/thrust.png", true, num, sprite.getPosition().x, sprite.getPosition().y);
+                }
+                else if (char_id == 3) {
+                    cout << "GOT HERE 3";
+                    loadTexture("../Assets/Character/Textures/thrust1.png", true, num, sprite.getPosition().x, sprite.getPosition().y);
+
+                }
+
+
             }
             else {
-                loadTexture("../Assets/Character/Textures/characters.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+                if (char_id == 1) {
+                    loadTexture("../Assets/Character/Textures/character1.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+                }
+                else if (char_id == 3) {
+                    loadTexture("../Assets/Character/Textures/character3.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+                }
+                else {
+                    loadTexture("../Assets/Character/Textures/character2.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+
+                }
+
             }
         }
         else {
-            loadTexture("../Assets/Character/Textures/characters.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+            if (char_id == 1) {
+                loadTexture("../Assets/Character/Textures/character1.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+            }
+            else if (char_id == 3) {
+                loadTexture("../Assets/Character/Textures/character3.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+            }
+            else {
+                loadTexture("../Assets/Character/Textures/character2.png", false, num, sprite.getPosition().x, sprite.getPosition().y);
+
+            }
+
         }
     }
 }
@@ -394,7 +428,7 @@ void Character::drawTo(sf::RenderWindow& window) const {
 }
 void Character::fightSkill() {
     if (!isUsingSkill) return;
-    if (skillDuration.getElapsedTime().asSeconds() > 4.0f) {
+    if (skillDuration.getElapsedTime().asSeconds() > 2.0f) {
         // Skill duration has ended, hide the skill and reset
         skillSprite.setPosition(-1000, -1000);  
         isUsingSkill = false;// Move out of screen

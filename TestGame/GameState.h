@@ -13,13 +13,13 @@
 class GameState : public State {
 public:
     using Callback = std::function<void()>;
-    GameState(Callback gameOverCallback, Callback gameWinCallback);
+    GameState(int char_id, Callback gameOverCallback, Callback gameWinCallback);
     
     void handleEvent(sf::Event& event, sf::RenderWindow& window) override;
     void update() override;
     void draw(sf::RenderWindow& window) override;
-    
-
+    WeaponType type;
+    int char_id;
 private:
     std::shared_ptr<Character> player; // Player character
     std::shared_ptr<Character> guard;
@@ -33,9 +33,9 @@ private:
     int num = 2;// Fighting state
     sf::Clock stayClock;               // Clock to track time spent at target location
     bool playerAtLocation = false;     // Whether player is at the target location
-    const float requiredTimeAtLocation = 6.0f;  // Time threshold to trigger game win
+    const float requiredTimeAtLocation = 4.0f;  // Time threshold to trigger game win
     sf::Vector2f targetLocation;       // Target position to check
-    float locationTolerance = 10.0f;
+    float locationTolerance = 50.0f;
     Callback gameOverCallback;
     Callback gameWinCallback;
 };

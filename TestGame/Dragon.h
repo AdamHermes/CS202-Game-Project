@@ -30,7 +30,7 @@ class Dragon : public Enemy {
 private:
     sf::Sprite breathSprite;
     sf::Texture breathTexture;
-    float breathSpeed = 50.0f;
+    float breathSpeed = 60.0f;
     std::vector<sf::Texture> vectTextures;
     sf::FloatRect attackRangeBox;
     bool hit;
@@ -46,10 +46,10 @@ public:
     }
 
     Dragon(sf::Vector2f spawnPosition, int t) : Enemy(EnemyType::Dragon1) {
-        health = 100;
+        health = 120;
         totalFrames = 3;
         frameDuration = 0.15f;
-        attackCooldown = 1.0f;
+        attackCooldown = 0.75f;
         if (t == 2 || t == 1) {
             attackCooldown += 0.25f;
         }

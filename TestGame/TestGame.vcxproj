@@ -137,6 +137,7 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="ChooseCharacter.cpp" />
     <ClCompile Include="DamageManager.cpp" />
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="Enemy.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="ChooseCharacter.h" />
     <ClInclude Include="DamageManager.h" />
     <ClInclude Include="Demon.h" />
     <ClInclude Include="Dialog.h" />

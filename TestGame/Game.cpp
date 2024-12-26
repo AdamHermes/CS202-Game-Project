@@ -8,14 +8,23 @@ Game::Game()
 
 void Game::transitionToMenu() {
     currentState = std::make_unique<MenuState>("../Assets/Menu/Menu.png", [this]() {
-        transitionToGame();
+        transitionToChooseCharacter();
         });
 }
 
-void Game::transitionToGame() {
+void Game::transitionToChooseCharacter() {
+    currentState = std::make_unique<ChooseCharacterState>(
+        "../Assets/Menu/chooseChar.png",
+        [this](int char_id) { 
+            transitionToGame(char_id);
+        }
+    );
+}
+void Game::transitionToGame(int char_id) {
     currentState = std::make_unique<GameState>(
-        [this]() { transitionToGameOver(); },  // gameOverCallback
-        [this]() { transitionToMenu(); }      // gameWinCallback
+        char_id,
+        [this]() { transitionToGameOver(); },  
+        [this]() { transitionToMenu(); }      
     );
 }
 

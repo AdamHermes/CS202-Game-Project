@@ -2,7 +2,7 @@
 #include "Button.h"
 #include <iostream>
 
-MenuState::MenuState(const std::string& backgroundTextureFile, Callback startGameCallback) :
+MenuState::MenuState(const std::string& backgroundTextureFile, Callback chooseCharacterCallback) :
     audioManager(AudioManager::getInstance()), currentMusicFile("../Assets/SoundTrack/menu.mp3") {
     if (!backgroundTexture.loadFromFile(backgroundTextureFile)) {
         std::cerr << "Error loading background texture from file: " << backgroundTextureFile << std::endl;
@@ -19,8 +19,8 @@ MenuState::MenuState(const std::string& backgroundTextureFile, Callback startGam
 
     backgroundSprite.setScale(scaleX, scaleY);
     audioManager.playMusic(currentMusicFile, true);
-    buttons.push_back(std::make_shared<Button>("../Assets/Menu/start_button1.png", sf::Vector2f(600, 450)));
-    this->startGameCallback = startGameCallback;
+    buttons.push_back(std::make_shared<Button>("../Assets/Menu/play_button.png", sf::Vector2f(600, 450)));
+    this->chooseCharacterCallback = chooseCharacterCallback;
 }
 
 void MenuState::draw(sf::RenderWindow& window) {
@@ -41,7 +41,7 @@ void MenuState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
 
         for (auto& button : buttons) {
             if (button->isClicked(static_cast<sf::Vector2f>(mousePos))) {
-                startGameCallback();
+                chooseCharacterCallback();
                 break;
             }
         }

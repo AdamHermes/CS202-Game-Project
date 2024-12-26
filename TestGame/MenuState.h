@@ -21,7 +21,7 @@ private:
     sf::Sprite backgroundSprite;   
     sf::Texture backgroundTexture;  
     std::vector<std::shared_ptr<Button>> buttons;    
-    Callback startGameCallback;
+    Callback chooseCharacterCallback;
 };
 
 #endif // MENUSTATE_H

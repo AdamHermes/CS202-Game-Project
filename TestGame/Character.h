@@ -205,7 +205,7 @@ public:
     void handleGuardianMovement(std::shared_ptr<Map>& gameMap,
         std::shared_ptr<Character>& player,
         std::vector<std::shared_ptr<Enemy>>& enemies);
-    void updateState(bool fighting, int num, WeaponType weaponType);
+    void updateState(bool fighting, int num, WeaponType weaponType, int char_id);
     void adjustPositionForNewSize(int oldWidth, int oldHeight, int newWidth, int newHeight);
     int getFightingDirection(sf::Vector2f direction) {
         if (std::abs(direction.x) > std::abs(direction.y)) {

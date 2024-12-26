@@ -177,6 +177,11 @@ public:
         string text11 = "I couldn’t have asked for a better companion on this journey. You’re more than a hero—you’re family.";
         string text10 = "You’ve saved our people and my spirit. Stay with me, my hero, and let us write the next chapter together.";
         string text12 = "This victory is yours, but it will be cherished by all who live under the skies of this land.";
+        string text13 = "Stand Proud... Human";
+        string text14 = "Even as I fall, the seeds of your despair have already been sown.";
+        string text15 = "You are strong… but will your strength hold against what lies ahead?";
+        string text16 = "Gehehehehe... Nice one soldier.";
+        string text17 = "WORRRMMM...";
         std::map<int, std::vector<std::pair<sf::Vector2f, ItemType>>> itemPositions = {
             {0, {   // Room 0
                 {sf::Vector2f(780.0f, 950.0f), ItemType::health},
@@ -210,12 +215,19 @@ public:
                 {sf::Vector2f(352.0f, 1094.0f), ItemType::statue},
                 {sf::Vector2f(319.0f, 221.0f), ItemType::statue},
                 {sf::Vector2f(376.0f, 282.0f), ItemType::statue},
+                {sf::Vector2f(480.0f, 290.0f), ItemType::statue},
+
                 {sf::Vector2f(640.0f, 202.0f), ItemType::statue},
                 {sf::Vector2f(638.0f, 288.0f), ItemType::statue},
+                {sf::Vector2f(766.0f, 289.0f), ItemType::statue},
+
                 {sf::Vector2f(896.0f, 263.0f), ItemType::statue},
                 {sf::Vector2f(960.0f, 263.0f), ItemType::statue},
                 {sf::Vector2f(1056.0f, 417.0f), ItemType::statue},
-                {sf::Vector2f(990.0f, 608.0f), ItemType::statue},
+                {sf::Vector2f(1183.0f, 307.0f), ItemType::statue},
+                {sf::Vector2f(1190.0f, 455.0f), ItemType::statue},
+
+                {sf::Vector2f(980.0f, 630.0f), ItemType::statue},
                 {sf::Vector2f(960.0f, 836.0f), ItemType::statue},
                 {sf::Vector2f(926.0f, 1061.0f), ItemType::statue},
                 {sf::Vector2f(575.0f, 1091.0f), ItemType::statue},
@@ -233,12 +245,16 @@ public:
         Texts.push_back(text4);
         Texts.push_back(text3);
         Texts.push_back(text2);
+        Texts.push_back(text17);
         Texts.push_back(text1);
         Texts.push_back(text4);
+        Texts.push_back(text16);
         Texts.push_back(text8);
         Texts.push_back(text9);
         Texts.push_back(text1);
-        Texts.push_back(text6);
+        Texts.push_back(text14);
+        Texts.push_back(text13);
+        Texts.push_back(text15);
         Texts.push_back(text5);
         Texts.push_back(text7);
         Texts.push_back(text12);
@@ -256,46 +272,46 @@ public:
         // Predefine enemy positions for each room
         std::map<int, std::vector<std::pair<sf::Vector2f, EnemyType>>> enemyPositions = {
             {0, {   // Room 0
-                /*{sf::Vector2f(450.0f, 950.0f), EnemyType::Boarman},
-                {sf::Vector2f(240.0f, 685.0f), EnemyType::Golem},
-                {sf::Vector2f(210.0f, 900.0f), EnemyType::Boarman},*/
+                {sf::Vector2f(450.0f, 950.0f), EnemyType::Mage},
+                //{sf::Vector2f(240.0f, 685.0f), EnemyType::Golem},
+                //{sf::Vector2f(210.0f, 900.0f), EnemyType::Boarman},
                 
             }},
             {3, {   // Room 0
                 
-               /* {sf::Vector2f(940.0f, 350.0f), EnemyType::Golem},
+                {sf::Vector2f(940.0f, 350.0f), EnemyType::Golem},
                 {sf::Vector2f(1000.0f, 280.0f), EnemyType::Goblin},
-                {sf::Vector2f(750.0f, 320.0f), EnemyType::Goblin}*/
+                {sf::Vector2f(750.0f, 320.0f), EnemyType::Goblin}
             }},
             {6,{
 
-                /*{sf::Vector2f(1404.0f, 768.0f), EnemyType::Dragon1},
+                {sf::Vector2f(1404.0f, 768.0f), EnemyType::Dragon1},
                 {sf::Vector2f(1256.0f, 754.0f), EnemyType::Demon},
-                {sf::Vector2f(1376,928), EnemyType::Golem}*/
+                {sf::Vector2f(1376,928), EnemyType::Golem}
             }},
             {1, {
-                /*{sf::Vector2f(260.0f, 450.0f), EnemyType::Spider},
+                {sf::Vector2f(260.0f, 450.0f), EnemyType::Spider},
                 {sf::Vector2f(260.0f, 320.0f), EnemyType::Spider},
                 {sf::Vector2f(560.0f, 200.0f), EnemyType::Medusa},
-                {sf::Vector2f(470.0f, 380.0f), EnemyType::Spider},*/
+                {sf::Vector2f(470.0f, 380.0f), EnemyType::Spider},
 
             }},
             {4, {
-                /*{sf::Vector2f(540.0f, 1000.0f), EnemyType::Frogman},
+                {sf::Vector2f(540.0f, 1000.0f), EnemyType::Frogman},
                 {sf::Vector2f(400.0f, 1000.0f), EnemyType::Frogman},
                 {sf::Vector2f(340.0f, 980.0f), EnemyType::Ghost},
-                {sf::Vector2f(280.0f, 940.0f), EnemyType::Ghost}*/
+                {sf::Vector2f(280.0f, 940.0f), EnemyType::Ghost}
                 
             }},
             {7, {
-                /*{sf::Vector2f(1000.0f, 900.0f), EnemyType::Worm},
+                {sf::Vector2f(1000.0f, 900.0f), EnemyType::Worm},
                 {sf::Vector2f(900.0f, 950.0f), EnemyType::Worm},
                 {sf::Vector2f(1210.0f,950.0f), EnemyType::Sunflower},
-                {sf::Vector2f(1100.0f, 1015.0f), EnemyType::Sunflower}*/
+                {sf::Vector2f(1100.0f, 1015.0f), EnemyType::Sunflower}
             }},
             {2, {
-                {sf::Vector2f(900.0f, 290.0f), EnemyType::Dragon2},
-                {sf::Vector2f(280.0f, 350.0f), EnemyType::Dragon2},
+                {sf::Vector2f(900.0f, 480.0f), EnemyType::Dragon2},
+                {sf::Vector2f(280.0f, 410.0f), EnemyType::Dragon2},
                 {sf::Vector2f(610.0f, 420.0f), EnemyType::Dragon2},
                 {sf::Vector2f(340.0f,480.0f),EnemyType::Skeleton},
                 {sf::Vector2f(910.0f,400.0f),EnemyType::Skeleton}

@@ -1,15 +1,41 @@
 #include "GameState.h"
 
-GameState::GameState(Callback gameOverCallback, Callback gameWinCallback)
+GameState::GameState(int char_id, Callback gameOverCallback, Callback gameWinCallback)
     : camera(720, 480), isFighting(false), targetLocation(640,600){
+    type = WeaponType::None;
     // Initialize player
+    std::string playerTexture;
+    std::string guardTexture;
+    cout << "Character ID: " << char_id << endl;
+    this->char_id = char_id;
+    if (char_id == 1) {
+        playerTexture = "../Assets/Character/Textures/character1.png";
+        guardTexture = "../Assets/Character/Textures/character2.png";
+        type = WeaponType::Spear;
+    }
+    else if (char_id == 2) {
+        playerTexture = "../Assets/Character/Textures/character2.png";
+        guardTexture = "../Assets/Character/Textures/character1.png";
+        type = WeaponType::Sword;
+    }
+    else if (char_id == 3) {
+        playerTexture = "../Assets/Character/Textures/character3.png";
+        guardTexture = "../Assets/Character/Textures/character1.png";
+        type = WeaponType::Spear;
+    }
+    else {
+        std::cerr << "Invalid charId. Defaulting to character1 as player." << std::endl;
+        playerTexture = "../Assets/Character/Textures/character1.png";
+        guardTexture = "../Assets/Character/Textures/character2.png";
+    }
+
     player = std::make_shared<Character>(
-        "../Assets/Character/Textures/characters.png",
+        playerTexture,
         "../Assets/Character/Textures/health.png",
         CharacterType::player
     );
     guard = std::make_shared<Character>(
-        "../Assets/Character/Textures/character1.png",
+        guardTexture,
         "../Assets/Character/Textures/health.png",
         CharacterType::guard
     );
@@ -24,13 +50,18 @@ GameState::GameState(Callback gameOverCallback, Callback gameWinCallback)
 
     // Set up player
     player->updateBoundingBox();
-    player->equipWeapon(WeaponType::Sword);
+    if (char_id == 2) {
+       player->equipWeapon(WeaponType::Sword);
+    }
+    else if (char_id == 1 || char_id == 3) {
+        player->equipWeapon(WeaponType::Spear);
+    }
     player->equipWeapon(WeaponType::Bow);
     player->equipWeapon(WeaponType::None);
     auto start_weapon = player->getWeapon(0);
     player->setCurWeapon(start_weapon);
     
-
+    
     // Set up camera
     camera.setZoom(1.5f);
     sf::FloatRect worldBounds(0, 0, 2560, 2560);
@@ -177,7 +208,7 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
                 isFighting = true;
                 isMoving = false;
                 wasJPressed = false;
-                player->updateState(isFighting, num, WeaponType::Sword);
+                player->updateState(isFighting, num, type, char_id);
                 player->setCurWeapon(player->getWeapon(0));
                 player->setShooting(false);
             }
@@ -185,7 +216,7 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
                 isFighting = true;
                 isMoving = false;
                 wasJPressed = true;
-                player->updateState(isFighting, num, WeaponType::Bow);
+                player->updateState(isFighting, num, WeaponType::Bow,char_id);
                 player->setCurWeapon(player->getWeapon(1));
                 player->setShooting(true);
             }
@@ -195,7 +226,7 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
                     wasJPressed = false;
                 }
                 isFighting = false;
-                player->updateState(isFighting, num, WeaponType::None);
+                player->updateState(isFighting, num, WeaponType::None, char_id);
                 player->setCurWeapon(player->getWeapon(2));
             }
             if (player->getUsingSkill()) {
@@ -212,7 +243,10 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
 
             }
             else {             
-                player->fightSword(num, room->getEnemies());
+                if (char_id == 1 || char_id == 3) {
+                    player->fightSpear(num, room->getEnemies());
+                }
+                else if (char_id == 2) player->fightSword(num, room->getEnemies());
             }
         }
         else {
@@ -305,8 +339,8 @@ void GameState::draw(sf::RenderWindow& window) {
 ;
     }
     //gameMap->drawWalls(window);
-    //sf::RectangleShape rangeShape(sf::Vector2f(guard->boundingBox.width, guard->attackRangeBox.height));
-    //rangeShape.setPosition(guard->attackRangeBox.left, guard->attackRangeBox.top);
+    //sf::RectangleShape rangeShape(sf::Vector2f(player->attackRangeBox.width, player->attackRangeBox.height));
+    //rangeShape.setPosition(player->attackRangeBox.left, player->attackRangeBox.top);
     //rangeShape.setFillColor(sf::Color(255, 0, 0, 100)); // Semi-transparent red
 
     //// Draw the range shape on the window for debugging
