@@ -140,10 +140,6 @@ void Character::fightBow(int direction, CharacterType type, const std::vector<st
     for (auto it = activeArrows.begin(); it != activeArrows.end();) {
         it->update(0.0006f);
         
-
-        // Move arrow and update distance
-        /*arrow.move(velocity * 0.0006f);
-        distanceTraveled += std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y) * 0.0006f;*/
         if (direction == Right || direction == Left) {
             attackRangeBox = sf::FloatRect(it->sprite.getPosition().x, it->sprite.getPosition().y, 64.0f, 16.0f); // Horizontal arrow
         }
@@ -218,6 +214,8 @@ void Character::fightSword(int direction, const std::vector<std::shared_ptr<Enem
     const int frameHeight = 192;  // Height of a single frame
     const int totalFrames = 6;   // Number of frames per direction
     attackRangeBox = boundingBox;
+
+
     // Update the frame based on the time elapsed
     if (animationClock.getElapsedTime().asSeconds() > frameDuration) {
         currentFrame = (currentFrame + 1) % totalFrames;  
@@ -249,21 +247,15 @@ void Character::fightSword(int direction, const std::vector<std::shared_ptr<Enem
         sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 2 * frameHeight, frameWidth, frameHeight));
     }
     
+
+
     if (attackCooldownClock.getElapsedTime().asSeconds() > attackCooldown) {
-        // Loop through all enemies and check if the attack intersects with any of them
-        //for (const auto& enemy : enemies) {
-        //    if (enemy && attackRangeBox.intersects(enemy->boundingBox)) {
-        //        // If the attack intersects, the enemy takes damage
-        //        enemy->takeDamage(equippedWeapon->getDamage());
-        //        std::cout << "Attack hit the enemy!" << std::endl;
-        //    }
+    
 
         if (manager) {
             manager->notify("PlayerAttack", curWeapon->getDamage());
-            //std::cout << "Attack launched" << std::endl;
-
+            
         }
-        // Restart the cooldown timer after the attack
         attackCooldownClock.restart();
     }
     
@@ -290,7 +282,7 @@ void Character::loadTexture(const std::string& path, bool isBig, int num, float 
     else {
         std::cerr << "Failed to load texture: " << path << std::endl;
     }
-    if (!arrowTexture.loadFromFile("../Assets/Character/Textures/fireball.png")) {
+    if (!arrowTexture.loadFromFile("../Assets/Character/Textures/arrow.png")) {
         throw std::runtime_error("Failed to load arrow texture from assets/arrow.png");
     }
     arrowSprite.setTexture(arrowTexture); // Assign the texture to the sprite

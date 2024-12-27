@@ -241,7 +241,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="5" name="Walls">
+ <objectgroup id="5" name="Walls" visible="0">
   <object id="1" x="0.666667" y="1157.33" width="222" height="122.667"/>
   <object id="80" x="223.667" y="1280.33" width="65" height="24.6667"/>
   <object id="20" x="222.667" y="835.167" width="65.3333" height="120.5"/>

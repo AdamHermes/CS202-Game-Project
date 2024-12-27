@@ -13,6 +13,7 @@ void AudioManager::playMusic(const std::string& filepath, bool loop) {
         throw std::runtime_error("Failed to load music: " + filepath);
     }
     music.setLoop(loop);
+    music.setVolume(10.0f);
     music.play();
 }
 

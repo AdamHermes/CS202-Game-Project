@@ -1,6 +1,6 @@
 #pragma once
 #include "Enemy.h"
-#include "Golem.h" // Include Golem here so the factory can create a Golem.
+#include "Golem.h" 
 #include "Goblin.h"
 #include "Demon.h"
 #include "Frogman.h"

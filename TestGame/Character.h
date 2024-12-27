@@ -9,6 +9,7 @@
 #include "HealthBar.h"
 #include "Camera.h"
 #include "Items.h"
+#include "SoundEffect.h"
 #include "ArrowProjectile.h"
 #include <tuple>
 #include <queue>
@@ -43,6 +44,9 @@ private:
         Right = 3
     };
     HealthBar healthBar;
+    SoundEffect soundEffect;
+    SoundEffect hurtEffect;
+    //SoundEffect walkEffect;
     sf::Sprite healthsprite;
     sf::Texture healthtexture;
     sf::Sprite arrowSprite;
@@ -72,7 +76,50 @@ public:
         for (int i = 0; i < 10; ++i) {  // Adjust pool size based on expected max breath projectiles
             availableArrows.push(ArrowProjectile(arrowSprite, { 0, 0 }));
         }
+        soundEffect.loadSound("swordSwing", "../Assets/SFX/sword_swing.wav");
+        soundEffect.loadSound("swordHit", "../Assets/SFX/sword_hit.wav");
+        soundEffect.loadSound("spearHit", "../Assets/SFX/spear_hit.mp3");
+        soundEffect.loadSound("bowHit", "../Assets/SFX/bow_hit.mp3");
+        hurtEffect.loadSound("hurt", "../Assets/SFX/hurt.wav");
+        //walkEffect.loadSound("walk", "../Assets/SFX/walk.wav");
+        //soundEffect.loadSound("playerHurt", "player_hurt.wav");
     }
+    void setFrame() {
+        currentFrame = 0;
+    }
+    void setSoundEffect(const string& sound) {
+        soundEffect.setSound(sound);
+    }
+    
+    void playSoundEffect() {
+        soundEffect.play();
+    }
+    
+    void stopSoundEffect() {
+        soundEffect.stop();
+    }
+    void setHurtEffect(const string& sound) {
+        hurtEffect.setSound(sound);
+    }
+
+    void playHurtEffect() {
+        hurtEffect.play();
+    }
+
+    void stopHurtEffect() {
+        hurtEffect.stop();
+    }
+    /*void setWalkEffect(const string& sound) {
+        hurtEffect.setSound(sound);
+    }
+
+    void playWalkEffect() {
+        hurtEffect.play();
+    }
+
+    void stopWalkEffect() {
+        hurtEffect.stop();
+    }*/
     bool& getUsingSkill() {
         return isUsingSkill;
     }
@@ -83,6 +130,7 @@ public:
     std::shared_ptr<Weapon> getCurWeapon() {
         return curWeapon;
     }
+    int getCurrentFrame() { return currentFrame; }
     void loadSkill() {
         if (!skillTexture.loadFromFile("../Assets/Character/Textures/skill.png")) {
             return;
@@ -102,13 +150,17 @@ public:
     void setSpeed() {
         speed = 0.1f;
     }
-    bool hit = false;
+    bool hit = false;   
     void setShooting(bool shooting);
     void takeDamage(float damage) {
         if (type == CharacterType::guard) {
             damage = 1.5* damage;
         }
         health -= damage;
+        setHurtEffect("hurt");
+
+        playHurtEffect();
+
         if (health > 0) {
             healthBar.startShake();
 
@@ -121,6 +173,7 @@ public:
             health = 0;
             cout << "Player dead" << endl;
             alive = false;
+            stopHurtEffect();
         }
 
     }

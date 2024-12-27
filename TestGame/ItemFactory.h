@@ -14,7 +14,7 @@ public:
             return std::make_shared<Items>(type, "../Assets/Character/Items/power_portion.png",spawnLocation);
         }
         else if (type == ItemType::statue) {
-            return std::make_shared<Items>(type,"../Assets/Character/Items/soul.png", spawnLocation - sf::Vector2f(0,32) , text, "../Assets/Character/Dialog/dialog.png", "../Assets/Roboto-Black.tTf");
+            return std::make_shared<Items>(type,"../Assets/Character/Items/soul.png", spawnLocation - sf::Vector2f(0,32) , text, "../Assets/Character/Dialog/dialog.png", "../Assets/Font/Roboto-Black.tTf");
         }
         return nullptr;
     }

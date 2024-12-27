@@ -105,7 +105,7 @@ public:
     }
     void initializeTextDamage() {
 
-        if (!font.loadFromFile("../Assets/Roboto-Black.ttf")) {
+        if (!font.loadFromFile("../Assets/Font/Roboto-Black.ttf")) {
             throw std::runtime_error("Failed to load font!");
         }
 

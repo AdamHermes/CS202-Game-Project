@@ -197,5 +197,8 @@
     <ClInclude Include="ChooseCharacter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SoundEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

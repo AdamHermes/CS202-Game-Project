@@ -272,9 +272,9 @@ public:
         // Predefine enemy positions for each room
         std::map<int, std::vector<std::pair<sf::Vector2f, EnemyType>>> enemyPositions = {
             {0, {   // Room 0
-                {sf::Vector2f(450.0f, 950.0f), EnemyType::Mage},
-                //{sf::Vector2f(240.0f, 685.0f), EnemyType::Golem},
-                //{sf::Vector2f(210.0f, 900.0f), EnemyType::Boarman},
+                {sf::Vector2f(450.0f, 950.0f), EnemyType::Boarman},
+                {sf::Vector2f(240.0f, 685.0f), EnemyType::Golem},
+                {sf::Vector2f(210.0f, 900.0f), EnemyType::Boarman},
                 
             }},
             {3, {   // Room 0

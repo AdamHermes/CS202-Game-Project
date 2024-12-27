@@ -168,7 +168,7 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
            // Reset the key press state when the key is released
            wasKeyEPressed = false;
        }
-
+       bool static wasSpacePressed = false;
         if (!finale) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::O)) {
                 if (!wasKeyOPressed && !used) {
@@ -210,20 +210,43 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
                 wasJPressed = false;
                 player->updateState(isFighting, num, type, char_id);
                 player->setCurWeapon(player->getWeapon(0));
+
                 player->setShooting(false);
+                if (!wasSpacePressed) {
+                    player->setFrame();
+                    wasSpacePressed = true;
+                }
+                if (player->getCurrentFrame() == 0) {
+                    if (char_id == 2) {
+                        player->setSoundEffect("swordHit");
+                    }
+                    else player->setSoundEffect("spearHit");
+                    player->stopSoundEffect();
+                    player->playSoundEffect();
+                }
+                
             }
             else if (sf::Keyboard::isKeyPressed(sf::Keyboard::J)) {
                 isFighting = true;
                 isMoving = false;
                 wasJPressed = true;
+                wasSpacePressed = false;
                 player->updateState(isFighting, num, WeaponType::Bow,char_id);
                 player->setCurWeapon(player->getWeapon(1));
                 player->setShooting(true);
+                if (player->getCurrentFrame() == 5) {
+                    player->setSoundEffect("bowHit");
+                    player->stopSoundEffect();
+                    player->playSoundEffect();
+                }
             }
             else {
+                player->stopSoundEffect();
+
                 if (wasJPressed) {
                     player->setShooting(false); // Clear arrows when spacebar is released
                     wasJPressed = false;
+                    wasSpacePressed = false;
                 }
                 isFighting = false;
                 player->updateState(isFighting, num, WeaponType::None, char_id);
@@ -237,7 +260,6 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
         
         
         if (isFighting) {
-
             if (wasJPressed) {
                 player->fightBow(num, CharacterType::player, room->getEnemies(), gameMap);
 
@@ -251,6 +273,8 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
         }
         else {
             player->handleMovement(gameMap, room->getEnemies(), num, isMoving);
+            
+
         }
         
         player->updateSpriteHealth(camera);

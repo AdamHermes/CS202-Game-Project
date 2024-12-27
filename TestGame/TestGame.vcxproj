@@ -188,6 +188,7 @@
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="Skeleton.h" />
+    <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="Spider.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="Sunflower.h" />
