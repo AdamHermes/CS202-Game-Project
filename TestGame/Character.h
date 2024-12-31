@@ -22,7 +22,7 @@ enum class CharacterType {
 class Character : public GameEntity {
 private:
     CharacterType type;
-    float health = 100, speed = 0.14f;
+    float health = 100, speed = 0.12f;
     bool alive;
     bool isShooting = false; 
     std::shared_ptr<Items> storedItems[3] = { nullptr, nullptr, nullptr };
@@ -72,7 +72,7 @@ public:
     Character(const std::string& characterTexturePath, const std::string& healthTexturePath, const CharacterType type)
         : healthBar(healthTexturePath, 300,1200 ), health(100), type(type) { 
         loadTexture(characterTexturePath, false, 2, 300, 1300); //300 1300
-        if (type == CharacterType::guard) health = 80;
+        if (type == CharacterType::guard) health = 100;
         for (int i = 0; i < 10; ++i) {  // Adjust pool size based on expected max breath projectiles
             availableArrows.push(ArrowProjectile(arrowSprite, { 0, 0 }));
         }

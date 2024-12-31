@@ -127,6 +127,7 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
 
             guard->handleGuardianMovement(gameMap, player, room->getEnemies());
        }
+       static bool wasSpacePressed = false;
        static bool wasKeyEPressed = false; // Tracks if the E key was previously pressed
        static bool wasKeyOPressed = false;
        static bool isDialogOpen = false;  // Tracks whether a dialog is currently open
@@ -168,7 +169,7 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
            // Reset the key press state when the key is released
            wasKeyEPressed = false;
        }
-       bool static wasSpacePressed = false;
+
         if (!finale) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::O)) {
                 if (!wasKeyOPressed && !used) {
@@ -246,6 +247,9 @@ void GameState::handleEvent(sf::Event& event, sf::RenderWindow& window) {
                 if (wasJPressed) {
                     player->setShooting(false); // Clear arrows when spacebar is released
                     wasJPressed = false;
+
+                }
+                if (wasSpacePressed) {
                     wasSpacePressed = false;
                 }
                 isFighting = false;

@@ -101,11 +101,11 @@ void Enemy::handleMovement(std::shared_ptr<Map> gameMap, std::shared_ptr<Charact
     // Calculate the normalized direction vector
 
     float magnitude = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-    if (magnitude > 250 && enemyType != EnemyType::Dragon1 && enemyType != EnemyType::Mage && enemyType != EnemyType::Medusa) {
+    if (magnitude > 272 && enemyType != EnemyType::Dragon1 && enemyType != EnemyType::Mage && enemyType != EnemyType::Medusa) {
         //randomPatrol(gameMap);
         return;
     }
-    else if (magnitude > 400) {
+    else if (magnitude > 432) {
         return;
     }
     if (magnitude == 0) return; // Prevent division by zero

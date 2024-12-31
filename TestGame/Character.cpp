@@ -293,7 +293,7 @@ void Character::updateState(bool fighting, int num, WeaponType weaponType, int c
         isFighting = fighting;
         if (isFighting) {
             if (weaponType == WeaponType::Sword) {
-                loadTexture("../Assets/Character/Textures/slash1.png", true, num, sprite.getPosition().x, sprite.getPosition().y);
+                loadTexture("../Assets/Character/Textures/slash.png", true, num, sprite.getPosition().x, sprite.getPosition().y);
             }
             else if (weaponType == WeaponType::Spear) {
                 cout << "Fight Weapon Spear" << endl;
@@ -420,7 +420,7 @@ void Character::drawTo(sf::RenderWindow& window) const {
 }
 void Character::fightSkill() {
     if (!isUsingSkill) return;
-    if (skillDuration.getElapsedTime().asSeconds() > 2.0f) {
+    if (skillDuration.getElapsedTime().asSeconds() > 3.0f) {
         // Skill duration has ended, hide the skill and reset
         skillSprite.setPosition(-1000, -1000);  
         isUsingSkill = false;// Move out of screen

@@ -19,7 +19,7 @@ MenuState::MenuState(const std::string& backgroundTextureFile, Callback chooseCh
 
     backgroundSprite.setScale(scaleX, scaleY);
     audioManager.playMusic(currentMusicFile, true);
-    buttons.push_back(std::make_shared<Button>("../Assets/Menu/play_button.png", sf::Vector2f(600, 850)));
+    buttons.push_back(std::make_shared<Button>("../Assets/Menu/play_button.png", sf::Vector2f(600, 550)));
     this->chooseCharacterCallback = chooseCharacterCallback;
 }
 

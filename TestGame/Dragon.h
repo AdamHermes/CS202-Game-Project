@@ -46,7 +46,7 @@ public:
     }
 
     Dragon(sf::Vector2f spawnPosition, int t) : Enemy(EnemyType::Dragon1) {
-        health = 120;
+        health = 80;
         totalFrames = 3;
         frameDuration = 0.15f;
         attackCooldown = 0.75f;

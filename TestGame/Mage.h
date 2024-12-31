@@ -79,7 +79,7 @@ public:
     }
 
     Mage(sf::Vector2f spawnPosition) : Enemy(EnemyType::Mage) {
-        health = 150;
+        health = 100;
         totalFrames = 8;
         frameDuration = 0.15f;
         attackCooldown = 0.8f;
